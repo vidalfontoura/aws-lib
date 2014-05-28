@@ -17,6 +17,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Module searches a pool of available EIP's and associates one to
+ *  the instance of the current application
+ *
+ * @author darrenbathgate
+ *
+ */
 public class EipAssociationModule extends AbstractModule{
 
     private static final Logger logger = LoggerFactory.getLogger(EipAssociationModule.class);

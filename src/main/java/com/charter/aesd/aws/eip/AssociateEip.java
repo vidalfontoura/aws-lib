@@ -48,6 +48,13 @@ public class AssociateEip {
 
         final List<Address> addresses = result.getAddresses();
 
+        for (Address address : addresses) {
+            if (instanceId.equals(address.getInstanceId())) {
+                logger.warn("Instance ID " + instanceId + " already has an EIP of " + address.getPublicIp());
+                return;
+            }
+        }
+
         final ArrayList<Address> filteredAddresses = Lists.newArrayList(Iterables.filter(addresses, new EipAvailabilityPredicate()));
 
         Preconditions.checkArgument(filteredAddresses.size() > 0, "At least one EIP from the pool needs to be available for use");

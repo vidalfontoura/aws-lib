@@ -61,7 +61,7 @@ public class AssociateEip {
 
         final Address targetAddress = filteredAddresses.get(0);
 
-        logger.info("Associating EIP[" + targetAddress.getPublicIp() + " to instance[" + instanceId + "]");
+        logger.info("Associating EIP[" + targetAddress.getPublicIp() + "] to instance[" + instanceId + "]");
 
         final AssociateAddressRequest associateAddressRequest = new AssociateAddressRequest(instanceId, targetAddress.getPublicIp());
         client.associateAddress(associateAddressRequest);

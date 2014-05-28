@@ -36,6 +36,7 @@ public class EipAssociationModule extends AbstractModule{
     public EipAssociationModule() {
         dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
     }
+
     @Override
     protected void configure() {
         final EipPoolLookup eipPoolLookup = new EipPoolLookup(dynamicPropertyFactory.getStringProperty(EIP_TXT_RECORD_PROP_NAME, ""));
@@ -50,7 +51,7 @@ public class EipAssociationModule extends AbstractModule{
             final AssociateEip associateEip = new AssociateEip(client, eipPoolLookup);
             associateEip.associate();
         }catch (Exception ex){
-            logger.error("Failed to associate a EIP address", ex);
+            logger.error("Failed to associate an EIP address", ex);
             throw new IllegalStateException(ex);
         }
     }

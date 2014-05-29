@@ -31,13 +31,14 @@ Number of EIP's should be at least 2 times the amount of actively running EC2 in
 <br /><br />
 
 Create a DNS TXT record containing using the following format:
-<pre>
+```
 txt.${archaius.deployment.applicationId}.${archaius.deployment.region}.${aesd.archaius.deployment.domain}
-</pre>
+```
+<br />
 Containing space delimited EIP addresses wrapped in quotes
 <br />
 
 Example
-<pre>
+```
 txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
-</pre>
+```

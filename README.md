@@ -24,6 +24,8 @@ Bind the following module to the Bootstrap class
 binder.install(new EipAssociationModule());
 </pre>
 
+### Configuring EIP Pool
+
 Allocate XX amount of Elastic IP addresses for use with the target application. 
 Number of EIP's should be at least 2 times the amount of actively running EC2 instances to compensate deployment.
 <br /><br />
@@ -47,7 +49,7 @@ txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
 
 ### IAM Policy
 The EC2 instance using this module will require ec2:AssociateAddress and ec2:DescribeAddresses permissions in IAM
-<pre>
+<code>
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -64,4 +66,4 @@ The EC2 instance using this module will require ec2:AssociateAddress and ec2:Des
     }
   ]
 }
-</pre>
+</code>

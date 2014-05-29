@@ -36,7 +36,6 @@ Create a DNS TXT record containing using the following format:
 ```
 txt.${archaius.deployment.applicationId}.${archaius.deployment.region}.${aesd.archaius.deployment.domain}
 ```
-<br />
 
 Containing space delimited EIP addresses wrapped in quotes
 <br />

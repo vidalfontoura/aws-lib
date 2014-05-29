@@ -41,7 +41,6 @@ Containing space delimited EIP addresses wrapped in quotes
 <br />
 
 ### Example:
-<br />
 
 ```
 txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
@@ -49,7 +48,7 @@ txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
 
 ### IAM Policy
 The EC2 instance using this module will require ec2:AssociateAddress and ec2:DescribeAddresses permissions in IAM
-<code>
+```
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -66,4 +65,4 @@ The EC2 instance using this module will require ec2:AssociateAddress and ec2:Des
     }
   ]
 }
-</code>
+```

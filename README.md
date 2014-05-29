@@ -48,21 +48,3 @@ txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
 
 ### IAM Policy
 The EC2 instance using this module will require ec2:AssociateAddress and ec2:DescribeAddresses permissions in IAM
-```
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Stmt1401322304000",
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AssociateAddress",
-        "ec2:DescribeAddresses"
-      ],
-      "Resource": [
-        "*"
-      ]
-    }
-  ]
-}
-```

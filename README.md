@@ -24,13 +24,11 @@ Bind the following module to the Bootstrap class
 binder.install(new EipAssociationModule());
 </pre>
 
-Allocate XX amount of Elastic IP addresses for use with the target application.
-<br />
-
+Allocate XX amount of Elastic IP addresses for use with the target application. 
 Number of EIP's should be at least 2 times the amount of actively running EC2 instances to compensate deployment.
 <br /><br />
 
-Create a DNS TXT record containing using the following format:
+Create a DNS TXT record using the following format:
 <br />
 
 ```
@@ -40,9 +38,30 @@ txt.${archaius.deployment.applicationId}.${archaius.deployment.region}.${aesd.ar
 Containing space delimited EIP addresses wrapped in quotes
 <br />
 
-Example:
+### Example:
 <br />
 
 ```
 txt.helloworld.us-west-2.dev-charter.net. TXT "11.22.33.44" "55.66.77.88"
 ```
+
+### IAM Policy
+The EC2 instance using this module will require ec2:AssociateAddress and ec2:DescribeAddresses permissions in IAM
+<pre>
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1401322304000",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AssociateAddress",
+        "ec2:DescribeAddresses"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+</pre>

@@ -80,7 +80,7 @@ S3Client client = new S3Client.Builder(S3AuthType.PROFILE).setProfileName("my-pr
 Usage with a profile name, and config path:
 <br />
 ```
-S3Client client = new S3Client.Builder(S3AuthType.INSTANCE_ROLE).setProfileName("my-profile").setProfileConfigFilePath("/etc/.aws-credentials").build();
+S3Client client = new S3Client.Builder(S3AuthType.PROFILE).setProfileName("my-profile").setProfileConfigFilePath("/etc/aws-credentials").build();
 ```
 
 ### S3 Profile Config File

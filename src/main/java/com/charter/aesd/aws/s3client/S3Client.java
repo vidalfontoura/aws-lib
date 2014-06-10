@@ -263,7 +263,7 @@ public class S3Client implements IS3Client {
          *  with an auth type of {@link S3AuthType#PROFILE}
          * <br /><br />
          * 
-         * Default behavior is to load from the environment variable <code>AWS_CREDENTIAL_PROFILES_FILE</code>
+         * Default behavior loads the profile config from <code>~/.aws/credentials</code>
          *
          * @param profileConfigFilePath
          * @return {@link Builder}

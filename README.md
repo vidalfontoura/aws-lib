@@ -56,6 +56,7 @@ Uses an instance profile IAM to authenticate and access an S3 bucket
 <br />
 
 Usage:
+<br />
 ```
 S3Client client = new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build();
 ```
@@ -65,16 +66,19 @@ Uses a profile config file to load AWS credentials for accessing an S3 bucket
 <br />
 
 Usage:
+<br />
 ```
 S3Client client = new S3Client.Builder(S3AuthType.PROFILE).build();
 ```
 
 Usage with a profile name:
+<br />
 ```
 S3Client client = new S3Client.Builder(S3AuthType.PROFILE).setProfileName("my-profile").build();
 ```
 
 Usage with a profile name, and config path:
+<br />
 ```
 S3Client client = new S3Client.Builder(S3AuthType.INSTANCE_ROLE).setProfileName("my-profile").setProfileConfigFilePath("/etc/.aws-credentials").build();
 ```
@@ -88,10 +92,11 @@ The default location for a profile config file is in the home directory
 ```
 
 Config file format:
-[default]
-aws_access_key_id=testAccessKey
-aws_secret_access_key=testSecretKey
-
-[my-profile]
-aws_access_key_id=testAccessKey
-aws_secret_access_key=testSecretKey
+<br />
+[default]<br />
+aws_access_key_id=testAccessKey<br />
+aws_secret_access_key=testSecretKey<br />
+<br />
+[my-profile]<br />
+aws_access_key_id=testAccessKey<br />
+aws_secret_access_key=testSecretKey<br />

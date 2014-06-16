@@ -220,6 +220,7 @@ public class S3Client implements IS3Client {
         private S3AuthType authType;
         private String profileName;
         private String profileConfigFilePath;
+        private ClientConfiguration config;
 
         /**
          * Constructor for {@link S3AuthType}
@@ -227,8 +228,8 @@ public class S3Client implements IS3Client {
          * @param authType {@link S3AuthType}
          */
         public Builder(S3AuthType authType) {
-
             this.authType = authType;
+            this.config = new ClientConfiguration();
         }
 
         /**
@@ -274,14 +275,25 @@ public class S3Client implements IS3Client {
             return this;
         }
 
+        /**
+         * Sets the {@link ClientConfiguration} used to configure the {@link AmazonS3Client}
+         *
+         * @param config {@link ClientConfiguration}
+         * @return {@link Builder}
+         */
+        public Builder setConfig(ClientConfiguration config) {
+            this.config = config;
+            return this;
+        }
+
         public S3Client build() {
 
             if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(), getConfiguration()));
+                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(), config));
             }
 
             if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(profileName), getConfiguration()));
+                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(profileName), config));
             }
 
             if (this.authType == S3AuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
@@ -292,7 +304,7 @@ public class S3Client implements IS3Client {
             }
 
             if (this.authType == S3AuthType.INSTANCE_ROLE) {
-                return new S3Client(new AmazonS3Client(new InstanceProfileCredentialsProvider(), getConfiguration()));
+                return new S3Client(new AmazonS3Client(new InstanceProfileCredentialsProvider(), config));
             }
 
             throw new IllegalStateException("Invalid S3Client configuration");
@@ -314,8 +326,6 @@ public class S3Client implements IS3Client {
             String proxyPort = System.getProperty("http.proxyPort");
             String proxyUserName = System.getProperty("http.proxyUser");
             String proxyUserPasswd = System.getProperty("http.proxyPassword");
-            
-            ClientConfiguration config = new ClientConfiguration();
 
             if(proxyHost != null) {
                 config.setProxyHost(proxyHost);

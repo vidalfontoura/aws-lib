@@ -103,4 +103,7 @@ aws_secret_access_key=testSecretKey<br />
 
 ### SQS Demo Assembly
 Run mvn clean assembly:assembly to generate a zip that can be distributed with the SQS demo
-
+Access Key ID:
+AKIAJIMGRSO57DQNF2HQ
+Secret Access Key:
+oMczkgEWU5WO073vpiTBo9D0Bd0hFr9m88Sm2v8K

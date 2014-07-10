@@ -120,11 +120,11 @@ EXEDIR=`dirname $0`
 BASEEXEDIR=`dirname $EXEDIR`
 
 if [ -z $AWS_ACCESS_KEY ]; then
-  AWS_ACCESS_KEY=accessKey
+  AWS_ACCESS_KEY=AKIAJIMGRSO57DQNF2HQ
 fi
 
 if [ -z $AWS_SECRET_KEY ]; then
-  AWS_SECRET_KEY=secretKey
+  AWS_SECRET_KEY=oMczkgEWU5WO073vpiTBo9D0Bd0hFr9m88Sm2v8K
 fi
 
 APP_CLSPATH+=${BASEEXEDIR}/lib/classes

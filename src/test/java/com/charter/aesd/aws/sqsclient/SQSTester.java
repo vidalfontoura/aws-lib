@@ -2,6 +2,7 @@ package com.charter.aesd.aws.sqsclient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
@@ -11,6 +12,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.*;
+import com.google.inject.Guice;
 
 /**
  * Very simple SQS test / demo class.
@@ -48,7 +50,7 @@ public class SQSTester {
   private final static int DEFAULT_SLEEP_INTERVAL_MS = 2000;
   private final static String ENTITLEMENT_MESSAGE = "{\n" +
                                                     "  \"MessageId\": \"{messageId}\",\n" +
-                                                    "  \"MessageType\": \"Entitlements\",\n" +
+                                                    "  \"MessageName\": \"VideoEntitlements\",\n" +
                                                     "  \"AccountNumber\":  [\"80092320357266\"],\n" +
                                                     "  \"LastModified\": \"2014-11-05T08:15:30-05:00\n" +
                                                     "}";
@@ -82,7 +84,7 @@ public class SQSTester {
 
     final AWSCredentials credentials = new BasicAWSCredentials(accessKey,
                                                                secretKey);
-    final List<String> msgQueue = new ArrayList<>();
+    final List<String> msgQueue = new ArrayList<String>();
 
     AmazonSQS sqsClient=null;
     String queueUrl=null;
@@ -104,8 +106,8 @@ public class SQSTester {
       }
 
       for (int msgNum=0; msgNum < numMessages; msgNum++) {
-        msgQueue.add(ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}",
-                                                    Integer.toString(msgNum)));
+        msgQueue.add(ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", 
+        		UUID.randomUUID().toString()));
       }
 
       System.out.println("Sending " +
@@ -115,30 +117,28 @@ public class SQSTester {
 
       // Send the messages
       for (String msg : msgQueue) {
-        sqsClient.sendMessage(new SendMessageRequest(queueUrl,
-                                                     msg));
-
+        sqsClient.sendMessage(new SendMessageRequest(queueUrl, msg));
         System.out.println("SENT Message " + msg);
       }
 
       System.out.println("Send COMPLETE, sleeping for " + DEFAULT_SLEEP_INTERVAL_MS + "ms");
 
+      
+      
+      
+      
+      
+      
       // Typically the producer would move onto other work here ....
-      long sleepTime=DEFAULT_SLEEP_INTERVAL_MS;
-      long startTime=System.currentTimeMillis();
+      Thread.sleep(DEFAULT_SLEEP_INTERVAL_MS);
+      
+      
+      
+      
+      
+      
 
-      while (true) {
-        try {
-          Thread.sleep(sleepTime);
-
-          break;
-        } catch (Exception e) {
-          // re-sleep
-          sleepTime=(startTime + DEFAULT_SLEEP_INTERVAL_MS) - System.currentTimeMillis();
-        }
-      }
-
-      // We are just going to read the messages back in from the Q
+      // We are just going to read the messages back in from the Queue
       System.out.println("INITIATING Message Consumption");
       try {
         ReceiveMessageResult result=null;
@@ -152,12 +152,12 @@ public class SQSTester {
           if (!result.getMessages().isEmpty()) {
             m=result.getMessages().get(0);
 
-            // Make sure we got the message we were expecting
+            // Processing the message
             String content=m.getBody();
-            System.out.println("RECV Message " + content);
-
-            sqsClient.deleteMessage(new DeleteMessageRequest(queueUrl,
-                                                             m.getReceiptHandle()));
+            process(content);
+            
+            //Delete message
+            sqsClient.deleteMessage(new DeleteMessageRequest(queueUrl, m.getReceiptHandle()));
 
             if (++msgsRead == numMessages) {
               break;
@@ -183,4 +183,8 @@ public class SQSTester {
 
     System.exit(rc);
   }
+
+    private static void process(String content) {
+        System.out.println("RECV Message " + content);
+    }
 }

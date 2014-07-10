@@ -1,0 +1,65 @@
+Creating Queue SQSTestQueue1405006642468 at sqs.us-east-1.amazonaws.com
+Sending 5 to Queue, endpoint=https://sqs.us-east-1.amazonaws.com/924013738678/SQSTestQueue1405006642468
+SENT Message {
+  "MessageId": "0",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+SENT Message {
+  "MessageId": "1",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+SENT Message {
+  "MessageId": "2",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+SENT Message {
+  "MessageId": "3",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+SENT Message {
+  "MessageId": "4",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+Send COMPLETE, sleeping for 2000ms
+INITIATING Message Consumption
+RECV Message {
+  "MessageId": "2",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+RECV Message {
+  "MessageId": "4",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+RECV Message {
+  "MessageId": "3",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+RECV Message {
+  "MessageId": "0",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+RECV Message {
+  "MessageId": "1",
+  "MessageType": "Entitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+COMPLETED SUCCESSFULLY

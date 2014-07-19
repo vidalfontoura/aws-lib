@@ -63,7 +63,8 @@ public class AssociateEip {
 
         logger.info("Associating EIP[" + targetAddress.getPublicIp() + "] to instance[" + instanceId + "]");
 
-        final AssociateAddressRequest associateAddressRequest = new AssociateAddressRequest(instanceId, targetAddress.getPublicIp());
+        final AssociateAddressRequest associateAddressRequest = new AssociateAddressRequest();
+        associateAddressRequest.setInstanceId(instanceId);
         associateAddressRequest.setAllocationId(targetAddress.getAllocationId());
         client.associateAddress(associateAddressRequest);
     }

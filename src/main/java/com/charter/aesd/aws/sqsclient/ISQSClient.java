@@ -18,6 +18,31 @@ import java.util.List;
  * @since ${date}
  */
 public interface ISQSClient {
+
+    /**
+     * @param queueName {@code String} the name used by the Queue creation
+     *                                 that resolves to the Queue instance in
+     *                                 the Service Provider space.
+     *
+     * @return (@code Boolean} true - If there is an existing Queue with the specified name
+     *                         false - No Queue by that name exists in the Service
+     *                                 Provider Space
+     */
+    boolean isQueueExists(String queueName);
+
+    /**
+     * Resolve the URL to use for an existng Queue
+     *
+     * @param queueName {@code String} the name of the Queue to lookup.
+     *                                 Should follow Service Provider naming conventions
+     *
+     * @return {@code String} the URL to use to reference the Queue in
+     *                        subsequent calls
+     *
+     * @throws IOException
+     */
+    String resolveQueueUrl(String queueName);
+
     /**
      * Create a new Message Queue in the service provider space.
      *
@@ -30,8 +55,7 @@ public interface ISQSClient {
      *
      * @throws IOException
      */
-    String createQueue(String queueName)
-                    throws IOException;
+    String createQueue(String queueName) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
@@ -40,8 +64,7 @@ public interface ISQSClient {
      *
      * @throws IOException
      */
-    void deleteQueue(String queueUrl)
-                    throws IOException;
+    void deleteQueue(String queueUrl)throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
@@ -58,6 +81,15 @@ public interface ISQSClient {
      * @param queueUrl {@code String} the url returned by the Queue creation
      *                                that resolves to the Queue instance in
      *                                the Service Provider space.
+     *
+     * @return (@code int} the current Queue depth
+     */
+    int getPendingMessageCount(String queueUrl);
+
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the Service Provider space.
      * @param content {@code String} The content to be included as the body in
      *                               the message sent to the Queue.  The content
      *                               may be enveloped by the Service Provider, but
@@ -67,8 +99,7 @@ public interface ISQSClient {
      * @throws IOException
      */
     void sendMessage(String queueUrl,
-                     String content)
-                    throws IOException;
+                     String content) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
@@ -86,8 +117,7 @@ public interface ISQSClient {
      *
      * @throws IOException
      */
-    String receiveMessage(String queueUrl)
-                    throws IOException;
+    String receiveMessage(String queueUrl) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
@@ -105,6 +135,5 @@ public interface ISQSClient {
      *
      * @throws IOException
      */
-    List<String> receiveMessages(String queueUrl)
-                    throws IOException;
+    List<String> receiveMessages(String queueUrl) throws IOException;
 } // ISQSClient

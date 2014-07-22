@@ -1,9 +1,14 @@
 package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.auth.profile.ProfilesConfigFile;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.*;
+import com.charter.aesd.aws.s3client.enums.S3AuthType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,8 +29,12 @@ import java.util.List;
  * @version $Rev: $
  * @since ${date}
  */
-public class SQSClient
-                implements ISQSClient {
+public class SQSClient implements ISQSClient {
+    /**
+     *
+     */
+    private final static String QUEUE_DEPTH_ATTR_NAME = "ApproximateNumberOfMessages";
+    private final int MAX_NUM_MESSAGES_CHUNK = 10;  // Max Allowed by Amazon SQS
 
     /**
      * local ref to the AWS API
@@ -52,6 +61,52 @@ public class SQSClient
     }
 
     /**
+     * @param queueName {@code String} the name used by the Queue creation
+     *                                 that resolves to the Queue instance in
+     *                                 the Service Provider space.
+     *
+     * @return (@code Boolean} true - If there is an existing Queue with the specified name
+     *                         false - No Queue by that name exists in the Service
+     *                                 Provider Space
+     */
+    @Override
+    public boolean isQueueExists(final String queueName) {
+        boolean bFound = true;
+
+        try {
+            getClient().getQueueUrl(queueName);
+        } catch(QueueDoesNotExistException e) {
+            bFound = false;
+        }
+
+        return bFound;
+    }
+
+    /**
+     * Resolve the URL to use for an existng Queue
+     *
+     * @param queueName {@code String} the name of the Queue to lookup.
+     *                                 Should follow Service Provider naming conventions
+     *
+     * @return {@code String} the URL to use to reference the Queue in
+     *                        subsequent calls
+     *
+     * @throws IOException
+     */
+    @Override
+    public String resolveQueueUrl(final String queueName) {
+        String qUrl = null;
+        try {
+            GetQueueUrlResult qResult = getClient().getQueueUrl(queueName);
+            qUrl = (qResult == null) ? null : qResult.getQueueUrl();
+        } catch(QueueDoesNotExistException e) {
+
+        }
+
+        return qUrl;
+    }
+
+    /**
      * Create a new Message Queue in the attached AWS Account.
      *
      * @param queueName {@code String} the name to assign to the
@@ -64,8 +119,7 @@ public class SQSClient
      * @throws IOException
      */
     @Override
-    public String createQueue(final String queueName)
-                    throws IOException {
+    public String createQueue(final String queueName) throws IOException {
 
         return getClient().createQueue(new CreateQueueRequest().withQueueName(queueName)).getQueueUrl();
     }
@@ -78,8 +132,7 @@ public class SQSClient
      * @throws IOException
      */
     @Override
-    public void deleteQueue(final String queueUrl)
-                    throws IOException {
+    public void deleteQueue(final String queueUrl) throws IOException {
 
         getClient().deleteQueue(queueUrl);
     }
@@ -95,14 +148,34 @@ public class SQSClient
      */
     @Override
     public boolean hasPendingMessages(final String queueUrl) {
+        return getPendingMessageCount(queueUrl) > 0;
+    }
 
-        ReceiveMessageResult result = getClient().receiveMessage(queueUrl);
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the AWS space.
+     *
+     * @return (@code int} the current Queue depth
+     *
+     */
+    @Override
+    public int getPendingMessageCount(final String queueUrl) {
 
-        java.util.List<Message> msgs = (result == null)
-                        ? new ArrayList<Message>(0)
-                        : result.getMessages();
+        List<String> attrs = new ArrayList<String>();
+        attrs.add(QUEUE_DEPTH_ATTR_NAME);
 
-        return !msgs.isEmpty();
+        GetQueueAttributesResult result = getClient().getQueueAttributes(queueUrl,
+                                                                         attrs);
+
+        int msgCnt = 0;
+        try {
+            msgCnt = Integer.parseInt(result.getAttributes().get(QUEUE_DEPTH_ATTR_NAME));
+        } catch(Exception e) {
+
+        }
+
+        return msgCnt;
     }
 
     /**
@@ -119,8 +192,7 @@ public class SQSClient
      */
     @Override
     public void sendMessage(final String queueUrl,
-                            final String content)
-                    throws IOException {
+                            final String content) throws IOException {
 
         getClient().sendMessage(new SendMessageRequest(queueUrl,
                         content));
@@ -142,8 +214,7 @@ public class SQSClient
      * @throws IOException
      */
     @Override
-    public String receiveMessage(final String queueUrl)
-                    throws IOException {
+    public String receiveMessage(final String queueUrl) throws IOException {
 
         ReceiveMessageResult result = getClient().receiveMessage(queueUrl);
 
@@ -173,25 +244,31 @@ public class SQSClient
      * @throws IOException
      */
     @Override
-    public List<String> receiveMessages(final String queueUrl)
-                    throws IOException {
+    public List<String> receiveMessages(final String queueUrl) throws IOException {
 
-        ReceiveMessageResult result = getClient().receiveMessage(queueUrl);
+        // Drain the queue...
+        // ToDo :: implement a threshold here
+        List<String> contentMsgs = new ArrayList<String>();
+        while(getPendingMessageCount(queueUrl) > 0) {
+            ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+            request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK);
 
-        java.util.List<Message> msgs = (result == null)
-                        ? new ArrayList<Message>(0)
-                        : result.getMessages();
-        if (msgs.isEmpty()) {
-            return null;
-        }
+            ReceiveMessageResult result = getClient().receiveMessage(request);
 
-        List<String> contentMsgs = new ArrayList<String>(msgs.size());
-        for (Message msg : msgs) {
-            if (msg == null) {
+            java.util.List<Message> msgs = (result == null)
+                            ? new ArrayList<Message>(0)
+                            : result.getMessages();
+            if (msgs.isEmpty()) {
                 continue;
             }
 
-            contentMsgs.add(msg.getBody());
+            for (Message msg : msgs) {
+                if (msg == null) {
+                    continue;
+                }
+
+                contentMsgs.add(msg.getBody());
+            }
         }
 
         return contentMsgs;
@@ -206,6 +283,8 @@ public class SQSClient
          *
          */
         private ClientConfiguration _config = null;
+        private String _profileName;
+        private String _profileConfigFilePath;
 
         /**
          *
@@ -213,6 +292,53 @@ public class SQSClient
         public Builder() {
 
             _config = new ClientConfiguration();
+        }
+
+        /**
+         *
+         * @return {@code String} The profile to use for credential resolution
+         */
+        public String getProfileName() {
+
+            return _profileName;
+        }
+
+        /**
+         * Sets the name of the profile specified in the profile config
+         * <br /><br />
+         * Default value is <code>"default"</code>
+         *
+         * @param profileName
+         * @return {@link Builder}
+         */
+        public Builder setProfileName(String profileName) {
+
+            _profileName = profileName;
+            return this;
+        }
+
+        /**
+         *
+         * @return {@code String} The path of the AWS credentials file
+         */
+        public String getProfileConfigFilePath() {
+
+            return _profileConfigFilePath;
+        }
+
+        /**
+         * Sets the physical location of the profile config
+         * <br /><br />
+         *
+         * Default behavior loads the profile config from <code>~/.aws/credentials</code>
+         *
+         * @param profileConfigFilePath
+         * @return {@link Builder}
+         */
+        public Builder setProfileConfigFilePath(String profileConfigFilePath) {
+
+            _profileConfigFilePath = profileConfigFilePath;
+            return this;
         }
 
         /**
@@ -230,11 +356,6 @@ public class SQSClient
             return this;
         }
 
-        public SQSClient build() {
-
-            return new SQSClient(new AmazonSQSClient(getConfiguration()));
-        }
-
         /**
          * Creates a {@code ClientConfiguration} object using the System properties for {@code http.proxyHost} and
          * {@code http.proxyPort}. To leverage this both host and port must be set using the -D args (i.e., {@code
@@ -243,7 +364,7 @@ public class SQSClient
          *
          * @return A {@ClientConfiguration}. Never {@code null}.
          */
-        public ClientConfiguration getConfiguration() {
+        public ClientConfiguration getConfig() {
 
             String proxyHost = System.getProperty("http.proxyHost");
             String proxyPort = System.getProperty("http.proxyPort");
@@ -267,6 +388,30 @@ public class SQSClient
             }
 
             return _config;
+        }
+
+        /**
+         *
+         * @return
+         */
+        public SQSClient build() {
+
+            if (_profileConfigFilePath == null) {
+                if (_profileName == null) {
+                    return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(),
+                                         getConfig()));
+                } else {
+                    return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(_profileName),
+                                        getConfig()));
+                }
+            } else if (_profileName != null) {
+                // Have both a profile name and a config location
+                return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(new ProfilesConfigFile(getProfileConfigFilePath()),
+                                                                                       getProfileName()),
+                                     getConfig()));
+            }
+
+            return new SQSClient(new AmazonSQSClient(getConfig()));
         }
     }
 } // SQSClient

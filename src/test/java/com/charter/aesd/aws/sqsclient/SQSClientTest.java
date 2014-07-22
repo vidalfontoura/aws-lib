@@ -1,88 +1,244 @@
-/* @@_BEGIN: COPYRIGHT ----------------------------------------------------- */
-///////////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2001-@YEAR@ @COMPANY@
-// ----------------------------------------------------------------------------
-//
-//  @COMPANY@ makes no warranty of any kind with regard to this material,
-//  including, but not limited to, the implied warranties of merchantabillity
-//  and fitness for a particular purpose.
-//
-//  @COMPANY@ shall not be liable for errors contained herein or for incidental
-//  or consequential damages in connection with the furnishing, performance, or
-//  use of this material.
-//
-//  @COMPANY@ assumes no responsibility for the use reliability of
-//  interconnected equipment that is not furnished by them.
-//
-//  This document contains proprietary information which is protected by
-//  copyright.  All rights are reserved. No part of this document may be
-//  photocopied, reproduced, or translated to another language without the
-//  prior written consent of @COMPANY@.
-//
-//  The information contained herein has been prepared by @COMPANY@ solely
-//  for use by @COMPANY@, its employees, agents and customers.  Dissemination
-//  of the information and/or concepts contained herein to other parties is
-//  prohibited without the prior written consent of @COMPANY@
-//
-///////////////////////////////////////////////////////////////////////////////
-/* @@_END: COPYRIGHT ------------------------------------------------------- *//* @@_BEGIN: REVISION HISTORY ---------------------------------------------- */
-///////////////////////////////////////////////////////////////////////////////
-// ----------------------------------------------------------------------------
-//  REVISION HISTORY
-// ----------------------------------------------------------------------------
-// 2014-07-21  10:12  matthewsmith  Created
-// ----------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
-/* @@_END: REVISION HISTORY ------------------------------------------------ */
 package com.charter.aesd.aws.sqsclient;
-/* @@_BEGIN: IMPORTS ------------------------------------------------------- */
-import com.incursiontech.se.oamp.logging.ILogger;
-import com.incursiontech.se.oamp.logging.LogUtils;
-/* @@_END: IMPORTS --------------------------------------------------------- */
 
-/* @@_BEGIN: CLASS DEFINITION ---------------------------------------------- */
+import java.io.IOException;
+import java.util.ArrayList;
+
+import junit.framework.Assert;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * ---------------------------------------------------------------------------- $Id: $
- * ----------------------------------------------------------------------------
- * <p/>
- * User: matthewsmith Date: 7/21/14 Time: 10:12 AM
  *
- * @author $Author: $
- * @version $Rev: $
- * @since ${date}
  */
 public class SQSClientTest {
-  /* @@_BEGIN: LOGGING ----------------------------------------------------- */
+    private final static String TEST_PROFILE_NAME = "sqsclient-test";
+    private final static String TEST_QUEUE_NAME = "SQSTest";
+    private final static String TEST_QUEUE_NOEXIST_NAME = "SQSTestNotExist";
+    private final static String TEST_MSG_CONTENT = "SQS Test Message";
 
-  /**
-   *
-   */
-  private final static ILogger _LOGGER
-    =LogUtils.getLogger(SQSClientTest.class);
-  /* @@_END: LOGGING ------------------------------------------------------- */
+    private SQSClient _client = null;
+    private String _queueUrl = null;
+    private String _queueName = null;
 
-  /* @@_BEGIN: STATICS ----------------------------------------------------- */
-  /* @@_END: STATICS ------------------------------------------------------- */
+    protected ISQSClient getClient() {
+        return _client;
+    }
 
-  /* @@_BEGIN: MEMBERS ----------------------------------------------------- */
-  /* @@_END: MEMBERS ------------------------------------------------------- */
+    protected String getQueueUrl() {
+        return _queueUrl;
+    }
+    protected void setQueueUrl(final String queueUrl) {
+        _queueUrl = queueUrl;
+    }
 
-  /* @@_BEGIN: CONSTRUCTION ------------------------------------------------ */
-  /* @@_END: CONSTRUCTION -------------------------------------------------- */
+    protected String getQueueName() {
+        return _queueName;
+    }
+    protected void setQueueName(final String queueName) {
+        _queueName = queueName;
+    }
 
-  /* @@_BEGIN: PROPERTIES -------------------------------------------------- */
-  /* @@_END: PROPERTIES ---------------------------------------------------- */
+    @Before
+    public void setUp() {
 
-  /* @@_BEGIN: METHODS ----------------------------------------------------- */
+        _client = new SQSClient.Builder()
+                        .setProfileName(TEST_PROFILE_NAME)
+                        .build();
 
-  /**
-   * @return
-   */
-  protected ILogger getLogger() {
-    return _LOGGER;
-  } // getLogger
-  /* @@_END: METHODS ------------------------------------------------------- */
-} // SQSClientTest
-/* @@_END: CLASS DEFINITION ------------------------------------------------ */
+        String qUrl = null;
+        try {
+            setQueueName(TEST_QUEUE_NAME + "-" + System.currentTimeMillis());
+
+            qUrl = _client.createQueue(getQueueName());
+            setQueueUrl(qUrl);
+        } catch(Exception e) {
+
+        }
+
+        if ((qUrl == null) ||
+            (qUrl.length() == 0)) {
+            // Illegal Queue URL
+            Assert.fail("Illegal Queue URL");
+        }
+
+        System.out.println("TESTING with Queue " + getQueueUrl());
+    }
+
+    @After
+    public void tearDown() {
+        ISQSClient client = getClient();
+        if (client != null) {
+
+            // Wait for the API ...
+            try {
+                client.deleteQueue(getQueueUrl());
+            } catch(Exception e) {
+                System.out.println("Queue " + getQueueUrl() + " DELETED");
+            }
+        }
+    }
+
+    @Test
+    public void testCreate() throws IOException {
+
+        ISQSClient client = getClient();
+
+        Assert.assertFalse(client.hasPendingMessages(getQueueUrl()));
+    }
+
+    @Test
+    public void testDestroy() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        // Queue should not exist ...
+        try {
+            client.deleteQueue(qUrl);
+        } catch(Exception e) {
+            Assert.fail("Delete of Queue FAILED::" + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSend() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        client.sendMessage(qUrl,
+                        TEST_MSG_CONTENT);
+
+        Assert.assertEquals(1,
+                            client.getPendingMessageCount(qUrl));
+    }
+
+    @Test
+    public void testNoPending() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        // Send a message, receive a message and then verify no pending
+        client.sendMessage(qUrl,
+                        TEST_MSG_CONTENT);
+        client.receiveMessage(qUrl);
+
+        Assert.assertFalse(client.hasPendingMessages(qUrl));
+    }
+
+    @Test
+    public void testPending() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        // Send a message and then verify pending
+        client.sendMessage(qUrl,
+                        TEST_MSG_CONTENT);
+
+        Assert.assertTrue(client.hasPendingMessages(qUrl));
+    }
+
+    @Test
+    public void testReceive() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        // Send a message, receive a message and then verify no pending
+        client.sendMessage(qUrl,
+                        TEST_MSG_CONTENT);
+        String recvdMsg = client.receiveMessage(qUrl);
+
+        Assert.assertEquals(TEST_MSG_CONTENT,
+                            recvdMsg);
+    }
+
+    @Test
+    public void testEmptyReceive() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        String recvdMsg = client.receiveMessage(qUrl);
+
+        Assert.assertEquals(null,
+                            recvdMsg);
+    }
+
+    @Test
+    public void testQueueDepth() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        int msgCnt = 0;
+        for (msgCnt = 0; msgCnt<5; msgCnt++) {
+            client.sendMessage(qUrl,
+                               TEST_MSG_CONTENT + "-" + System.currentTimeMillis());
+        }
+
+        Assert.assertEquals(msgCnt,
+                            client.getPendingMessageCount(qUrl));
+    }
+
+    @Test
+    public void testExistingQueueURL() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        Assert.assertEquals(qUrl,
+                            client.resolveQueueUrl(getQueueName()));
+    }
+
+    @Test
+    public void testQueueExists() throws IOException {
+
+        ISQSClient client = getClient();
+
+        Assert.assertTrue(client.isQueueExists(getQueueName()));
+    }
+
+    @Test
+    public void testQueueNotExists() throws IOException {
+
+        ISQSClient client = getClient();
+
+        Assert.assertFalse(client.isQueueExists(TEST_QUEUE_NOEXIST_NAME));
+    }
+
+    @Test
+    public void testMultipleSendAndReceive() throws IOException {
+
+        ISQSClient client = getClient();
+        String qUrl = getQueueUrl();
+
+        // Send in 10 messages and track the content
+        java.util.List<String> msgs = new ArrayList<String>(10);
+        for (int i=0; i<10; i++) {
+            String msgContent = TEST_MSG_CONTENT + "-" + i;
+            client.sendMessage(qUrl,
+                               msgContent);
+
+            msgs.add(msgContent);
+        }
+
+        // Now, drain the Q and verify all were received
+        java.util.List<String> recvdMsgs = client.receiveMessages(qUrl);
+
+        if ((recvdMsgs == null) ||
+            (recvdMsgs.size() != 10)) {
+            Assert.fail("Invalid Number of Messages Received");
+        }
+
+        for (String msg : recvdMsgs) {
+            msgs.remove(msg);
+        }
+
+        Assert.assertEquals(0,
+                            msgs.size());
+    }
+}

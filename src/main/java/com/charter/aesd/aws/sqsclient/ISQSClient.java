@@ -17,7 +17,8 @@ import java.util.List;
  * @version $Rev: $
  * @since ${date}
  */
-public interface ISQSClient {
+public interface ISQSClient
+  extends ISNSTopicListener {
 
     /**
      * @param queueName {@code String} the name used by the Queue creation
@@ -31,7 +32,7 @@ public interface ISQSClient {
     boolean isQueueExists(String queueName);
 
     /**
-     * Resolve the URL to use for an existng Queue
+     * Resolve the URL to use for an existing Queue
      *
      * @param queueName {@code String} the name of the Queue to lookup.
      *                                 Should follow Service Provider naming conventions

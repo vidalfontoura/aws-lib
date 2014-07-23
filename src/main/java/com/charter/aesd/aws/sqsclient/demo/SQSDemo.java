@@ -53,7 +53,7 @@ public class SQSDemo {
                     throws InterruptedException {
 
         if (args.length != 2) {
-            System.err.println("USAGE:  java om.charter.aesd.aws.sqsclient.SQSDemo <queueName> <numMessages>");
+            System.err.println("USAGE:  java com.charter.aesd.aws.sqsclient.SQSDemo <queueName> <numMessages>");
 
             System.exit(1);
         }

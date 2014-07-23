@@ -1,17 +1,21 @@
 package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.policy.Policy;
+import com.amazonaws.auth.policy.Principal;
+import com.amazonaws.auth.policy.Statement;
+import com.amazonaws.auth.policy.actions.SQSActions;
+import com.amazonaws.auth.policy.conditions.ArnCondition;
+import com.amazonaws.auth.policy.conditions.ConditionFactory;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.auth.profile.ProfilesConfigFile;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.*;
-import com.charter.aesd.aws.s3client.enums.S3AuthType;
+import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,6 +38,8 @@ public class SQSClient implements ISQSClient {
      *
      */
     private final static String QUEUE_DEPTH_ATTR_NAME = "ApproximateNumberOfMessages";
+    private final static String QUEUE_ARN_ATTR_NAME = "QueueArn";
+    private final static String QUEUE_SNS_ATTR_NAME = "Policy";
     private final int MAX_NUM_MESSAGES_CHUNK = 10;  // Max Allowed by Amazon SQS
 
     /**
@@ -46,13 +52,13 @@ public class SQSClient implements ISQSClient {
      *                                 connect the implementation to the
      *                                 specified AWS account.
      */
-    private SQSClient(final AmazonSQS client) {
+    protected SQSClient(final AmazonSQS client) {
 
         _awsSQSClient = client;
     }
 
     /**
-     * @return {@link AmazonSQS} local and dervied class handle to the
+     * @return {@link AmazonSQS} local and derived class handle to the
      *                           AWS API
      */
     protected AmazonSQS getClient() {
@@ -83,7 +89,7 @@ public class SQSClient implements ISQSClient {
     }
 
     /**
-     * Resolve the URL to use for an existng Queue
+     * Resolve the URL to use for an existing Queue
      *
      * @param queueName {@code String} the name of the Queue to lookup.
      *                                 Should follow Service Provider naming conventions
@@ -104,6 +110,72 @@ public class SQSClient implements ISQSClient {
         }
 
         return qUrl;
+    }
+
+    /**
+     * Resolve the ARN to use for an existing Queue
+     *
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the AWS space.
+     *
+     * @return {@code String} the ARN to use to reference the Queue in
+     *                        subsequent calls
+     *
+     * @throws IOException
+     */
+    public String resolveQueueARN(final String queueUrl) {
+        String qArn = null;
+
+        List<String> attrs = new ArrayList<String>();
+        attrs.add(QUEUE_ARN_ATTR_NAME);
+
+        GetQueueAttributesResult result = getClient().getQueueAttributes(queueUrl,
+                                                                         attrs);
+
+        java.util.Map<String, String> attrMap = null;
+        if ((result != null) &&
+            ((attrMap = result.getAttributes()) != null)) {
+            qArn = attrMap.get(QUEUE_ARN_ATTR_NAME);
+            System.out.println("Queue ARN is " + qArn);
+        }
+
+        return qArn;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void allowTopic(final String queueUrl,
+                           final String topicArn) {
+        java.util.Map attrs = new HashMap();
+
+        // I think the Java SDK has an issue with the Policy generation...
+        //  it generates actions as sqs:*, whereas the AWS Management
+        //  console generates them as SQS:*.  When the Actions are sqs:*,
+        //  no messages are passed, however, when they are SQS:*, all messages
+        //  flow as expected
+        attrs.put(QUEUE_SNS_ATTR_NAME,
+                  generateSqsPolicyForTopic(topicArn).toJson());
+
+        getClient().setQueueAttributes(queueUrl,
+                        attrs);
+    }
+
+    /**
+     *
+     */
+    protected Policy generateSqsPolicyForTopic(final String topicArn) {
+        Policy policy = new Policy().withStatements(
+            new Statement(Statement.Effect.Allow)
+                .withPrincipals(Principal.AllUsers)
+                .withActions(SQSActions.SendMessage)
+                .withConditions(new ArnCondition(ArnCondition.ArnComparisonType.ArnEquals,
+                                                 ConditionFactory.SOURCE_ARN_CONDITION_KEY,
+                                                 topicArn)));
+
+        return policy;
     }
 
     /**
@@ -277,141 +349,30 @@ public class SQSClient implements ISQSClient {
     /**
      * Builder class for constructing an instance of {@link SQSClient}
      */
-    public static class Builder {
-
-        /**
-         *
-         */
-        private ClientConfiguration _config = null;
-        private String _profileName;
-        private String _profileConfigFilePath;
+    public static class Builder
+        extends AbstractAWSClientBuilder<SQSClient> {
 
         /**
          *
          */
         public Builder() {
-
-            _config = new ClientConfiguration();
+            super();
         }
 
         /**
          *
-         * @return {@code String} The profile to use for credential resolution
-         */
-        public String getProfileName() {
-
-            return _profileName;
-        }
-
-        /**
-         * Sets the name of the profile specified in the profile config
-         * <br /><br />
-         * Default value is <code>"default"</code>
-         *
-         * @param profileName
-         * @return {@link Builder}
-         */
-        public Builder setProfileName(String profileName) {
-
-            _profileName = profileName;
-            return this;
-        }
-
-        /**
-         *
-         * @return {@code String} The path of the AWS credentials file
-         */
-        public String getProfileConfigFilePath() {
-
-            return _profileConfigFilePath;
-        }
-
-        /**
-         * Sets the physical location of the profile config
-         * <br /><br />
-         *
-         * Default behavior loads the profile config from <code>~/.aws/credentials</code>
-         *
-         * @param profileConfigFilePath
-         * @return {@link Builder}
-         */
-        public Builder setProfileConfigFilePath(String profileConfigFilePath) {
-
-            _profileConfigFilePath = profileConfigFilePath;
-            return this;
-        }
-
-        /**
-         * Sets the {@link ClientConfiguration} used to configure
-         *
+         * @param provider
          * @param config
-         *                 {@link ClientConfiguration}
-         *
-         * @return {@link Builder}
-         */
-        public Builder setConfig(ClientConfiguration config) {
-
-            _config = config;
-
-            return this;
-        }
-
-        /**
-         * Creates a {@code ClientConfiguration} object using the System properties for {@code http.proxyHost} and
-         * {@code http.proxyPort}. To leverage this both host and port must be set using the -D args (i.e., {@code
-         * -Dhttp.proxyHost=my.proxy.host.com -Dhttp.proxyPort=3128} and if auth is required {@code
-         * -Dhttp.proxyUser=username -Dhttp.proxyPassword=password1234}.
-         *
-         * @return A {@ClientConfiguration}. Never {@code null}.
-         */
-        public ClientConfiguration getConfig() {
-
-            String proxyHost = System.getProperty("http.proxyHost");
-            String proxyPort = System.getProperty("http.proxyPort");
-            String proxyUserName = System.getProperty("http.proxyUser");
-            String proxyUserPasswd = System.getProperty("http.proxyPassword");
-
-            if (proxyHost != null) {
-                _config.setProxyHost(proxyHost);
-            }
-
-            if (proxyPort != null) {
-                _config.setProxyPort(Integer.parseInt(proxyPort));
-            }
-
-            if (proxyUserName != null) {
-                _config.setProxyUsername(proxyUserName);
-            }
-
-            if (proxyUserPasswd != null) {
-                _config.setProxyPassword(proxyUserPasswd);
-            }
-
-            return _config;
-        }
-
-        /**
-         *
          * @return
          */
-        public SQSClient build() {
+        @Override
+        protected SQSClient allocateClient(final ProfileCredentialsProvider provider,
+                                           final ClientConfiguration config) {
 
-            if (_profileConfigFilePath == null) {
-                if (_profileName == null) {
-                    return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(),
-                                         getConfig()));
-                } else {
-                    return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(_profileName),
-                                        getConfig()));
-                }
-            } else if (_profileName != null) {
-                // Have both a profile name and a config location
-                return new SQSClient(new AmazonSQSClient(new ProfileCredentialsProvider(new ProfilesConfigFile(getProfileConfigFilePath()),
-                                                                                       getProfileName()),
-                                     getConfig()));
-            }
-
-            return new SQSClient(new AmazonSQSClient(getConfig()));
+            return (provider == null)
+                   ? new SQSClient(new AmazonSQSClient(getConfig()))
+                   : new SQSClient(new AmazonSQSClient(provider,
+                                                       getConfig()));
         }
     }
 } // SQSClient

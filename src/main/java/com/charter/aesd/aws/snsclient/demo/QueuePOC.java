@@ -174,6 +174,9 @@ public class QueuePOC {
                     }
 
                     String msg = _sqsClient.receiveMessage(_queueUrl);
+                    if (msg == null) {
+                        continue;
+                    }
 
                     process(msg);
                 } catch(Exception e) {

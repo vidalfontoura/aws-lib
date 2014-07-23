@@ -12,7 +12,6 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
-import com.amazonaws.services.sqs.model.DeleteQueueRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
@@ -21,15 +20,13 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
+import com.charter.aesd.aws.sqsclient.util.DefaultSNSSQSPolicy;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p/>
@@ -67,6 +63,7 @@ public class SQSClient implements ISQSClient {
     private final static String QUEUE_ARN_ATTR_NAME = "QueueArn";
     private final static String QUEUE_SNS_ATTR_NAME = "Policy";
     private final static int MAX_NUM_MESSAGES_CHUNK = 10;  // Max Allowed by Amazon SQS
+    private final static String DEFAULT_SNS_PUBLISH_POLICY_NAME = "DefaultSNSPolicy";
 
     /**
      * local ref to the AWS SQS API
@@ -81,6 +78,17 @@ public class SQSClient implements ISQSClient {
     protected SQSClient(final AmazonSQS client) {
 
         _awsSQSClient = client;
+    }
+
+    /**
+     *
+     */
+    protected ISQSPolicy allocateSQSTopicPolicy(final String name,
+                                                final String queueArn,
+                                                final String topicArn) {
+        return new DefaultSNSSQSPolicy(name,
+                                       queueArn,
+                                       topicArn);
     }
 
     /**
@@ -229,9 +237,14 @@ public class SQSClient implements ISQSClient {
         //  flow as expected
         // When the same permission is added to the SQS queue via AWS, the
         //   messages are published without issue
-        attrs.put(QUEUE_SNS_ATTR_NAME,
-                  generateSqsPolicyForTopic(topicArn).toJson());
+//        attrs.put(QUEUE_SNS_ATTR_NAME,
+//                  generateSqsPolicyForTopic(topicArn).toJson());
 
+        // Using this for now... JSON policy is working fine
+        attrs.put(QUEUE_SNS_ATTR_NAME,
+                  allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME,
+                                         resolveQueueARN(queueUrl),
+                                         topicArn).toJson());
         getClient().setQueueAttributes(queueUrl,
                                        attrs);
 
@@ -242,33 +255,6 @@ public class SQSClient implements ISQSClient {
                                           queueUrl +
                                           "]");
         }
-    }
-
-    /**
-     * @param topicArn {@code String} the arn returned by the Topic creation/attachment
-     *                                that resolves to the Topic instance in
-     *                                the AWS space.  This is the topic that needs to
-     *                                be allowed to send messages to the SQS instance.
-     */
-    protected Policy generateSqsPolicyForTopic(final String topicArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("generateSqsPolicyForTopic(" + topicArn + ")");
-        }
-
-        Policy policy = new Policy().withStatements(
-            new Statement(Statement.Effect.Allow)
-                .withPrincipals(Principal.AllUsers)
-                .withActions(SQSActions.SendMessage)
-                .withConditions(new ArnCondition(ArnCondition.ArnComparisonType.ArnEquals,
-                                                 ConditionFactory.SOURCE_ARN_CONDITION_KEY,
-                                                 topicArn)));
-
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Policy for topic[arn=" + topicArn +
-                                          "] is " + policy.toJson());
-        }
-
-        return policy;
     }
 
     /**

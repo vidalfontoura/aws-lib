@@ -145,7 +145,7 @@ public class SNSMultipleSQSDeliveryDemo {
 
         // Publish messages
         try {
-            while(true) {
+            for (int msgIdx=0; msgIdx<numMessages; msgIdx++) {
                 String msg = ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}",
                                                             UUID.randomUUID().toString());
                 snsClient.publishMessage(topicArn,

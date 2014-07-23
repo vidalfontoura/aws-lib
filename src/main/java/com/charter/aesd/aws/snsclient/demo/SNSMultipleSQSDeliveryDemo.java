@@ -3,6 +3,7 @@ package com.charter.aesd.aws.snsclient.demo;
 import com.charter.aesd.aws.snsclient.ISNSClient;
 import com.charter.aesd.aws.snsclient.SNSClient;
 import com.charter.aesd.aws.sqsclient.SQSClient;
+import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -277,9 +278,11 @@ public class SNSMultipleSQSDeliveryDemo {
                     }
 
                     System.out.println("Processing Messages on Q " + _queueUrl);
-                    String msg = _sqsClient.receiveMessage(_queueUrl);
+                    Optional<String> msg = _sqsClient.receiveMessage(_queueUrl);
 
-                    process(msg);
+                    if (msg.isPresent()) {
+                        process(msg.get());
+                    }
                 } catch(Exception e) {
                     e.printStackTrace();
                 }

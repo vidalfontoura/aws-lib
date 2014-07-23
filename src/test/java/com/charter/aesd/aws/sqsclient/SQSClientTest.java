@@ -3,6 +3,7 @@ package com.charter.aesd.aws.sqsclient;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.google.common.base.Optional;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
@@ -150,10 +151,10 @@ public class SQSClientTest {
         // Send a message, receive a message and then verify no pending
         client.sendMessage(qUrl,
                         TEST_MSG_CONTENT);
-        String recvdMsg = client.receiveMessage(qUrl);
+        Optional<String> recvdMsg = client.receiveMessage(qUrl);
 
         Assert.assertEquals(TEST_MSG_CONTENT,
-                            recvdMsg);
+                            recvdMsg.get());
     }
 
     @Test
@@ -162,10 +163,9 @@ public class SQSClientTest {
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
 
-        String recvdMsg = client.receiveMessage(qUrl);
+        Optional<String> recvdMsg = client.receiveMessage(qUrl);
 
-        Assert.assertEquals(null,
-                            recvdMsg);
+        Assert.assertFalse(recvdMsg.isPresent());
     }
 
     @Test

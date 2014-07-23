@@ -34,6 +34,7 @@
         <include>jackson-*.jar</include>
         <include>joda-*.jar</include>
         <include>slf4j-*.jar</include>
+        <include>guava-*.jar</include>
       </includes>
     </fileSet>
     <fileSet>

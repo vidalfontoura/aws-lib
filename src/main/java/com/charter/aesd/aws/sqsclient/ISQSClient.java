@@ -1,5 +1,7 @@
 package com.charter.aesd.aws.sqsclient;
 
+import com.google.common.base.Optional;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -118,7 +120,7 @@ public interface ISQSClient
      *
      * @throws IOException
      */
-    String receiveMessage(String queueUrl) throws IOException;
+    Optional<String> receiveMessage(String queueUrl) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation

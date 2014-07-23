@@ -3,6 +3,7 @@ package com.charter.aesd.aws.snsclient.demo;
 import com.charter.aesd.aws.snsclient.ISNSClient;
 import com.charter.aesd.aws.snsclient.SNSClient;
 import com.charter.aesd.aws.sqsclient.SQSClient;
+import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -179,12 +180,12 @@ public class QueuePOC {
                         continue;
                     }
 
-                    String msg = _sqsClient.receiveMessage(_queueUrl);
-                    if (msg == null) {
+                    Optional<String> msg = _sqsClient.receiveMessage(_queueUrl);
+                    if (!msg.isPresent()) {
                         continue;
                     }
 
-                    process(msg);
+                    process(msg.get());
                 } catch(Exception e) {
                     e.printStackTrace();
                 }

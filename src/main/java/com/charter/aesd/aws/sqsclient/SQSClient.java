@@ -23,9 +23,13 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p/>
@@ -412,7 +417,7 @@ public class SQSClient implements ISQSClient {
      * @throws IOException
      */
     @Override
-    public String receiveMessage(final String queueUrl) throws IOException {
+    public Optional<String> receiveMessage(final String queueUrl) throws IOException {
         if (_LOGGER.isTraceEnabled()) {
             _LOGGER.trace("receiveMessage(" + queueUrl + ")");
         }
@@ -427,7 +432,7 @@ public class SQSClient implements ISQSClient {
                 _LOGGER.debug("No Message Available");
             }
 
-            return null;
+            return Optional.absent();
         }
 
         Message msg = msgs.get(0);
@@ -436,7 +441,7 @@ public class SQSClient implements ISQSClient {
             _LOGGER.debug("RECEIVED message[id=" + msg.getMessageId() + "]");
         }
 
-        return msg.getBody();
+        return Optional.of(msg.getBody());
     }
 
     /**

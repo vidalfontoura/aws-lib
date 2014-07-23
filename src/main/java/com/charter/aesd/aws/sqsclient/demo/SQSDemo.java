@@ -1,6 +1,7 @@
 package com.charter.aesd.aws.sqsclient.demo;
 
 import com.charter.aesd.aws.sqsclient.SQSClient;
+import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,8 +116,10 @@ public class SQSDemo {
             System.out.println("INITIATING Message Consumption");
             int numRecvd = 0;
             while (numRecvd < numMessages) {
-                String msg = sqsClient.receiveMessage(queueUrl);
-                process(msg);
+                Optional<String> msg = sqsClient.receiveMessage(queueUrl);
+                if (msg.isPresent()) {
+                    process(msg.get());
+                }
 
                 numRecvd++;
             }

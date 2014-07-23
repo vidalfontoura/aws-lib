@@ -1,7 +1,5 @@
 package com.charter.aesd.aws.snsclient;
 
-import com.charter.aesd.aws.sqsclient.ISQSClient;
-
 import java.io.IOException;
 import java.util.List;
 

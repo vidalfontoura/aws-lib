@@ -10,13 +10,21 @@ import com.amazonaws.auth.policy.conditions.ConditionFactory;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
-import com.amazonaws.services.sqs.model.*;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p/>
@@ -137,7 +145,6 @@ public class SQSClient implements ISQSClient {
         if ((result != null) &&
             ((attrMap = result.getAttributes()) != null)) {
             qArn = attrMap.get(QUEUE_ARN_ATTR_NAME);
-            System.out.println("Queue ARN is " + qArn);
         }
 
         return qArn;
@@ -149,7 +156,7 @@ public class SQSClient implements ISQSClient {
     @Override
     public void allowTopic(final String queueUrl,
                            final String topicArn) {
-        java.util.Map attrs = new HashMap();
+        Map<String, String> attrs = new HashMap<String, String>();
 
         // I think the Java SDK has an issue with the Policy generation...
         //  it generates actions as sqs:*, whereas the AWS Management

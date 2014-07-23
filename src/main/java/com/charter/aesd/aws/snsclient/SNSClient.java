@@ -4,12 +4,9 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
-import com.amazonaws.services.sns.util.Topics;
-import com.charter.aesd.aws.sqsclient.ISQSClient;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 /**

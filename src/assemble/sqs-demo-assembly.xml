@@ -33,6 +33,7 @@
         <include>httpcore*.jar</include>
         <include>jackson-*.jar</include>
         <include>joda-*.jar</include>
+        <include>slf4j-*.jar</include>
       </includes>
     </fileSet>
     <fileSet>

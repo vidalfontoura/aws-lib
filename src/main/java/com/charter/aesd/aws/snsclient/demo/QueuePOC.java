@@ -49,7 +49,7 @@ public class QueuePOC {
 
     /* @@_BEGIN: METHODS ----------------------------------------------------- */
     /**
-     *
+     * No command line arguments
      */
     public static void main(String[] args) {
 
@@ -86,6 +86,7 @@ public class QueuePOC {
         }
 
         // Publish messages
+        int rc = 0;
         try {
             while(true) {
                 String msg = ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}",
@@ -96,9 +97,14 @@ public class QueuePOC {
 
                 Thread.sleep(1000);
             }
+        } catch(InterruptedException e) {
+            // No-op Ctrl-C
         } catch(Exception e) {
             e.printStackTrace(System.err);
+            rc = 1;
         }
+
+        System.exit(rc);
     }
 
     /**
@@ -162,7 +168,7 @@ public class QueuePOC {
          *
          */
         public void run() {
-            System.out.println("Consumer " + getName() + "WAITING ...");
+            System.out.println("Consumer " + getName() + " WAITING...");
 
             while(true) {
                 try {

@@ -82,13 +82,21 @@ public interface ISNSClient {
                          List<String> content) throws IOException;
 
     /**
+     * @param topicArn {@code String} the arn returned by the Topic creation
+     *                                that resolves to the Topic instance in
+     *                                the Service Provider space.
+     * @param queueArn {@code String} the arn that resolves to the a Consumer
+     *                                Queue instance in the Service Provider space.
      *
+     * @return {@code String} the ARN to use to reference the subscription mapping
+     *                        between the topic and the queue
      */
     String subscribeToTopic(String topicArn,
                             String queueArn);
 
     /**
-     *
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
      */
     void unsubscribeFromTopic(String subscriptionArn);
 } // ISNSClient

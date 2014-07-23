@@ -16,8 +16,7 @@ import java.util.UUID;
  * <p/>
  * The program does not validate its arguments.
  * <p/>
- * An example command line (omitting class path for clarity) to produce-consume with 1 producer and 2 consumers, batches
- * of 10, for 20min is as follows:
+ * An example command line (omitting class path for clarity) to produce-consume with 1 producer and 1 consumer:
  * <p/>
  * {@code java om.charter.aesd.aws.sqsclient.SQSDemo <queueName> <numMessages> }
  * <p/>

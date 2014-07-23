@@ -14,6 +14,13 @@ import java.util.UUID;
  * Simple Demo of publishing to an SNS topic and that notification being
  *   delivered to multiple SQS Queue endpoints and read
  * <p/>
+ * The program does not validate its arguments.
+ * <p/>
+ * An example command line (omitting class path for clarity) to produce-consume
+ *   with 1 SNS producer and X SQS consumers:
+ * <p/>
+ * {@code java om.charter.aesd.aws.snsclient.demo.SNSMultipleSQSDeliveryDemo <topicName> <numMessages> <numConsumers>}
+ * <p/>
  * User: matthewsmith Date: 7/22/14 Time: 12:12 PM
  *
  * @author $Author: $
@@ -49,7 +56,12 @@ public class SNSMultipleSQSDeliveryDemo {
 
     /* @@_BEGIN: METHODS ----------------------------------------------------- */
     /**
+     * @param args
+     * The command line parameters are, in order:
      *
+     * topicName - The name of the topic to publish.  The topic will be created if it does nto exist
+     * numMessages - The number of messages to publish
+     * numConsumers - The number of SQS Queues to create / attach as topic listeners
      */
     public static void main(String[] args) {
 
@@ -251,11 +263,10 @@ public class SNSMultipleSQSDeliveryDemo {
          *
          */
         public void run() {
-            System.out.println("Consumer " + getName() + "WAITING ...");
+            System.out.println("Consumer " + getName() + " WAITING...");
 
             int numMsgsRecvd = 0;
-//            while(numMsgsRecvd < _expectedMessages) {
-            while(true) {
+            while(numMsgsRecvd < _expectedMessages) {
                 try {
                     System.out.println("Checking for Messages on Q " + _queueUrl);
                     if (!_sqsClient.hasPendingMessages(_queueUrl)) {
@@ -276,7 +287,7 @@ public class SNSMultipleSQSDeliveryDemo {
                 numMsgsRecvd++;
             }
 
-//            System.out.println("Consumer " + getName() + "FINISHED");
+            System.out.println("Consumer " + getName() + "FINISHED");
         }
     }
 } // SNSMultipleSQSDeliveryDemo

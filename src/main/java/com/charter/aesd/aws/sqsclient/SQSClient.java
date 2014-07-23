@@ -11,6 +11,8 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.amazonaws.services.sqs.model.DeleteQueueRequest;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
@@ -18,9 +20,15 @@ import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +36,7 @@ import java.util.Map;
 
 /**
  * <p/>
- * Implementation of the ISQSClient that is connected to AWS
+ * Implementation of the ISQSClient that is connected to AWS SQS
  *   as the message queue provider.
  *
  *  @see <a href="http://aws.amazon.com/sqs/faqs/">http://aws.amazon.com/sqs/faqs/</a>
@@ -45,13 +53,18 @@ public class SQSClient implements ISQSClient {
     /**
      *
      */
+    private static final Logger _LOGGER = LoggerFactory.getLogger(SQSClient.class);
+
+    /**
+     *
+     */
     private final static String QUEUE_DEPTH_ATTR_NAME = "ApproximateNumberOfMessages";
     private final static String QUEUE_ARN_ATTR_NAME = "QueueArn";
     private final static String QUEUE_SNS_ATTR_NAME = "Policy";
-    private final int MAX_NUM_MESSAGES_CHUNK = 10;  // Max Allowed by Amazon SQS
+    private final static int MAX_NUM_MESSAGES_CHUNK = 10;  // Max Allowed by Amazon SQS
 
     /**
-     * local ref to the AWS API
+     * local ref to the AWS SQS API
      */
     private AmazonSQS _awsSQSClient = null;
 
@@ -85,12 +98,24 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public boolean isQueueExists(final String queueName) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("isQueueExists(" + queueName + ")");
+        }
+
         boolean bFound = true;
 
         try {
-            getClient().getQueueUrl(queueName);
+            GetQueueUrlResult result = getClient().getQueueUrl(queueName);
+
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("Queue " + queueName + " EXISTS, url=" + result.getQueueUrl());
+            }
         } catch(QueueDoesNotExistException e) {
             bFound = false;
+
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
+            }
         }
 
         return bFound;
@@ -109,12 +134,22 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public String resolveQueueUrl(final String queueName) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("resolveQueueUrl(" + queueName + ")");
+        }
+
         String qUrl = null;
         try {
             GetQueueUrlResult qResult = getClient().getQueueUrl(queueName);
             qUrl = (qResult == null) ? null : qResult.getQueueUrl();
-        } catch(QueueDoesNotExistException e) {
 
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("Queue " + queueName + " EXISTS, url=" + qUrl);
+            }
+        } catch(QueueDoesNotExistException e) {
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
+            }
         }
 
         return qUrl;
@@ -133,6 +168,10 @@ public class SQSClient implements ISQSClient {
      * @throws IOException
      */
     public String resolveQueueARN(final String queueUrl) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("resolveQueueARN(" + queueUrl + ")");
+        }
+
         String qArn = null;
 
         List<String> attrs = new ArrayList<String>();
@@ -145,17 +184,37 @@ public class SQSClient implements ISQSClient {
         if ((result != null) &&
             ((attrMap = result.getAttributes()) != null)) {
             qArn = attrMap.get(QUEUE_ARN_ATTR_NAME);
+
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("Queue[url=" + queueUrl + ", arn=" + qArn + "]");
+            }
+        } else {
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("No ARN Found for Queue[url=" + queueUrl + "]");
+            }
         }
 
         return qArn;
     }
 
     /**
+     * @param queueUrl {@code String} the AWS url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the proper AWS space.
+     * @param topicArn {@code String} the arn returned by the Topic creation/attachment
+     *                                that resolves to the Topic instance in
+     *                                the AWS space.
      *
+     * Add a permission to the SQS instance in AWS that allows the specified SNS Topic
+     *  to publish to the Queue.
      */
     @Override
     public void allowTopic(final String queueUrl,
                            final String topicArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("allowTopic(" + queueUrl + ", " + topicArn + ")");
+        }
+
         Map<String, String> attrs = new HashMap<String, String>();
 
         // I think the Java SDK has an issue with the Policy generation...
@@ -163,17 +222,34 @@ public class SQSClient implements ISQSClient {
         //  console generates them as SQS:*.  When the Actions are sqs:*,
         //  no messages are passed, however, when they are SQS:*, all messages
         //  flow as expected
+        // When the same permission is added to the SQS queue via AWS, the
+        //   messages are published without issue
         attrs.put(QUEUE_SNS_ATTR_NAME,
                   generateSqsPolicyForTopic(topicArn).toJson());
 
         getClient().setQueueAttributes(queueUrl,
-                        attrs);
+                                       attrs);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Topic[arn=" +
+                                          topicArn +
+                                          "] ALLOWED to publish to Queue[url=" +
+                                          queueUrl +
+                                          "]");
+        }
     }
 
     /**
-     *
+     * @param topicArn {@code String} the arn returned by the Topic creation/attachment
+     *                                that resolves to the Topic instance in
+     *                                the AWS space.  This is the topic that needs to
+     *                                be allowed to send messages to the SQS instance.
      */
     protected Policy generateSqsPolicyForTopic(final String topicArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("generateSqsPolicyForTopic(" + topicArn + ")");
+        }
+
         Policy policy = new Policy().withStatements(
             new Statement(Statement.Effect.Allow)
                 .withPrincipals(Principal.AllUsers)
@@ -181,6 +257,11 @@ public class SQSClient implements ISQSClient {
                 .withConditions(new ArnCondition(ArnCondition.ArnComparisonType.ArnEquals,
                                                  ConditionFactory.SOURCE_ARN_CONDITION_KEY,
                                                  topicArn)));
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Policy for topic[arn=" + topicArn +
+                                          "] is " + policy.toJson());
+        }
 
         return policy;
     }
@@ -199,8 +280,19 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public String createQueue(final String queueName) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("createQueue(" + queueName + ")");
+        }
 
-        return getClient().createQueue(new CreateQueueRequest().withQueueName(queueName)).getQueueUrl();
+        CreateQueueResult result = getClient().createQueue(new CreateQueueRequest().withQueueName(queueName));
+        String qUrl = result.getQueueUrl();
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Queue[name=" + queueName +
+                                          ", url=" + qUrl +
+                                          "] CREATED");
+        }
+
+        return qUrl;
     }
 
     /**
@@ -212,8 +304,16 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public void deleteQueue(final String queueUrl) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("deleteQueue(" + queueUrl + ")");
+        }
 
         getClient().deleteQueue(queueUrl);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Queue[url=" + queueUrl +
+                          "] DELETED");
+        }
     }
 
     /**
@@ -240,6 +340,9 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public int getPendingMessageCount(final String queueUrl) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("getPendingMessageCount(" + queueUrl + ")");
+        }
 
         List<String> attrs = new ArrayList<String>();
         attrs.add(QUEUE_DEPTH_ATTR_NAME);
@@ -248,10 +351,19 @@ public class SQSClient implements ISQSClient {
                                                                          attrs);
 
         int msgCnt = 0;
+        String val = result.getAttributes().get(QUEUE_DEPTH_ATTR_NAME);
         try {
-            msgCnt = Integer.parseInt(result.getAttributes().get(QUEUE_DEPTH_ATTR_NAME));
+            msgCnt = Integer.parseInt(val);
         } catch(Exception e) {
+            if (_LOGGER.isWarnEnabled()) {
+                StringWriter errDetailsWriter = new StringWriter();
+                e.printStackTrace(new PrintWriter(errDetailsWriter));
+                _LOGGER.info("Invalid Message Count Attribute Received from AWS, val=" + val);
+            }
+        }
 
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Queue[url=" + queueUrl + "] has " + msgCnt + " messages pending");
         }
 
         return msgCnt;
@@ -272,9 +384,16 @@ public class SQSClient implements ISQSClient {
     @Override
     public void sendMessage(final String queueUrl,
                             final String content) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("sendMessage(" + queueUrl + ", content=" + content + ")");
+        }
 
-        getClient().sendMessage(new SendMessageRequest(queueUrl,
-                        content));
+        SendMessageResult result = getClient().sendMessage(new SendMessageRequest(queueUrl,
+                                                                                  content));
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Message " + result.getMessageId() + " SENT");
+        }
     }
 
     /**
@@ -294,17 +413,30 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public String receiveMessage(final String queueUrl) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("receiveMessage(" + queueUrl + ")");
+        }
 
         ReceiveMessageResult result = getClient().receiveMessage(queueUrl);
 
-        java.util.List<Message> msgs = (result == null)
-                        ? new ArrayList<Message>(0)
-                        : result.getMessages();
-        if (msgs.isEmpty()) {
+        java.util.List<Message> msgs = null;
+        if ((result == null) ||
+            ((msgs = result.getMessages()) == null) ||
+            (msgs.size() == 0)) {
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("No Message Available");
+            }
+
             return null;
         }
 
-        return msgs.get(0).getBody();
+        Message msg = msgs.get(0);
+        if (_LOGGER.isDebugEnabled()) {
+            // ToDo :: Add message details here
+            _LOGGER.debug("RECEIVED message[id=" + msg.getMessageId() + "]");
+        }
+
+        return msg.getBody();
     }
 
     /**
@@ -324,6 +456,9 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public List<String> receiveMessages(final String queueUrl) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("receiveMessages(" + queueUrl + ")");
+        }
 
         // Drain the queue...
         // ToDo :: implement a threshold here
@@ -334,10 +469,14 @@ public class SQSClient implements ISQSClient {
 
             ReceiveMessageResult result = getClient().receiveMessage(request);
 
-            java.util.List<Message> msgs = (result == null)
-                            ? new ArrayList<Message>(0)
-                            : result.getMessages();
-            if (msgs.isEmpty()) {
+            java.util.List<Message> msgs = null;
+            if ((result == null) ||
+                ((msgs = result.getMessages()) == null) ||
+                (msgs.size() == 0)) {
+                if (_LOGGER.isDebugEnabled()) {
+                    _LOGGER.debug("No Message Available");
+                }
+
                 continue;
             }
 
@@ -350,6 +489,11 @@ public class SQSClient implements ISQSClient {
             }
         }
 
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Received " + contentMsgs.size() +
+                          " messages");
+        }
+
         return contentMsgs;
     }
 
@@ -358,23 +502,19 @@ public class SQSClient implements ISQSClient {
      */
     public static class Builder
         extends AbstractAWSClientBuilder<SQSClient> {
-
         /**
          *
-         */
-        public Builder() {
-            super();
-        }
-
-        /**
-         *
-         * @param provider
+         * @param provider AWS credentials provider
          * @param config
-         * @return
+         *
+         * @return the AWS SQS client implementation
          */
         @Override
         protected SQSClient allocateClient(final ProfileCredentialsProvider provider,
                                            final ClientConfiguration config) {
+            if (_LOGGER.isTraceEnabled()) {
+                _LOGGER.trace("allocateClient()");
+            }
 
             return (provider == null)
                    ? new SQSClient(new AmazonSQSClient(getConfig()))

@@ -6,6 +6,9 @@ import com.amazonaws.auth.profile.ProfilesConfigFile;
 
 /**
  * <p/>
+ * Provide a base class for AWS clients to use to setup there common client
+ *   configurations, such as Proxy, Credentials, etc.
+ * <p/>
  * User: matthewsmith Date: 7/22/14 Time: 1:13 PM
  *
  * @author $Author: $
@@ -21,7 +24,8 @@ abstract public class AbstractAWSClientBuilder<T> {
     private String _profileConfigFilePath;
 
     /**
-     *
+     * Abstract ...
+     * provide the base level configuration container
      */
     protected AbstractAWSClientBuilder() {
 
@@ -29,7 +33,6 @@ abstract public class AbstractAWSClientBuilder<T> {
     }
 
     /**
-     *
      * @return {@code String} The profile to use for credential resolution
      */
     public String getProfileName() {
@@ -52,7 +55,6 @@ abstract public class AbstractAWSClientBuilder<T> {
     }
 
     /**
-     *
      * @return {@code String} The path of the AWS credentials file
      */
     public String getProfileConfigFilePath() {
@@ -78,8 +80,7 @@ abstract public class AbstractAWSClientBuilder<T> {
     /**
      * Sets the {@link ClientConfiguration} used to configure
      *
-     * @param config
-     *                 {@link ClientConfiguration}
+     * @param config {@link ClientConfiguration}
      *
      * @return {@link AbstractAWSClientBuilder}
      */

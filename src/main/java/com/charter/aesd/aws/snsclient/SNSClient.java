@@ -4,9 +4,16 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.model.PublishResult;
+import com.amazonaws.services.sns.model.SubscribeResult;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -28,6 +35,12 @@ public class SNSClient
     implements ISNSClient {
     /**
      *
+     */
+    private static final Logger _LOGGER = LoggerFactory.getLogger(SNSClient.class);
+
+    /**
+     * Protocol indicator used by SNS to target AWS SQS queue instances as
+     *   topic consumers
      */
     private final static String AWS_SQS_SNS_PROTOCOL = "SQS";
 
@@ -56,11 +69,11 @@ public class SNSClient
     }
 
     /**
-     * Create a new Topic in the service provider space.
+     * Create a new SNS Topic in the AWS space.
      *
      * @param topicName {@code String} the name to assign to the
      *                                 created Topic.  Should follow
-     *                                 AWSnaming conventions
+     *                                 AWS naming conventions
      *
      * @return {@code String} the ARN to use to reference the new Topic in
      *                        subsequent calls
@@ -68,6 +81,10 @@ public class SNSClient
      * @throws java.io.IOException
      */
     public String createTopic(final String topicName) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("createTopic(" + topicName + ")");
+        }
+
         return ((topicName == null) ||
                 (topicName.length() == 0))
                ? null
@@ -75,11 +92,10 @@ public class SNSClient
     }
 
     /**
-     * Connects to a Topic in the service provider space.
+     * Connects to a SNS Topic in the AWS space.
      *
      * @param topicName {@code String} the name of the Topic to connect to.
-     *                                 Should follow Service Provider naming
-     *                                 conventions
+     *                                 Should follow AWS naming conventions
      *
      * @return {@code String} the ARN to use to reference the new Topic in
      *                        subsequent calls
@@ -87,27 +103,49 @@ public class SNSClient
      * @throws java.io.IOException
      */
     public String resolveTopic(String topicName) throws IOException {
-        return ((topicName == null) ||
-                (topicName.length() == 0))
-               ? null
-               : getClient().createTopic(topicName).getTopicArn();
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("resolveTopic(" + topicName + ")");
+        }
+
+        String topicArn = ((topicName == null) ||
+                           (topicName.length() == 0))
+                          ? null
+                          : getClient().createTopic(topicName).getTopicArn();
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Topic " + topicName + " resolves to ARN " + topicArn);
+        }
+
+        return topicArn;
     }
 
     /**
      * @param topicArn {@code String} the arn returned by the Topic creation
      *                                that resolves to the Topic instance in
-     *                                the AWS space.
+     *                                the AWS space.  This is the topic that
+     *                                is to be removed from AWS SNS.
      *
      * @throws IOException
      */
     public void deleteTopic(final String topicArn) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("deleteTopic(" + topicArn + ")");
+        }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            }
+
             return;
         }
 
         getClient().deleteTopic(topicArn);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("SNS Topic, arn=" + topicArn + " DELETED");
+        }
     }
 
     /**
@@ -124,14 +162,25 @@ public class SNSClient
      */
     public void publishMessage(final String topicArn,
                                final String content) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
+        }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            }
+
             return;
         }
 
-        getClient().publish(topicArn,
-                        content);
+        PublishResult result = getClient().publish(topicArn,
+                                                   content);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Published message, id=" + result.getMessageId() + " to " + topicArn);
+        }
     }
 
     /**
@@ -148,46 +197,116 @@ public class SNSClient
      */
     public void publishMessages(final String topicArn,
                                 final List<String> content) throws IOException {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
+        }
 
         if ((topicArn == null) ||
-            (topicArn.length() == 0) ||
-            (content == null)) {
+            (topicArn.length() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            }
+
+            return;
+        }
+
+        if ((content == null) ||
+            (content.size() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("No content specified ... Nothing to publish.");
+            }
+
             return;
         }
 
         for (String msg : content) {
-            getClient().publish(topicArn,
-                            msg);
+            try {
+                getClient().publish(topicArn,
+                                    msg);
+            } catch(Exception e) {
+                if (_LOGGER.isInfoEnabled()) {
+                    StringWriter errDetailsWriter = new StringWriter();
+                    e.printStackTrace(new PrintWriter(errDetailsWriter));
+                    _LOGGER.info("Error sending message:  error=" +
+                                 e.getMessage() +
+                                 ", content=" +
+                                 msg +
+                                 ", error details=" +
+                                 errDetailsWriter.toString());
+                }
+
+                // Do not fail the remaining messages ... keep processing
+            }
         }
     }
 
     /**
+     * @param topicArn {@code String} the arn returned by the Topic creation
+     *                                that resolves to the Topic instance in
+     *                                the Service Provider space.
+     * @param queueArn {@code String} the arn that resolves to the a Consumer
+     *                                Queue instance in the Service Provider space.
      *
+     * @return {@code String} the ARN to use to reference the subscription mapping
+     *                        between the topic and the queue
      */
     public String subscribeToTopic(final String topicArn,
                                    final String queueArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("subscribeToTopic(" + topicArn + ", " + queueArn + ")");
+        }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            }
+
             return null;
         }
 
-        return getClient().subscribe(topicArn,
-                                     AWS_SQS_SNS_PROTOCOL,
-                                     queueArn).getSubscriptionArn();
+        SubscribeResult result = getClient().subscribe(topicArn,
+                                                       AWS_SQS_SNS_PROTOCOL,
+                                                       queueArn);
+        String subArn = (result == null)
+                        ? null
+                        : result.getSubscriptionArn();
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("Queue[arn=" +
+                          queueArn +
+                          "] SUBSCRIBED to Topic[arn=" +
+                          topicArn +
+                          "] AS Subscription[arn=" +
+                          subArn +"]");
+        }
+
+        return subArn;
     }
 
     /**
-     *
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
      */
     public void unsubscribeFromTopic(final String subscriptionArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("unsubscribeFromTopic(" + subscriptionArn + ")");
+        }
 
         if ((subscriptionArn == null) ||
             (subscriptionArn.length() == 0)) {
+            if (_LOGGER.isWarnEnabled()) {
+                _LOGGER.trace("Invalid / empty Subscription ARN specified");
+            }
+
             return;
         }
 
         getClient().unsubscribe(subscriptionArn);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn=" + subscriptionArn +"]");
+        }
     }
 
     /**
@@ -195,14 +314,6 @@ public class SNSClient
      */
     public static class Builder
         extends AbstractAWSClientBuilder<SNSClient> {
-
-        /**
-         *
-         */
-        public Builder() {
-            super();
-        }
-
         /**
          *
          * @param provider
@@ -212,6 +323,9 @@ public class SNSClient
         @Override
         protected SNSClient allocateClient(final ProfileCredentialsProvider provider,
                                            final ClientConfiguration config) {
+            if (_LOGGER.isTraceEnabled()) {
+                _LOGGER.trace("allocateClient()");
+            }
 
             return (provider == null)
                    ? new SNSClient(new AmazonSNSClient(getConfig()))
@@ -219,4 +333,4 @@ public class SNSClient
                                                        getConfig()));
         }
     }
-} // SQSClient
+} // SNSClient

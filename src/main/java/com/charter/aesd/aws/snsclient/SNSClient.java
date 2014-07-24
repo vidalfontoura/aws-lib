@@ -43,6 +43,9 @@ public class SNSClient
      *   topic consumers
      */
     private final static String AWS_SQS_SNS_PROTOCOL = "SQS";
+    private final static String RAW_MESSAGE_ATRR_NAME = "RawMessageDelivery";
+    private final static String RAW_MESSAGE_INDICATOR_ON = "true";
+    private final static String RAW_MESSAGE_INDICATOR_OFF = "false";
 
     /**
      * local ref to the AWS API
@@ -306,6 +309,50 @@ public class SNSClient
 
         if (_LOGGER.isDebugEnabled()) {
             _LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn=" + subscriptionArn +"]");
+        }
+    }
+
+    /**
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
+     *
+     * When the SNS Notification if forwarded to the listeners, the
+     *   SNS JSON envelope will be used
+     */
+    @Override
+    public void enableEnvelope(final String subscriptionArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("enableEnvelope(" + subscriptionArn + ")");
+        }
+
+        getClient().setSubscriptionAttributes(subscriptionArn,
+                                              RAW_MESSAGE_ATRR_NAME,
+                                              RAW_MESSAGE_INDICATOR_OFF);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("RawMessageDelivery is ENABLED for Subscription[arn=" + subscriptionArn + "]");
+        }
+    }
+
+    /**
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
+     *
+     * When the SNS Notification if forwarded to the listeners, the
+     *   SNS JSON envelope will NOT be used
+     */
+    @Override
+    public void disableEnvelope(final String subscriptionArn) {
+        if (_LOGGER.isTraceEnabled()) {
+            _LOGGER.trace("disableEnvelope(" + subscriptionArn + ")");
+        }
+
+        getClient().setSubscriptionAttributes(subscriptionArn,
+                                              RAW_MESSAGE_ATRR_NAME,
+                                              RAW_MESSAGE_INDICATOR_ON);
+
+        if (_LOGGER.isDebugEnabled()) {
+            _LOGGER.debug("RawMessageDelivery is DISABLED for Subscription[arn=" + subscriptionArn + "]");
         }
     }
 

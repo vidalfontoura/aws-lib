@@ -99,4 +99,22 @@ public interface ISNSClient {
      *                                       between the topic and the queue
      */
     void unsubscribeFromTopic(String subscriptionArn);
+
+    /**
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
+     *
+     * When the SNS Notification if forwarded to the listeners, the
+     *   SNS JSON envelope will be used
+     */
+    void enableEnvelope(String subscriptionArn);
+
+    /**
+     * @param subscriptionArn {@code String} the ARN to use to reference the subscription mapping
+     *                                       between the topic and the queue
+     *
+     * When the SNS Notification if forwarded to the listeners, the
+     *   SNS JSON envelope will NOT be used
+     */
+    void disableEnvelope(String subscriptionArn);
 } // ISNSClient

@@ -39,11 +39,9 @@ public class SNSMultipleSQSDeliveryDemo {
     private final static String ENTITLEMENT_MESSAGE = "{\n" +
                     "  \"MessageId\": \"{messageId}\",\n" +
                     "  \"MessageName\": \"VideoEntitlements\",\n" +
-                    "  \"AccountNumber\":  [\"80092320357266\"],\n" +
-                    "  \"LastModified\": \"2014-11-05T08:15:30-05:00\n" +
+                    "  \"AccountNumber\":  \"80092320357266\",\n" +
+                    "  \"LastModified\": " + System.currentTimeMillis() + "\n" +
                     "}";
-
-
     /* @@_END: STATICS ------------------------------------------------------- */
 
     /* @@_BEGIN: MEMBERS ----------------------------------------------------- */
@@ -290,7 +288,7 @@ public class SNSMultipleSQSDeliveryDemo {
                 numMsgsRecvd++;
             }
 
-            System.out.println("Consumer " + getName() + "FINISHED");
+            System.out.println("Consumer " + getName() + " FINISHED");
         }
     }
 } // SNSMultipleSQSDeliveryDemo

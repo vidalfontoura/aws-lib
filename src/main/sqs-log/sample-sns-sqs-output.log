@@ -1,0 +1,422 @@
+./lib/classes:./lib/aws-java-sdk-1.7.12.jar:./lib/aws-lib-0.2.2-SNAPSHOT.jar:./lib/commons-logging-1.1.1.jar:./lib/httpclient-4.2.jar:./lib/httpcore-4.2.jar:./lib/jackson-annotations-2.1.1.jar:./lib/jackson-core-2.1.1.jar:./lib/jackson-core-asl-1.9.11.jar:./lib/jackson-databind-2.1.1.jar:./lib/jackson-mapper-asl-1.9.11.jar:./lib/joda-time-2.3.jar
+Jul 23, 2014 9:11:59 AM com.amazonaws.http.HttpClientFactory createHttpClient
+INFO: Configuring Proxy. Proxy Host: 127.0.0.1 Proxy Port: 8888
+Jul 23, 2014 9:11:59 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [default].
+Jul 23, 2014 9:11:59 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [sqsclient-test].
+Jul 23, 2014 9:11:59 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [s3client-test].
+Jul 23, 2014 9:11:59 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [test-user].
+AWS SNS Topic AVAILABLE
+Jul 23, 2014 9:12:00 AM com.amazonaws.http.HttpClientFactory createHttpClient
+INFO: Configuring Proxy. Proxy Host: 127.0.0.1 Proxy Port: 8888
+Starting AWS SQS Consumers
+Jul 23, 2014 9:12:00 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [default].
+Jul 23, 2014 9:12:00 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [sqsclient-test].
+Jul 23, 2014 9:12:00 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [s3client-test].
+Jul 23, 2014 9:12:00 AM com.amazonaws.auth.profile.internal.ProfilesConfigFileLoader$ProfilesConfigFileLoaderHelper onProfileProperty
+INFO: Skip unsupported property name region in profile [test-user].
+Queue QueuePOC-Consumer-1 is available at URL https://sqs.us-east-1.amazonaws.com/924013738678/QueuePOC-Consumer-1
+Consumer QueuePOC-Consumer-1 STARTED
+Consumer QueuePOC-Consumer-1 WAITING...
+Queue QueuePOC-Consumer-2 is available at URL https://sqs.us-east-1.amazonaws.com/924013738678/QueuePOC-Consumer-2
+Consumer QueuePOC-Consumer-2 STARTED
+Consumer QueuePOC-Consumer-2 WAITING...
+SENT MESSAGE {
+  "MessageId": "6fd05f0c-e255-428e-b074-25d2272bbdb5",
+  "MessageName": "VideoEntitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "c74e8076-9748-5eab-824c-cc3faa52f340",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"6cc51a8c-2ae7-4789-92a3-034a6c1db20d\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:26.107Z",
+  "SignatureVersion" : "1",
+  "Signature" : "PM57OJYhXb30VSX+Tsp+BjRP9oQNrQhpplXCytXygU7C94LHrsGJja6sWtsqZmNvikDFbwSQ5xWwzijZnfjLtXVZH2VAuLhm3EPX4H+fvGn07YObS4gnuqiAntJcg1MSR3V7mjb5kEBflQKKAzrP9YUxF5q5ThDkEtmWMbzFSVXNgFAN+kMavXehactK/6zfp7GXgPPujtceOue1Cw0stpcvKbhji2ugXa83qxic0CULIAEJKwr+lmc2bXWfMFvuSDW0nyhUJAEBGzYMhI5V61/TdmNFdlQ2uur7yxxaquMyWe2Vm1F8kaC2Oh4oDod/r3dYtsm1bbFPzZb1wWsR8g==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "53599776-228f-5583-8ade-db3f1f97d1b3",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"afadc1e2-15bb-444a-8955-d4aa09871ca5\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:24.987Z",
+  "SignatureVersion" : "1",
+  "Signature" : "GCcN8FJfWNJZbJgQzs6nR6slvnFWt7B1Z/UOZzDIjdepsv9NnxqSo7kFVGWyWaTT5TZbmCpxsa68SPrCvFIszsPvTi+psPEREWIdjQUF4hGFy2dvIH8qJUQgFnecO8J2wVxqSXGyajiXMDC0JmESCTXgf5fr4ar3/domw1NWD3YuNkMXpkIlhM8rAEq1tHUkvyL36quhxzrcma8OFKf4fpGf6WZsnci+zXZo9DZwCjEiNoeGmBM6pqS3INj7uPT2X0G84UhFWXLr9o14EE0wa6AIQl9bBidKppPfsnByOiMRSuYlLWq2Qrl7wX5ET3hv2cq3dXqULvyf6W0iQVWSpw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "75e4788c-644a-50e4-a436-34c559e5cc74",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"715c21e0-6a97-4937-a1a1-b8d501082866\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:34:55.741Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Oefs1Su/8jiIfMpxzQucpMRHHPQgS6zvpDq2JOHVeUBV05E9c4/1XOeGUbuPdF8E9KkSclQTLgtqsqDOzI2que/7MYH3uXCOPZJ6ka0bSDq0k3eIex254f05gGl6JzFXGjKHCmuQsK/8hkbEyDtYdW3h5SfYKadG8svj2QLf5QuzXclTGfQjynWdHQCGK14RbeHaliUK0YP7BCj6XSKZBYLPvwERHy2iUxXD9LxQdKr8decZnh4vg8UIEXn8BzGhalnubuzytJoXU5X91+GEeKZiqxWwSX7ylLROOOj9J5A+jV1rQMtAuuOZy1yzaXFlxpLpYwU2lDX/HLxwabASWQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "d0a1bdd1-bbe4-5876-afe5-f1988754cd7a",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Subject" : "Test Message",
+  "Message" : "Hello World",
+  "Timestamp" : "2014-07-23T04:30:40.976Z",
+  "SignatureVersion" : "1",
+  "Signature" : "iwj4nATbBZBFivSnrWeF8pv2zB11T1pMmYLJB/TDt8dliKd77P588n+/7TdgHGietof7xh0jFz99Kj6vpgWM65AJy6Q9r6fqBanL5wEuhSn2PPnYaA6IU+JZicV/BM3um5cjY3INEMDmNOqTICDE7qj68VgsQJjbkb7bY4vNRzLG+GfGimKrYKD4UoEstk3MvWOqD/IDFMMqumV8b3PAJS+A1PMAICk3FphcDiR4KMPNTMD7dC3o6X++rtGBhkHmbRSEUfp42US3/Wh265qdlhauQydz39h90gAdhEelZrtSOT28SA+d9HaRZzRzaJxOjKcVy6sVDc+Lijiq/JRuMg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261",
+  "MessageAttributes" : {
+    "AWS.SNS.MOBILE.MPNS.Type" : {"Type":"String","Value":"token"},
+    "AWS.SNS.MOBILE.WNS.Type" : {"Type":"String","Value":"wns/badge"},
+    "AWS.SNS.MOBILE.MPNS.NotificationClass" : {"Type":"String","Value":"realtime"}
+  }
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "7f1578e7-9bcb-5cfe-b824-34aea6d0ec74",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"f5293324-bcb7-4a21-935b-4fc540574e02\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:27.259Z",
+  "SignatureVersion" : "1",
+  "Signature" : "fNWOCjdlUD7ixVA2KvpHMBVBzHDKbys1PP/DzvXjeJWn//IN4BkHZFR5FpBKyDO/okjTVRIUyR128MHYXmEQ2bQiDrnSPsSPvFj/M/gedcFiEbzWa5QBvF+Xx5UP6WTrGNU55VSn2E3+ekxMOuIogpPlvfn2SXFNjYGntlmhhIJMYL8BKrD+cWvVPRPh85x6B2zI2YqK4C0q/GlossAOOoMgBlAxVManqSe3SowFhDqapz8N+AX443vZTMjs8syBs6gByXKX928XGBTaTxvLQby1UMMob3N6s2lg1yxrKxS6aZRh/ChCceC7uQN10uBdTxeUpDzDtP+wuQ+/xTtFEQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "23e4abea-b472-5255-b18a-e7a3752b4a47",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"b2584ed2-a300-4a66-a6f5-59968a9fa7dc\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T13:56:41.196Z",
+  "SignatureVersion" : "1",
+  "Signature" : "gXMqGN7tCpOB9ZoaQjTfSymCl4BcCOWZ065CAcbLrxwk+ENTJYvPmyWeMafsWVNZamGIkT3JkXU6Jh3niNVRAxOITE+59p8DgLzVshDRvrLsRBSbovJ84MVFpolDX12uZdMOdJclfioy6PaaKDMDZmmp7XDd8EvYpOIPsfUnR4yOBUfOYlOpqngj76A1LQGgRo214Y/8rz6U+mJm7jQztngYPfDC4KJNHPSZiiOm4jIdIY0utBXP26lTkVez95lDXMUJSwTqU+QliCuTBxrVwqKA1C0iBIbLak1cAN/3+LgYSEFZ77hQe95CWWz/+MVnjA7rBLc4iNvVIZenwwcSBg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "8dc0be7c-32e2-518a-bc04-f2350f515f25",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"f5f39f78-e6ca-4260-ad04-ac2d66ea5eb4\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:34:59.163Z",
+  "SignatureVersion" : "1",
+  "Signature" : "X1Rh7MjJJLbxHvYuZBd+o5/s8a4VGfQ8Hz+S5R5S48qYcancxNkvCzhOqNCTI2KWtJ2mC6JiJWV6JfdR9G36VgpCVih1rF5mIvuc6pbn7OVVpcIGZW2DVdqqNDQZzybH7wRXp7YMxN1ucJtcR3s8xhLZy6bmfzDOsj9ElPXqLBb3VjWXY1XUxD3PZ7BoOJTaX/MNey0NFeeXoHpbLjo00SMu5QA1VyzKdMsedi+8O1yy4hbZQLY3Iu6qIgSIO/iLw3DFldUMpAZXwJ0au7pnigvjQB7HMOeYSJqtj7sCT4ehxQaj4DxIKWe4WYk90D7jSgpM5+gMRy3lMSFQzIC0pQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "a654573d-66fc-5449-9f6d-1b74b44a84c3",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"af7c2123-e943-472b-9b06-413e836cfb96\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T15:10:46.048Z",
+  "SignatureVersion" : "1",
+  "Signature" : "YVufCJmQW61zu+ZOXAEKmf4R76AfOoi6yz/qbJ5OFWXI2t6PuJVWqvIjXBjuE0loTyiMqGfb8xY+12Dilgwx//oxTjLyhl/8d/Y4exmYyNuT4UkoJatReXy5iG5lLU8WSmboErC+9c5qLdV2d51nQj5SNCea0Gx7yFrA6YrUakaWdtqQIwM36fZ7kkcOhwEvScPMpbeB0Mh9MHL4yMsryqIuzmsaOmcqBMe0zxAsL/NVm6T26N9HIpRia+BD0tTYsqtIKEEIP5GJn0RJ7328Nc1ekhoRifBBrfj/N+1QTB9TWsT6+kRDpImQxXYk/TPn/C/K7F2aSLWmhFRZFAQcSw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "eb615809-774f-5cce-bf9c-14404afb8ae5",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"7a6866a1-c3cf-4181-b746-2bf4a4f3c49a\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:35:00.297Z",
+  "SignatureVersion" : "1",
+  "Signature" : "VRpTFrz7oc41oLS1hfESXpMXFA/hnMiuSHqikaOzQ6NKLm1Wi2hFXqJtVBATj1tvzhFbcEE299jwj7ojH6dLpepZLhJIclYTUYCdK66PUeBCuAbnrdC7q/c3GOgNrNF1ysxSNiOJaU5EXLYmAq3nGHVMPaVy94+PvqW+yPNGFj8txnOwK0979KqY2EQMydCT2t/EJfETr3j2pNatKB1AKwWX4Yr/v/RrMl42ySUak8hfVeh4wM74AZe8+kGLOxpHlBRMAUDxGb+FrjW80nqMGHPeQd+NN5e44XYzD1EVr3bJ2K2aEf6OPbHt/6LThWWV9N+i8PFimwe5ajLDME1RNw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "73445f6d-da56-5046-86e4-132408a06456",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"1ab3dc37-106f-4f4a-ad78-5653912add81\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T15:11:50.114Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Kqs0FX8e5wINr2xMRDt7OB9PhE4GNm9BPwpMxmULMg1PypeGgNp3FfA61rCgWSURDs1PMMwe0oPQQqpoyHsCNe8Wxntp6qRL6qwAwezsz0lfwr1mEoTjk6VXOMpzgbg0h7ct8KPyCWJxhLTgobdEqXflltKRWVOP2b0CfBvePPs/I9MtgdAomY0uwadjMWiuoSspxoVnKukv9WiGJeLdGGimV0aV74fmkjEo8yOvsF76y41U2zz9aRN83l7Dny3B60odri7ZF1f3m1AMs2vSjawvZoDtvpaPJzkqIt0pVfOn+9Qw/HtZdMyJrn9iKjlG2YC0djb0TKdD4lgJpQtP1w==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "b3a8669c-b200-563f-8309-2ad58f0fe0d8",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"9a301cfe-7637-4673-800b-5c3d99f5a62d\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:15.757Z",
+  "SignatureVersion" : "1",
+  "Signature" : "KRqCWcLh9sJWgEiWi2yrUjnDg/6+Ig8zkiP6ENV+Uei9sod6LqcNOj1Zlo3nbQMlSyg/349vyLvu8m92ejEh8IYQNp5RW/eXS4y/1zOUzjeEb3BKvGdcBL3Fre4AjP8dcIKXlQcwPRjUNuZ9QRt9w1ai+fA/9PHKU8WGhQFlzLp2sHLXMG2/K7YXVgH8OAInPTvhzT6gqk/mQDSyK1Ql7+YcxjuNoO0yLz/BDbZiMqBvLBTU/w+4odAHBHE1FgJ2KXAy0xnAlSiVkwSgwxCDA7txEM99qhEIAl8xQqzF8K4jroEedCn1ewp5Sp8RkU7GxN6tSG11QafFKOzQZwginA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+SENT MESSAGE {
+  "MessageId": "4cf4e98a-9df8-4925-9c81-4658aed40b60",
+  "MessageName": "VideoEntitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "daa2e67d-3269-51e7-810b-aa340f61ba2b",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"7769fdde-a6a2-4592-9bd6-29259e486861\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:08.797Z",
+  "SignatureVersion" : "1",
+  "Signature" : "A8RCdpBxnFfUxHofu7129e9lAj1BCjVgFs/TMJxYb0yc2aa6ugPFmExB8ntI5le6tKyoO72AgZb1azdj+NrHcTj5bRzWebml68cwcorsVWds9rhfQTLblVWKiQJmqKDLRacxo1XXywA5xPZo+EEdUtk4vWqirKiXrn9Fw7h06aZgqVRGzVbI434OEnwkQj5nZlWmU22RAatwUM3eulAsl8UqGZOxguFT2aNuVvqhq84WbToyYPOTEy6DshnhaZjj0Iuen9k/dowQjjXrrG6wZw3wjkwOsGurPBUKozk3TElJMnwM1aKY1rarkalQrJNiCVCbIMxkb6j2/Ay75Qc3OA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "a654573d-66fc-5449-9f6d-1b74b44a84c3",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"af7c2123-e943-472b-9b06-413e836cfb96\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T15:10:46.048Z",
+  "SignatureVersion" : "1",
+  "Signature" : "YVufCJmQW61zu+ZOXAEKmf4R76AfOoi6yz/qbJ5OFWXI2t6PuJVWqvIjXBjuE0loTyiMqGfb8xY+12Dilgwx//oxTjLyhl/8d/Y4exmYyNuT4UkoJatReXy5iG5lLU8WSmboErC+9c5qLdV2d51nQj5SNCea0Gx7yFrA6YrUakaWdtqQIwM36fZ7kkcOhwEvScPMpbeB0Mh9MHL4yMsryqIuzmsaOmcqBMe0zxAsL/NVm6T26N9HIpRia+BD0tTYsqtIKEEIP5GJn0RJ7328Nc1ekhoRifBBrfj/N+1QTB9TWsT6+kRDpImQxXYk/TPn/C/K7F2aSLWmhFRZFAQcSw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "b3a8669c-b200-563f-8309-2ad58f0fe0d8",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"9a301cfe-7637-4673-800b-5c3d99f5a62d\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:15.757Z",
+  "SignatureVersion" : "1",
+  "Signature" : "KRqCWcLh9sJWgEiWi2yrUjnDg/6+Ig8zkiP6ENV+Uei9sod6LqcNOj1Zlo3nbQMlSyg/349vyLvu8m92ejEh8IYQNp5RW/eXS4y/1zOUzjeEb3BKvGdcBL3Fre4AjP8dcIKXlQcwPRjUNuZ9QRt9w1ai+fA/9PHKU8WGhQFlzLp2sHLXMG2/K7YXVgH8OAInPTvhzT6gqk/mQDSyK1Ql7+YcxjuNoO0yLz/BDbZiMqBvLBTU/w+4odAHBHE1FgJ2KXAy0xnAlSiVkwSgwxCDA7txEM99qhEIAl8xQqzF8K4jroEedCn1ewp5Sp8RkU7GxN6tSG11QafFKOzQZwginA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "b50fd2cc-2311-5f8f-a396-9e851e026f4d",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"5788209f-07be-441f-b904-6916f31d142e\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:19.251Z",
+  "SignatureVersion" : "1",
+  "Signature" : "S2a22Ly/k/6WotZIwlawZwfCdxFLe3jwt0r/6imkq4NOjRzaRL0bmcs2p/3/BNVtUfA4P3Y/vdYkrCDdb9qQQV9nOn+RYXdBAHZMyk9loC9DNwrbS1C1xFZiD2+9W2VMhPVJak/4ttwDawXpdenpuYePkeF88Kea9lztcLWlRFNDKqLyG5YA4xas57KYPQXVuUItdS4x3vdm7Sxi6Ww9ecfOGyhmTQubOAI0tYKWkBin8JvpuvvaChjksFIrcO+iSY9NERunWIfx+YqKQVUNwdGqgvTM63z8nXP5KetsBXqdt/+8qYH2dbPNjxgvLIo+F0lcJibZPMSE+ESxHIEtJQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "30292a37-80f5-5ff1-949d-667ebdf24916",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"b957f635-750e-4ca0-994b-aca7fbd52d7e\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:07.639Z",
+  "SignatureVersion" : "1",
+  "Signature" : "bnwBpjaOIWUqy9pYUHcBG7zogjLe3WUlTchP+0SneWfFCewOUv0zhiGygzpf8tL4Va1t9OgkinETQ77ufnvIrDdhOdBOhUqrQN32UomuMbDbQdQoD4PBLXC3/Qym0YWWp4DwmWY2s4LMzKkUEHAr5hnCgm2i4NisHtrf1NqxMY3Ak/ZkDJsch9+b4/697WdCXNyBCTDvVr5h4++9xDOPsCCE2bf2QQ+v14FOhewSFgPdw/f7WYEjcYf87ivhaSCJZp8pXWoo9EkKxYBPnnjCGCP26H0iKN+H6uQNCi1ZjqhsijXxK6K1262k4QgSIT8pCfCC3RK+7n71hmu3fNXTEw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "fae23101-8ba7-5191-95cc-7d48b6a59917",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"90627eca-9dd0-4ffa-b2b7-e0218eacab61\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:02.656Z",
+  "SignatureVersion" : "1",
+  "Signature" : "EM5Gc9Hc/jXTzFHf/hzRpwVORVvwf4sQDvcZQUtZvBUyCkZF5gZIjvC7QAEDZOritbdGlqsAcQAn0ClYGKr03VQvROpNk7uLt2d0j5TBfOqmu7Y0oOyJydGFRHI4VNhD2UcYeBrMgJB3ECZ26XL9LWQFBl4rztobAIYl0B/voDaAMa9QXFmNORhNHyAHE4AXr0IUNGv1nbEKf9t8rqJeTVi4xs29qKfuIu07m0x62BbK7uyu5Qr2T/4mQHmqGqPWq1gtV3Nx6lETSrIEMbGqgRGE/ilLVe5leJ5NiPJt5f8gulrmuuJV8FbVIiQYqf2ZTPZy6LwEoFybf0RwJprGgw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "bec408cb-c9ea-5d57-a616-4482f4ef62bd",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"9926d9ef-54ab-4f67-9411-3f3d53e0406e\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:05.084Z",
+  "SignatureVersion" : "1",
+  "Signature" : "LoJlqNFk13/1m66Zr+MDMrGaRLzZ8cgL6sE/rjLFDILJqPEMi1IuDMB/wz5wSY+hTG59NUhyNlp+088rvfWzEhCTDh8FxCGZcpkCKz2z/u79ZuyGnBNrBrofQw95NDUJ2DSv1bUDN+JPEPZkAJhUY5yrg9FkHnT3XUrYfDqGQtluIcqeICzCVek7HedQX+YOJT45yUcQVx6R19EVQc6VVtl4P/RAg5QH/JsxEna9oQpTNJbUK8K7Xsa/L4chjvJnskBpKjofWzKBFpDeCIvI+mboF675a7la9HGkyn7S+SBGOaXhLKYdhwStzk4voXEm/RlNKvDHijEeAVRYQ0GbKg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "4b89efe7-dbe0-5dbc-933e-a3aee6f42791",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"3202cda4-35d2-4e51-8c5e-dad5ff828a0d\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:20.382Z",
+  "SignatureVersion" : "1",
+  "Signature" : "I+3I2cyiVlvjRWtUSf+EllnhpWNG9XNnfP73iWuLt+o+1A8Aght3swNLzQ85wCbH1AFnKZIp/czmrqKj1JG266hK40nbZKXVUX31SjGWCNOdgaEnwmLUcjcseENESkV3HyuACjPnlvFHHAnCQDaTaCEA14Fsw9Xb0oc6ee4NbGhqPoOP0AfLlml5hNjP+SQ7YySh5Ls/7jtojHckVkR7evbDxuR3IJMy7JODTlzGxySHup1OpKufpvFYzIyFZmiWvecEe7WTLaWE7J0SHZbHdWpzZks8+33VfCt1/kVrF81KmO/9+kW6oN5VKeXAmAtvhDxw4GK1ULA4XuJsVBy8Jg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "8fdbd6f5-d9c9-5150-809f-9abc0ac88797",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"6fd05f0c-e255-428e-b074-25d2272bbdb5\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T15:12:01.730Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Rbf2CBpOkYXJJCxfY1EptWavm7G1yA5iPahnOi7jbokz+7h4DGtvav9HmsKvRHIe37n4Y799sO/+zWkTznpqswVjVdRf7d7lILjea+RwhN8OPmd164fS7X+bw9C5bpmLvsepbQtTAiKJHDGIrp/qK1CH3nbeTRRrvHlLfX2bqzzDGETLL+VXNvLkeGS8JLs3RhiwCtZjhXVAu8sOWa25DHkmdP7jaiiqwDD4cvFh0er+5yiqo/2Fx51VCQ2JVXP5QeZjZrILMKrvNnnDnQSdLxErFvfzT/J/ZtPuA8MbVcF+EY2gvgPIzDUqGNnRoyVBPRWsrllWynvEKCsJJrtX1g==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "0537fa53-6ac1-5adc-952f-b61a57c24091",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"66a762ce-2dfe-4958-bf6b-2feb3fc11e74\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:03.808Z",
+  "SignatureVersion" : "1",
+  "Signature" : "NQ4B3ZnRtRcFIu1JObIn5wfSUdrjP6OblfR4RVY/xx48EiceTdD1K0ENGQXs9vJcWSUsWxESNmn3FTC0bmgyLJ/Qi9mddT5TaIfLccXj1v79FS3cj6KVidSMHnSa4/Ts8ocTHwnm3PURNYWjmYUTN8cgtVaMlXKaoHDMUw9i7DHSPzBYaOjr2VWtqHiHvR/iJYgYQZaRt80Yy9Edqa/GkTVuamjK6+bQVGSmQGiKedgKcXYCTnPnvUh2rQzEDfaJsT/qqOwjcPcBrR27TgSH6HPuXaHZsaJtb7hvfPjUbSWA25vg6b0nbeElV2I3U1oTVpLo4yliN9N+dxxfpx91ew==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+SENT MESSAGE {
+  "MessageId": "e3ee895e-aafa-45f6-aa3c-467878ec14d5",
+  "MessageName": "VideoEntitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "8eeef6e7-ea85-5119-848b-baaed793d591",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"b3c12d19-51ce-4421-b392-ec4eebc6ed9a\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:22.708Z",
+  "SignatureVersion" : "1",
+  "Signature" : "QSm/zbjB1Xb1RO7jVKDL1JWQALmZGlO27Vm1x1/sbr28tNPAibxRFqsvNC1ndfQsdFnyunInlG1ucYI1AEe6pzzkiak867w9m7MIkWTS9aclkSfEMaDaxgNBY9DZGN8r3o+Ik/Ww/twOM1Bo2DdLkRdwvusvl6aJ8MSQyjNjeyh77SnVV0/tuRC7I75Ol2DZcUumTsBgcy9U1QkbNKKnYSaDLQ0OVF/1W9mf13fmo9lPfu9Im/pIBdvN//Ak3CXXlQ4hXOJPTLYoVfT747Liq/1SP9o6dqF8iBJibJi8WkxxPcvFmhfihkcBgP/YuYwUEzhkBch3iiITyqoOKn2JvA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "bec408cb-c9ea-5d57-a616-4482f4ef62bd",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"9926d9ef-54ab-4f67-9411-3f3d53e0406e\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:05.084Z",
+  "SignatureVersion" : "1",
+  "Signature" : "LoJlqNFk13/1m66Zr+MDMrGaRLzZ8cgL6sE/rjLFDILJqPEMi1IuDMB/wz5wSY+hTG59NUhyNlp+088rvfWzEhCTDh8FxCGZcpkCKz2z/u79ZuyGnBNrBrofQw95NDUJ2DSv1bUDN+JPEPZkAJhUY5yrg9FkHnT3XUrYfDqGQtluIcqeICzCVek7HedQX+YOJT45yUcQVx6R19EVQc6VVtl4P/RAg5QH/JsxEna9oQpTNJbUK8K7Xsa/L4chjvJnskBpKjofWzKBFpDeCIvI+mboF675a7la9HGkyn7S+SBGOaXhLKYdhwStzk4voXEm/RlNKvDHijEeAVRYQ0GbKg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "8eeef6e7-ea85-5119-848b-baaed793d591",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"b3c12d19-51ce-4421-b392-ec4eebc6ed9a\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:22.708Z",
+  "SignatureVersion" : "1",
+  "Signature" : "QSm/zbjB1Xb1RO7jVKDL1JWQALmZGlO27Vm1x1/sbr28tNPAibxRFqsvNC1ndfQsdFnyunInlG1ucYI1AEe6pzzkiak867w9m7MIkWTS9aclkSfEMaDaxgNBY9DZGN8r3o+Ik/Ww/twOM1Bo2DdLkRdwvusvl6aJ8MSQyjNjeyh77SnVV0/tuRC7I75Ol2DZcUumTsBgcy9U1QkbNKKnYSaDLQ0OVF/1W9mf13fmo9lPfu9Im/pIBdvN//Ak3CXXlQ4hXOJPTLYoVfT747Liq/1SP9o6dqF8iBJibJi8WkxxPcvFmhfihkcBgP/YuYwUEzhkBch3iiITyqoOKn2JvA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "75e4788c-644a-50e4-a436-34c559e5cc74",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"715c21e0-6a97-4937-a1a1-b8d501082866\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:34:55.741Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Oefs1Su/8jiIfMpxzQucpMRHHPQgS6zvpDq2JOHVeUBV05E9c4/1XOeGUbuPdF8E9KkSclQTLgtqsqDOzI2que/7MYH3uXCOPZJ6ka0bSDq0k3eIex254f05gGl6JzFXGjKHCmuQsK/8hkbEyDtYdW3h5SfYKadG8svj2QLf5QuzXclTGfQjynWdHQCGK14RbeHaliUK0YP7BCj6XSKZBYLPvwERHy2iUxXD9LxQdKr8decZnh4vg8UIEXn8BzGhalnubuzytJoXU5X91+GEeKZiqxWwSX7ylLROOOj9J5A+jV1rQMtAuuOZy1yzaXFlxpLpYwU2lDX/HLxwabASWQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "eb615809-774f-5cce-bf9c-14404afb8ae5",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"7a6866a1-c3cf-4181-b746-2bf4a4f3c49a\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:35:00.297Z",
+  "SignatureVersion" : "1",
+  "Signature" : "VRpTFrz7oc41oLS1hfESXpMXFA/hnMiuSHqikaOzQ6NKLm1Wi2hFXqJtVBATj1tvzhFbcEE299jwj7ojH6dLpepZLhJIclYTUYCdK66PUeBCuAbnrdC7q/c3GOgNrNF1ysxSNiOJaU5EXLYmAq3nGHVMPaVy94+PvqW+yPNGFj8txnOwK0979KqY2EQMydCT2t/EJfETr3j2pNatKB1AKwWX4Yr/v/RrMl42ySUak8hfVeh4wM74AZe8+kGLOxpHlBRMAUDxGb+FrjW80nqMGHPeQd+NN5e44XYzD1EVr3bJ2K2aEf6OPbHt/6LThWWV9N+i8PFimwe5ajLDME1RNw==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "5a1f4c54-9c8e-5667-aed0-001da19bc42e",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"01af8c84-1589-4ed5-862a-45014811aab0\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:21.574Z",
+  "SignatureVersion" : "1",
+  "Signature" : "KN9QY0lKMJy1sCEnMgGpZiZNwFZiop2APXZDZqsA9SXmlYD/n6Ge44dLZ6MI8C9XU2MATOaRlXquICXjCQ0yNRDY97PMZ9JsajXpuoOL/QwXkM0EoYEClevo2zPKa7hj6HFz3HcokzSzROC3LkvoA7sDk2I/70NAQLPtgHjfK2R394MdY9nRXf99uWBCKzxW9sFU0aP2Mzf6CwapNqU6YoxmHNv6NEE+S0RAHlosjxH97xvLA3QraETs4XeSX0j/9V3/1nAJKC8AtxKo23bULf/2JjkoQYpgwzxtSHY6r2Ux+D6Bf/gt9/QIOIkVBgBubz3IWSnhBpYyT+kODrz5Lg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "3d5714a8-d768-5d13-bb51-58e1ea788ce2",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"d35cd7fb-2252-45af-8e43-c4bafc2060a3\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:16.923Z",
+  "SignatureVersion" : "1",
+  "Signature" : "l5f2BCYGwZWkL0+Tc6Wz5HejQUHmCLE1opKWA0RoTxMIhV7lrPzLIPpM1k6oBAManStam2aMlOHgU05ppuUBC89pCo8Z/fO2GXjWhU5uUDG8a83PWVKsmYkBnEXjUW5h3Obj5A+uTrZdCoONsZi8k1Ays42i8DJXAJSCXYBBXQqG9NuCNvKVBG5Pf91mHUV7lhSKYz8jOgQC+FbmbGDrW2FYpngM11yRYAPZdK+l9VpfhHGiYsszEtsM+wk9dH+yFiQ1NlPJXZw3toQz7CMQxMN1B9lQ7+E1X9V1KA7/33Q4+bwNUuA+0kU63yQwejiqh39WekVqn6ee0Vavj4ry5g==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "8dc0be7c-32e2-518a-bc04-f2350f515f25",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"f5f39f78-e6ca-4260-ad04-ac2d66ea5eb4\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:34:59.163Z",
+  "SignatureVersion" : "1",
+  "Signature" : "X1Rh7MjJJLbxHvYuZBd+o5/s8a4VGfQ8Hz+S5R5S48qYcancxNkvCzhOqNCTI2KWtJ2mC6JiJWV6JfdR9G36VgpCVih1rF5mIvuc6pbn7OVVpcIGZW2DVdqqNDQZzybH7wRXp7YMxN1ucJtcR3s8xhLZy6bmfzDOsj9ElPXqLBb3VjWXY1XUxD3PZ7BoOJTaX/MNey0NFeeXoHpbLjo00SMu5QA1VyzKdMsedi+8O1yy4hbZQLY3Iu6qIgSIO/iLw3DFldUMpAZXwJ0au7pnigvjQB7HMOeYSJqtj7sCT4ehxQaj4DxIKWe4WYk90D7jSgpM5+gMRy3lMSFQzIC0pQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "15558cff-1040-55c2-ad06-c0b62dfdf3e9",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"01fcdf8a-116b-4bd5-80fd-a87674fe795b\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:35:09.536Z",
+  "SignatureVersion" : "1",
+  "Signature" : "krp9CAfaEU3zMEdAa0d1H8Z4UQ7zaHVSEegv918zr/cGCa5ZNBCOT2KmC8CFjSL7esy/W008tN+Z8yojid7bRctmpELBr71icdHbHbODgrtfz+VvRv+VuS7Exsn89sIg3+5jSwdktilJeG/HfA6Jk7tjhu8O645XycqN1hLfx0UAvtPlKCjOHVKNgktPPQ3/J6Vts8wRqCmRdgc0fFZSJIi00L+TkjyXWJU5aJv0FwgAxEHuBwZhbZ/O//fyX22hDw7O93d5QpKGbo/EWNRsxupO1F5KrU/w8mvl1HoYvyeidJrWWAKo7NeQHZDxDhNwWQoR7UiJTpY7OxOuBojotA==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "c20b8d55-f2a1-5015-a6ff-c11c21a33fff",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"4cf4e98a-9df8-4925-9c81-4658aed40b60\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T15:12:02.884Z",
+  "SignatureVersion" : "1",
+  "Signature" : "MP4cIYST6XOxiH1zRX8a4E2uI9UBDjZDX+8XCxJ8Zb6QK5GMNoUpO8dUsT6hGX424jhia6O+rcIwCiKoXyqX/Y6/r63eUYJQQhTX4ODYiIGt3iKTyalu1yPiso77X8u+8mB1lt4gV3dhkmBIOavJMRXYN56CXqKBBd+KAY+U5IHPHLzpl5pHZNgUjhWxtLDTwCCeaGs7MKTp6m7TZqgbbzvpu3XDZR7Ucglt5ZZ5dyRPcECALoNdGGYTT7oaIP3eSMnmkFk5IwxjcyQg3sGKc3g/D7MaRU/IYG20jrmQWqarUum4JCToukp9DKT0npIV8ejWKijLaitUxm0W8nNCAQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}
+Consumer QueuePOC-Consumer-2 Received {
+  "Type" : "Notification",
+  "MessageId" : "c2e44070-3841-592a-94bc-0c39054ac3af",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"90f04cf2-3847-437a-87fa-407bc4824c0a\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:11.115Z",
+  "SignatureVersion" : "1",
+  "Signature" : "jRakoP3L6FgOWU60A0l26CZIuHcdEfYDNK4tm7vYsmRZnVlxH9tOHd/t8pPlpdLdRZNWFxr7xWZU1ITUOfGFY9AQQSQdUoVyHnhKBChHdM7Fyd3tF0qe6RUtmW82iWYIjJbbjA2P078ZuXQliaIRb7wCuvM0FznSzXjz3B2uNcHKWTOs8Ydj5nc3j76N2WDjUHStTq+cxCtzqgc22gNY6q/7ls0+kT1JOy53SO2ff2NiViBjIhLP2wTIwNMChjzLY5mgrrvB8kiBKXh38SXkd5NaBAkPfOG0+cRg5gT+VIUVSaBIcdvIbOY1vsW5ObUq7hnMXUPDa467tiPsfZjOxQ==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:db9ff900-7e05-4b84-819a-3dfb542edcf9"
+}
+SENT MESSAGE {
+  "MessageId": "cf8698a0-275f-42c4-a892-d78737eeb59f",
+  "MessageName": "VideoEntitlements",
+  "AccountNumber":  ["80092320357266"],
+  "LastModified": "2014-11-05T08:15:30-05:00
+}
+Consumer QueuePOC-Consumer-1 Received {
+  "Type" : "Notification",
+  "MessageId" : "4b89efe7-dbe0-5dbc-933e-a3aee6f42791",
+  "TopicArn" : "arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic",
+  "Message" : "{\n  \"MessageId\": \"3202cda4-35d2-4e51-8c5e-dad5ff828a0d\",\n  \"MessageName\": \"VideoEntitlements\",\n  \"AccountNumber\":  [\"80092320357266\"],\n  \"LastModified\": \"2014-11-05T08:15:30-05:00\n}",
+  "Timestamp" : "2014-07-23T04:32:20.382Z",
+  "SignatureVersion" : "1",
+  "Signature" : "I+3I2cyiVlvjRWtUSf+EllnhpWNG9XNnfP73iWuLt+o+1A8Aght3swNLzQ85wCbH1AFnKZIp/czmrqKj1JG266hK40nbZKXVUX31SjGWCNOdgaEnwmLUcjcseENESkV3HyuACjPnlvFHHAnCQDaTaCEA14Fsw9Xb0oc6ee4NbGhqPoOP0AfLlml5hNjP+SQ7YySh5Ls/7jtojHckVkR7evbDxuR3IJMy7JODTlzGxySHup1OpKufpvFYzIyFZmiWvecEe7WTLaWE7J0SHZbHdWpzZks8+33VfCt1/kVrF81KmO/9+kW6oN5VKeXAmAtvhDxw4GK1ULA4XuJsVBy8Jg==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-e372f8ca30337fdb084e8ac449342c77.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:924013738678:QueuePOC-Demo-Topic:f86eeaaf-cb3b-4513-a930-3b95cdd80261"
+}

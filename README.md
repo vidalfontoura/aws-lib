@@ -83,7 +83,7 @@ Usage with a profile name, and config path:
 S3Client client = new S3Client.Builder(S3AuthType.PROFILE).setProfileName("my-profile").setProfileConfigFilePath("/etc/aws-credentials").build();
 ```
 
-### S3 Profile Config File
+### S3/SQS Profile Config File
 The profile config can be used to specify one or mor set of AWS credentials distinguished by a profile name
 <br />
 The default location for a profile config file is in the home directory
@@ -100,3 +100,10 @@ aws_secret_access_key=testSecretKey<br />
 [my-profile]<br />
 aws_access_key_id=testAccessKey<br />
 aws_secret_access_key=testSecretKey<br />
+
+### SQS Demo Assembly
+Run mvn clean assembly:assembly to generate a zip that can be distributed with the SQS demo
+Access Key ID:
+AKIAJIMGRSO57DQNF2HQ
+Secret Access Key:
+oMczkgEWU5WO073vpiTBo9D0Bd0hFr9m88Sm2v8K

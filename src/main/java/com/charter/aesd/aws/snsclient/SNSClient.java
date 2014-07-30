@@ -36,7 +36,7 @@ public class SNSClient
     /**
      *
      */
-    private static final Logger _LOGGER = LoggerFactory.getLogger(SNSClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SNSClient.class);
 
     /**
      * Protocol indicator used by SNS to target AWS SQS queue instances as
@@ -50,7 +50,7 @@ public class SNSClient
     /**
      * local ref to the AWS API
      */
-    private AmazonSNS _awsSNSClient = null;
+    private AmazonSNS awsSNSClient = null;
 
     /**
      * @param client {@link AmazonSNS} the AWS API reference.  Used to
@@ -59,7 +59,7 @@ public class SNSClient
      */
     protected SNSClient(final AmazonSNS client) {
 
-        _awsSNSClient = client;
+        this.awsSNSClient = client;
     }
 
     /**
@@ -68,7 +68,7 @@ public class SNSClient
      */
     protected AmazonSNS getClient() {
 
-        return _awsSNSClient;
+        return this.awsSNSClient;
     }
 
     /**
@@ -84,8 +84,8 @@ public class SNSClient
      * @throws java.io.IOException
      */
     public String createTopic(final String topicName) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("createTopic(" + topicName + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("createTopic(" + topicName + ")");
         }
 
         return ((topicName == null) ||
@@ -106,8 +106,8 @@ public class SNSClient
      * @throws java.io.IOException
      */
     public String resolveTopic(String topicName) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("resolveTopic(" + topicName + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("resolveTopic(" + topicName + ")");
         }
 
         String topicArn = ((topicName == null) ||
@@ -115,8 +115,8 @@ public class SNSClient
                           ? null
                           : getClient().createTopic(topicName).getTopicArn();
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Topic " + topicName + " resolves to ARN " + topicArn);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Topic " + topicName + " resolves to ARN " + topicArn);
         }
 
         return topicArn;
@@ -131,14 +131,14 @@ public class SNSClient
      * @throws IOException
      */
     public void deleteTopic(final String topicArn) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("deleteTopic(" + topicArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("deleteTopic(" + topicArn + ")");
         }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("Invalid / empty Topic ARN specified");
             }
 
             return;
@@ -146,8 +146,8 @@ public class SNSClient
 
         getClient().deleteTopic(topicArn);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("SNS Topic, arn=" + topicArn + " DELETED");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("SNS Topic, arn=" + topicArn + " DELETED");
         }
     }
 
@@ -165,14 +165,14 @@ public class SNSClient
      */
     public void publishMessage(final String topicArn,
                                final String content) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
         }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("Invalid / empty Topic ARN specified");
             }
 
             return;
@@ -181,8 +181,8 @@ public class SNSClient
         PublishResult result = getClient().publish(topicArn,
                                                    content);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Published message, id=" + result.getMessageId() + " to " + topicArn);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Published message, id=" + result.getMessageId() + " to " + topicArn);
         }
     }
 
@@ -200,14 +200,14 @@ public class SNSClient
      */
     public void publishMessages(final String topicArn,
                                 final List<String> content) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
         }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("Invalid / empty Topic ARN specified");
             }
 
             return;
@@ -215,8 +215,8 @@ public class SNSClient
 
         if ((content == null) ||
             (content.size() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("No content specified ... Nothing to publish.");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("No content specified ... Nothing to publish.");
             }
 
             return;
@@ -227,10 +227,10 @@ public class SNSClient
                 getClient().publish(topicArn,
                                     msg);
             } catch(Exception e) {
-                if (_LOGGER.isInfoEnabled()) {
+                if (LOGGER.isInfoEnabled()) {
                     StringWriter errDetailsWriter = new StringWriter();
                     e.printStackTrace(new PrintWriter(errDetailsWriter));
-                    _LOGGER.info("Error sending message:  error=" +
+                    LOGGER.info("Error sending message:  error=" +
                                  e.getMessage() +
                                  ", content=" +
                                  msg +
@@ -255,14 +255,14 @@ public class SNSClient
      */
     public String subscribeToTopic(final String topicArn,
                                    final String queueArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("subscribeToTopic(" + topicArn + ", " + queueArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("subscribeToTopic(" + topicArn + ", " + queueArn + ")");
         }
 
         if ((topicArn == null) ||
             (topicArn.length() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("Invalid / empty Topic ARN specified");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("Invalid / empty Topic ARN specified");
             }
 
             return null;
@@ -275,8 +275,8 @@ public class SNSClient
                         ? null
                         : result.getSubscriptionArn();
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Queue[arn=" +
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Queue[arn=" +
                           queueArn +
                           "] SUBSCRIBED to Topic[arn=" +
                           topicArn +
@@ -292,14 +292,14 @@ public class SNSClient
      *                                       between the topic and the queue
      */
     public void unsubscribeFromTopic(final String subscriptionArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("unsubscribeFromTopic(" + subscriptionArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("unsubscribeFromTopic(" + subscriptionArn + ")");
         }
 
         if ((subscriptionArn == null) ||
             (subscriptionArn.length() == 0)) {
-            if (_LOGGER.isWarnEnabled()) {
-                _LOGGER.trace("Invalid / empty Subscription ARN specified");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.trace("Invalid / empty Subscription ARN specified");
             }
 
             return;
@@ -307,8 +307,8 @@ public class SNSClient
 
         getClient().unsubscribe(subscriptionArn);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn=" + subscriptionArn +"]");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn=" + subscriptionArn +"]");
         }
     }
 
@@ -321,16 +321,16 @@ public class SNSClient
      */
     @Override
     public void enableEnvelope(final String subscriptionArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("enableEnvelope(" + subscriptionArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("enableEnvelope(" + subscriptionArn + ")");
         }
 
         getClient().setSubscriptionAttributes(subscriptionArn,
                                               RAW_MESSAGE_ATRR_NAME,
                                               RAW_MESSAGE_INDICATOR_OFF);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("RawMessageDelivery is ENABLED for Subscription[arn=" + subscriptionArn + "]");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("RawMessageDelivery is ENABLED for Subscription[arn=" + subscriptionArn + "]");
         }
     }
 
@@ -343,16 +343,16 @@ public class SNSClient
      */
     @Override
     public void disableEnvelope(final String subscriptionArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("disableEnvelope(" + subscriptionArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("disableEnvelope(" + subscriptionArn + ")");
         }
 
         getClient().setSubscriptionAttributes(subscriptionArn,
                                               RAW_MESSAGE_ATRR_NAME,
                                               RAW_MESSAGE_INDICATOR_ON);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("RawMessageDelivery is DISABLED for Subscription[arn=" + subscriptionArn + "]");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("RawMessageDelivery is DISABLED for Subscription[arn=" + subscriptionArn + "]");
         }
     }
 
@@ -370,8 +370,8 @@ public class SNSClient
         @Override
         protected SNSClient allocateClient(final ProfileCredentialsProvider provider,
                                            final ClientConfiguration config) {
-            if (_LOGGER.isTraceEnabled()) {
-                _LOGGER.trace("allocateClient()");
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("allocateClient()");
             }
 
             return (provider == null)

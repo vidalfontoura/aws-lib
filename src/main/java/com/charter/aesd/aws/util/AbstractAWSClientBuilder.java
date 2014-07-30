@@ -19,9 +19,9 @@ abstract public class AbstractAWSClientBuilder<T> {
     /**
      *
      */
-    private ClientConfiguration _config = null;
-    private String _profileName;
-    private String _profileConfigFilePath;
+    private ClientConfiguration config = null;
+    private String profileName;
+    private String profileConfigFilePath;
 
     /**
      * Abstract ...
@@ -29,7 +29,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     protected AbstractAWSClientBuilder() {
 
-        _config = new ClientConfiguration();
+        this.config = new ClientConfiguration();
     }
 
     /**
@@ -37,7 +37,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public String getProfileName() {
 
-        return _profileName;
+        return this.profileName;
     }
 
     /**
@@ -50,7 +50,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public AbstractAWSClientBuilder<T> setProfileName(String profileName) {
 
-        _profileName = profileName;
+        this.profileName = profileName;
         return this;
     }
 
@@ -59,7 +59,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public String getProfileConfigFilePath() {
 
-        return _profileConfigFilePath;
+        return this.profileConfigFilePath;
     }
 
     /**
@@ -73,7 +73,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public AbstractAWSClientBuilder<T> setProfileConfigFilePath(String profileConfigFilePath) {
 
-        _profileConfigFilePath = profileConfigFilePath;
+        this.profileConfigFilePath = profileConfigFilePath;
         return this;
     }
 
@@ -86,7 +86,7 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public AbstractAWSClientBuilder<T> setConfig(ClientConfiguration config) {
 
-        _config = config;
+        this.config = config;
 
         return this;
     }
@@ -107,22 +107,22 @@ abstract public class AbstractAWSClientBuilder<T> {
         String proxyUserPasswd = System.getProperty("http.proxyPassword");
 
         if (proxyHost != null) {
-            _config.setProxyHost(proxyHost);
+            this.config.setProxyHost(proxyHost);
         }
 
         if (proxyPort != null) {
-            _config.setProxyPort(Integer.parseInt(proxyPort));
+            this.config.setProxyPort(Integer.parseInt(proxyPort));
         }
 
         if (proxyUserName != null) {
-            _config.setProxyUsername(proxyUserName);
+            this.config.setProxyUsername(proxyUserName);
         }
 
         if (proxyUserPasswd != null) {
-            _config.setProxyPassword(proxyUserPasswd);
+            this.config.setProxyPassword(proxyUserPasswd);
         }
 
-        return _config;
+        return this.config;
     }
 
     /**
@@ -131,15 +131,15 @@ abstract public class AbstractAWSClientBuilder<T> {
      */
     public T build() {
 
-        if (_profileConfigFilePath == null) {
-            if (_profileName == null) {
+        if (this.profileConfigFilePath == null) {
+            if (this.profileName == null) {
                 return allocateClient(new ProfileCredentialsProvider(),
                                       getConfig());
             } else {
-                return allocateClient(new ProfileCredentialsProvider(_profileName),
+                return allocateClient(new ProfileCredentialsProvider(this.profileName),
                                       getConfig());
             }
-        } else if (_profileName != null) {
+        } else if (this.profileName != null) {
             // Have both a profile name and a config location
             return allocateClient(new ProfileCredentialsProvider(new ProfilesConfigFile(getProfileConfigFilePath()),
                                                                                                getProfileName()),

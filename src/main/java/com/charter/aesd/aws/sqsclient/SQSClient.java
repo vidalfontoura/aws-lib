@@ -54,7 +54,7 @@ public class SQSClient implements ISQSClient {
     /**
      *
      */
-    private static final Logger _LOGGER = LoggerFactory.getLogger(SQSClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SQSClient.class);
 
     /**
      *
@@ -68,7 +68,7 @@ public class SQSClient implements ISQSClient {
     /**
      * local ref to the AWS SQS API
      */
-    private AmazonSQS _awsSQSClient = null;
+    private AmazonSQS awsSQSClient = null;
 
     /**
      * @param client {@link AmazonSQS} the AWS API reference.  Used to
@@ -77,7 +77,7 @@ public class SQSClient implements ISQSClient {
      */
     protected SQSClient(final AmazonSQS client) {
 
-        _awsSQSClient = client;
+        this.awsSQSClient = client;
     }
 
     /**
@@ -97,7 +97,7 @@ public class SQSClient implements ISQSClient {
      */
     protected AmazonSQS getClient() {
 
-        return _awsSQSClient;
+        return awsSQSClient;
     }
 
     /**
@@ -111,8 +111,8 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public boolean isQueueExists(final String queueName) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("isQueueExists(" + queueName + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("isQueueExists(" + queueName + ")");
         }
 
         boolean bFound = true;
@@ -120,14 +120,14 @@ public class SQSClient implements ISQSClient {
         try {
             GetQueueUrlResult result = getClient().getQueueUrl(queueName);
 
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("Queue " + queueName + " EXISTS, url=" + result.getQueueUrl());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Queue " + queueName + " EXISTS, url=" + result.getQueueUrl());
             }
         } catch(QueueDoesNotExistException e) {
             bFound = false;
 
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
             }
         }
 
@@ -147,8 +147,8 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public String resolveQueueUrl(final String queueName) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("resolveQueueUrl(" + queueName + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("resolveQueueUrl(" + queueName + ")");
         }
 
         String qUrl = null;
@@ -156,12 +156,12 @@ public class SQSClient implements ISQSClient {
             GetQueueUrlResult qResult = getClient().getQueueUrl(queueName);
             qUrl = (qResult == null) ? null : qResult.getQueueUrl();
 
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("Queue " + queueName + " EXISTS, url=" + qUrl);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Queue " + queueName + " EXISTS, url=" + qUrl);
             }
         } catch(QueueDoesNotExistException e) {
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Queue " + queueName + " DOES NOT EXIST");
             }
         }
 
@@ -181,8 +181,8 @@ public class SQSClient implements ISQSClient {
      * @throws IOException
      */
     public String resolveQueueARN(final String queueUrl) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("resolveQueueARN(" + queueUrl + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("resolveQueueARN(" + queueUrl + ")");
         }
 
         String qArn = null;
@@ -198,12 +198,12 @@ public class SQSClient implements ISQSClient {
             ((attrMap = result.getAttributes()) != null)) {
             qArn = attrMap.get(QUEUE_ARN_ATTR_NAME);
 
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("Queue[url=" + queueUrl + ", arn=" + qArn + "]");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Queue[url=" + queueUrl + ", arn=" + qArn + "]");
             }
         } else {
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("No ARN Found for Queue[url=" + queueUrl + "]");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No ARN Found for Queue[url=" + queueUrl + "]");
             }
         }
 
@@ -224,8 +224,8 @@ public class SQSClient implements ISQSClient {
     @Override
     public void allowTopic(final String queueUrl,
                            final String topicArn) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("allowTopic(" + queueUrl + ", " + topicArn + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("allowTopic(" + queueUrl + ", " + topicArn + ")");
         }
 
         Map<String, String> attrs = new HashMap<String, String>();
@@ -248,8 +248,8 @@ public class SQSClient implements ISQSClient {
         getClient().setQueueAttributes(queueUrl,
                                        attrs);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Topic[arn=" +
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Topic[arn=" +
                                           topicArn +
                                           "] ALLOWED to publish to Queue[url=" +
                                           queueUrl +
@@ -271,14 +271,14 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public String createQueue(final String queueName) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("createQueue(" + queueName + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("createQueue(" + queueName + ")");
         }
 
         CreateQueueResult result = getClient().createQueue(new CreateQueueRequest().withQueueName(queueName));
         String qUrl = result.getQueueUrl();
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Queue[name=" + queueName +
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Queue[name=" + queueName +
                                           ", url=" + qUrl +
                                           "] CREATED");
         }
@@ -295,14 +295,14 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public void deleteQueue(final String queueUrl) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("deleteQueue(" + queueUrl + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("deleteQueue(" + queueUrl + ")");
         }
 
         getClient().deleteQueue(queueUrl);
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Queue[url=" + queueUrl +
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Queue[url=" + queueUrl +
                           "] DELETED");
         }
     }
@@ -331,8 +331,8 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public int getPendingMessageCount(final String queueUrl) {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("getPendingMessageCount(" + queueUrl + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("getPendingMessageCount(" + queueUrl + ")");
         }
 
         List<String> attrs = new ArrayList<String>();
@@ -346,15 +346,15 @@ public class SQSClient implements ISQSClient {
         try {
             msgCnt = Integer.parseInt(val);
         } catch(Exception e) {
-            if (_LOGGER.isWarnEnabled()) {
+            if (LOGGER.isWarnEnabled()) {
                 StringWriter errDetailsWriter = new StringWriter();
                 e.printStackTrace(new PrintWriter(errDetailsWriter));
-                _LOGGER.info("Invalid Message Count Attribute Received from AWS, val=" + val);
+                LOGGER.info("Invalid Message Count Attribute Received from AWS, val=" + val);
             }
         }
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Queue[url=" + queueUrl + "] has " + msgCnt + " messages pending");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Queue[url=" + queueUrl + "] has " + msgCnt + " messages pending");
         }
 
         return msgCnt;
@@ -375,15 +375,15 @@ public class SQSClient implements ISQSClient {
     @Override
     public void sendMessage(final String queueUrl,
                             final String content) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("sendMessage(" + queueUrl + ", content=" + content + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("sendMessage(" + queueUrl + ", content=" + content + ")");
         }
 
         SendMessageResult result = getClient().sendMessage(new SendMessageRequest(queueUrl,
                                                                                   content));
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Message " + result.getMessageId() + " SENT");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Message " + result.getMessageId() + " SENT");
         }
     }
 
@@ -404,8 +404,8 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public Optional<String> receiveMessage(final String queueUrl) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("receiveMessage(" + queueUrl + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("receiveMessage(" + queueUrl + ")");
         }
 
         ReceiveMessageResult result = getClient().receiveMessage(queueUrl);
@@ -414,17 +414,17 @@ public class SQSClient implements ISQSClient {
         if ((result == null) ||
             ((msgs = result.getMessages()) == null) ||
             (msgs.size() == 0)) {
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("No Message Available");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No Message Available");
             }
 
             return Optional.absent();
         }
 
         Message msg = msgs.get(0);
-        if (_LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             // ToDo :: Add message details here
-            _LOGGER.debug("RECEIVED message[id=" + msg.getMessageId() + "]");
+            LOGGER.debug("RECEIVED message[id=" + msg.getMessageId() + "]");
         }
 
         return Optional.of(msg.getBody());
@@ -447,8 +447,8 @@ public class SQSClient implements ISQSClient {
      */
     @Override
     public List<String> receiveMessages(final String queueUrl) throws IOException {
-        if (_LOGGER.isTraceEnabled()) {
-            _LOGGER.trace("receiveMessages(" + queueUrl + ")");
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("receiveMessages(" + queueUrl + ")");
         }
 
         // Drain the queue...
@@ -464,8 +464,8 @@ public class SQSClient implements ISQSClient {
             if ((result == null) ||
                 ((msgs = result.getMessages()) == null) ||
                 (msgs.size() == 0)) {
-                if (_LOGGER.isDebugEnabled()) {
-                    _LOGGER.debug("No Message Available");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("No Message Available");
                 }
 
                 continue;
@@ -480,8 +480,8 @@ public class SQSClient implements ISQSClient {
             }
         }
 
-        if (_LOGGER.isDebugEnabled()) {
-            _LOGGER.debug("Received " + contentMsgs.size() +
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received " + contentMsgs.size() +
                           " messages");
         }
 
@@ -503,8 +503,8 @@ public class SQSClient implements ISQSClient {
         @Override
         protected SQSClient allocateClient(final ProfileCredentialsProvider provider,
                                            final ClientConfiguration config) {
-            if (_LOGGER.isTraceEnabled()) {
-                _LOGGER.trace("allocateClient()");
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("allocateClient()");
             }
 
             return (provider == null)

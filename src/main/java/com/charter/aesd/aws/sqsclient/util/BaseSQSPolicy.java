@@ -15,9 +15,9 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
     /**
      *
      */
-    private String _policyName = null;
-    private String _queueArn = null;
-    private String _topicArn = null;
+    private String policyName = null;
+    private String queueArn = null;
+    private String topicArn = null;
 
     /**
      *
@@ -36,7 +36,7 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public String getPolicyName() {
 
-        return _policyName;
+        return this.policyName;
     }
 
     /**
@@ -45,7 +45,7 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public void setPolicyName(final String pPolicyName) {
 
-        _policyName = pPolicyName;
+        this.policyName = pPolicyName;
     }
 
     /**
@@ -54,7 +54,7 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public String getQueueArn() {
 
-        return _queueArn;
+        return this.queueArn;
     }
 
     /**
@@ -63,7 +63,7 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public void setQueueArn(final String pQueueArn) {
 
-        _queueArn = pQueueArn;
+        this.queueArn = pQueueArn;
     }
 
     /**
@@ -72,7 +72,7 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public String getTopicArn() {
 
-        return _topicArn;
+        return this.topicArn;
     }
 
     /**
@@ -81,6 +81,6 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
      */
     public void setTopicArn(final String pTopicArn) {
 
-        _topicArn = pTopicArn;
+        this.topicArn = pTopicArn;
     }
 } // BaseSQSPolicy

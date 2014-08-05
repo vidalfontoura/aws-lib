@@ -107,7 +107,7 @@ public class SNSMultipleSQSDeliveryDemo {
             System.err.println("ERROR Creating Topic :: msg=" + e.getMessage());
             System.exit(1);
         }
-        System.out.println("AWS SNS Client AVAILABLE");
+        System.out.println("AWS SNS Topic AVAILABLE, ARN=" + topicArn);
 
         SQSClient sqsClient = new SQSClient.Builder().build();
 

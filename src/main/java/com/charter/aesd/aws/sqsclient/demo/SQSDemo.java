@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.sqsclient.demo;
 
+import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.sqsclient.SQSClient;
 import com.google.common.base.Optional;
 
@@ -12,16 +13,18 @@ import java.util.UUID;
  * <p/>
  * Very simple SQS test / demo class.
  * <p/>
- * Connect to the Queue specified on the command line and flood it with the specified number of messages, wait for X
- * seconds, then read the messages off the Queue and compare them.
+ * Connect to the Queue specified on the command line and flood it with the
+ * specified number of messages, wait for X seconds, then read the messages off
+ * the Queue and compare them.
  * <p/>
  * The program does not validate its arguments.
  * <p/>
- * An example command line (omitting class path for clarity) to produce-consume with 1 producer and 1 consumer:
+ * An example command line (omitting class path for clarity) to produce-consume
+ * with 1 producer and 1 consumer:
  * <p/>
  * {@code java om.charter.aesd.aws.sqsclient.SQSDemo <queueName> <numMessages> }
  * <p/>
- *
+ * 
  * @author $Author: $
  * @version $Rev: $
  * @since ${date}
@@ -33,24 +36,19 @@ public class SQSDemo {
      */
     private final static int DEFAULT_NUM_MESSAGES = 1;
     private final static int DEFAULT_SLEEP_INTERVAL_MS = 2000;
-    private final static String ENTITLEMENT_MESSAGE = "{\n" +
-                    "  \"MessageId\": \"{messageId}\",\n" +
-                    "  \"MessageName\": \"VideoEntitlements\",\n" +
-                    "  \"AccountNumber\":  \"80092320357266\",\n" +
-                    "  \"LastModified\": " + System.currentTimeMillis() + "\n" +
-                    "}";
+    private final static String ENTITLEMENT_MESSAGE = "{\n" + "  \"MessageId\": \"{messageId}\",\n"
+        + "  \"MessageName\": \"VideoEntitlements\",\n" + "  \"AccountNumber\":  \"80092320357266\",\n"
+        + "  \"LastModified\": " + System.currentTimeMillis() + "\n" + "}";
 
     /**
-     * @param args
-     * The command line parameters are, in order:
-     *
-     * queueName - The name of the queue. The program assumes that the queue already exists.
-     * numMessages - The number of messages to test
-     *
+     * @param args The command line parameters are, in order:
+     * 
+     *        queueName - The name of the queue. The program assumes that the
+     *        queue already exists. numMessages - The number of messages to test
+     * 
      * @throws InterruptedException
      */
-    public static void main(String[] args)
-                    throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
 
         if (args.length != 2) {
             System.err.println("USAGE:  java com.charter.aesd.aws.sqsclient.SQSDemo <queueName> <numMessages>");
@@ -70,12 +68,13 @@ public class SQSDemo {
         }
 
         final List<String> msgQueue = new ArrayList<String>();
-        SQSClient sqsClient = new SQSClient.Builder().build();
+        SQSClient sqsClient = new SQSClient.Builder(AWSAuthType.PROFILE).build();
         String queueUrl = null;
         int rc = 0;
 
         try {
-            // configure the SQS client with 1 connection (1 producer THEN 1 consumer)
+            // configure the SQS client with 1 connection (1 producer THEN 1
+            // consumer)
             queueName += Long.toString(System.currentTimeMillis());
             System.out.println("Creating Queue " + queueName);
 
@@ -87,27 +86,19 @@ public class SQSDemo {
             }
 
             for (int msgNum = 0; msgNum < numMessages; msgNum++) {
-                msgQueue.add(ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}",
-                                UUID.randomUUID().toString()));
+                msgQueue.add(ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", UUID.randomUUID().toString()));
             }
 
-            System.out.println("Sending " +
-                            numMessages +
-                            " to Queue, endpoint=" +
-                            queueUrl);
+            System.out.println("Sending " + numMessages + " to Queue, endpoint=" + queueUrl);
 
             // Send the messages
             for (String msg : msgQueue) {
-                sqsClient.sendMessage(queueUrl,
-                                msg);
+                sqsClient.sendMessage(queueUrl, msg);
 
-                System.out.println("SENT Message " +
-                                msg);
+                System.out.println("SENT Message " + msg);
             }
 
-            System.out.println("Send COMPLETE, sleeping for " +
-                            DEFAULT_SLEEP_INTERVAL_MS +
-                            "ms");
+            System.out.println("Send COMPLETE, sleeping for " + DEFAULT_SLEEP_INTERVAL_MS + "ms");
 
             // Typically the producer would move onto other work here ....
             Thread.sleep(DEFAULT_SLEEP_INTERVAL_MS);
@@ -144,8 +135,7 @@ public class SQSDemo {
     }
 
     /**
-     * @param content {@code String} derived processing of the message
-     *                               body
+     * @param content {@code String} derived processing of the message body
      */
     private static void process(final String content) {
 

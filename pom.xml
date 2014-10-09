@@ -4,7 +4,7 @@
 
   <groupId>com.charter.aesd</groupId>
   <artifactId>aws-lib</artifactId>
-  <version>0.2.4-SNAPSHOT</version>
+  <version>0.3.0</version>
   <packaging>jar</packaging>
 
   <name>aws-lib</name>

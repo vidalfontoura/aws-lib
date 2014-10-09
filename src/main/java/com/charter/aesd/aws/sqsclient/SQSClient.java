@@ -2,6 +2,7 @@ package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
@@ -486,8 +487,14 @@ public class SQSClient implements ISQSClient {
                 LOGGER.trace("allocateClient()");
             }
 
-            return (provider == null) ? new SQSClient(new AmazonSQSClient(getConfig())) : new SQSClient(
-                new AmazonSQSClient(provider, getConfig()));
+            if (provider == null) {
+                AmazonSQSClient amazonSQSClient = new AmazonSQSClient(getConfig());
+                amazonSQSClient.setRegion(RegionUtils.getRegion(System.getProperty("archaius.deployment.region")));
+                return new SQSClient(amazonSQSClient);
+            }
+            AmazonSQSClient amazonSQSClient = new AmazonSQSClient(provider, getConfig());
+            amazonSQSClient.setRegion(RegionUtils.getRegion(System.getProperty("archaius.deployment.region")));
+            return new SQSClient(amazonSQSClient);
         }
     }
-} // SQSClient
+}

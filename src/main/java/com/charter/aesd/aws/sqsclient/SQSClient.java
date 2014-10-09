@@ -487,14 +487,22 @@ public class SQSClient implements ISQSClient {
                 LOGGER.trace("allocateClient()");
             }
 
-            if (provider == null) {
-                AmazonSQSClient amazonSQSClient = new AmazonSQSClient(getConfig());
+            String region = System.getProperty("archaius.deployment.region");
+            if (region != null) {
+                if (provider == null) {
+                    AmazonSQSClient amazonSQSClient = new AmazonSQSClient(getConfig());
+                    amazonSQSClient.setRegion(RegionUtils.getRegion(System.getProperty("archaius.deployment.region")));
+                    return new SQSClient(amazonSQSClient);
+                }
+                AmazonSQSClient amazonSQSClient = new AmazonSQSClient(provider, getConfig());
                 amazonSQSClient.setRegion(RegionUtils.getRegion(System.getProperty("archaius.deployment.region")));
                 return new SQSClient(amazonSQSClient);
             }
-            AmazonSQSClient amazonSQSClient = new AmazonSQSClient(provider, getConfig());
-            amazonSQSClient.setRegion(RegionUtils.getRegion(System.getProperty("archaius.deployment.region")));
-            return new SQSClient(amazonSQSClient);
+            // If the ${archaius.deployment.region} is not set will create using
+            // the default region which is us-east1
+            return (provider == null) ? new SQSClient(new AmazonSQSClient(getConfig())) : new SQSClient(
+                new AmazonSQSClient(provider, getConfig()));
+
         }
     }
-}
+} // SQSClient

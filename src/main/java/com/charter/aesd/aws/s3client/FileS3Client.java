@@ -79,4 +79,9 @@ public class FileS3Client implements IS3Client {
     public void delete(String bucketName, String path) throws IOException {
         (new File(path)).delete();
     }
+
+    @Override
+    public void mkdir(String bucketName, String path) {
+        (new File(path)).mkdirs();
+    }
 }

@@ -88,4 +88,12 @@ public interface IS3Client {
      * @param path <code>String</code> path of object
      */
     void delete(String bucketName, String path) throws IOException;
+
+    /**
+     * Creates a directory for the specified path
+     *
+     * @param bucketName name of the S3 bucket
+     * @param path <code>String</code> path of directory
+     */
+    void mkdir(String bucketName, String path);
 }

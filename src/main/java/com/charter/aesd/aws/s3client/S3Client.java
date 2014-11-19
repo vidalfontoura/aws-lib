@@ -17,6 +17,7 @@ import com.charter.aesd.aws.s3client.enums.S3AuthType;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Strings;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -345,5 +346,21 @@ public class S3Client implements IS3Client {
 
             return config;
         }
+    }
+
+    @Override
+    public void mkdir(String bucketName, String path) {
+        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+
+        final String correctedPath = path.endsWith("/") ? path : path + "/";
+
+        final ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(0L);
+        objectMetadata.setContentType("application/x-directory");
+
+        final PutObjectRequest putObjectRequest = new PutObjectRequest(
+                bucketName, correctedPath, inputStream, objectMetadata);
+
+        client.putObject(putObjectRequest);
     }
 }

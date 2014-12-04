@@ -8,6 +8,7 @@ import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -18,6 +19,7 @@ import com.charter.aesd.aws.ec2.securitygroup.SecurityGroupQuery;
 import com.charter.aesd.aws.s3client.S3Client;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -27,16 +29,17 @@ import rx.Observable;
 
 /**
  * AWS client for accessing EC2 resources within the AWS EC2 API<br />
- * Use {@link EC2ClientImpl.Builder} to construct an instance of {@link EC2Client}
+ * Use {@link EC2ClientImpl.Builder} to construct an instance of
+ * {@link EC2Client}
  * 
  * @author jappel
  */
-class EC2ClientImpl implements EC2Client {
-    
+public class EC2ClientImpl implements EC2Client {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
     private final AmazonEC2Client awsEC2Client;
 
-    EC2ClientImpl(final AmazonEC2Client client) {
+    private EC2ClientImpl(final AmazonEC2Client client) {
 
         this.awsEC2Client = client;
     }
@@ -48,13 +51,15 @@ class EC2ClientImpl implements EC2Client {
      * @return {@code Observable<SecurityGroup>} for the environment.
      */
     @Override
-    public Observable<SecurityGroup> describeSecurityGroups(final SecurityGroupQuery query) {
+    public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
 
         Callable<Observable<SecurityGroup>> function = new Callable<Observable<SecurityGroup>>() {
 
             public Observable<SecurityGroup> call() throws Exception {
 
-                DescribeSecurityGroupsResult securityDescription = awsEC2Client.describeSecurityGroups(query.getRequest());
+                DescribeSecurityGroupsResult securityDescription =
+                    awsEC2Client.describeSecurityGroups(query.isPresent() ? query.get().getRequest()
+                        : new DescribeSecurityGroupsRequest());
                 return Observable.from(securityDescription.getSecurityGroups());
             }
 

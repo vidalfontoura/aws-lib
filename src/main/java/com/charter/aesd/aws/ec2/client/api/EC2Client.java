@@ -3,9 +3,10 @@
  */
 package com.charter.aesd.aws.ec2.client.api;
 
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.charter.aesd.aws.ec2.securitygroup.SecurityGroupQuery;
+
+import java.util.Optional;
 
 import rx.Observable;
 
@@ -23,8 +24,8 @@ public interface EC2Client {
      * 
      * @param query represents the query that is to be performed against the AWS
      *        EC2 environment.
-     * @return a {@link DescribeSecurityGroupsResult}
+     * @return a {@code Observable<SecurityGroup>}
      */
-    Observable<SecurityGroup> describeSecurityGroups(SecurityGroupQuery query);
+    Observable<SecurityGroup> describeSecurityGroups(Optional<SecurityGroupQuery> query);
 
 }

@@ -57,10 +57,10 @@ public class EC2ClientImpl implements EC2Client {
 
             public Observable<SecurityGroup> call() throws Exception {
 
-                DescribeSecurityGroupsResult securityDescription =
+                DescribeSecurityGroupsResult securityGroupsResult =
                     awsEC2Client.describeSecurityGroups(query.isPresent() ? query.get().getRequest()
                         : new DescribeSecurityGroupsRequest());
-                return Observable.from(securityDescription.getSecurityGroups());
+                return Observable.from(securityGroupsResult.getSecurityGroups());
             }
 
         };

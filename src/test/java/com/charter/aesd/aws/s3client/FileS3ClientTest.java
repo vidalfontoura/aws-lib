@@ -12,12 +12,31 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 public class FileS3ClientTest {
+
+    @Test
+    public void testListFiles() throws IOException {
+
+        final String filePath = "src/test/resources";
+        final List<String> expectedPaths =
+            Lists.newArrayList(new File("src/test/resources/file1").getAbsolutePath(), new File(
+                "src/test/resources/file2").getAbsolutePath(), new File("src/test/resources/file3").getAbsolutePath());
+
+        final IS3Client s3Client = new FileS3Client();
+        final List<S3FileObject> files = s3Client.listFiles(null, filePath, false);
+
+        assertEquals(files.size(), 3);
+        for (S3FileObject s3FileObject : files) {
+            assertTrue(expectedPaths.contains(s3FileObject.getAbsolutePath()));
+        }
+    }
 
     @Test
     public void testPut() throws IOException {
@@ -29,11 +48,12 @@ public class FileS3ClientTest {
 
         s3Client.put(null, filePath, 0L, new ByteArrayInputStream(fileContents.getBytes()));
 
-        final String newfileContents = IOUtils.toString(new FileInputStream(new File(filePath)));
+        try (FileInputStream stream = new FileInputStream(new File(filePath))) {
+            final String newfileContents = IOUtils.toString(stream);
+            assertEquals(fileContents, newfileContents);
+        }
 
-        assertEquals(fileContents, newfileContents);
-
-        new File(filePath).delete();
+        Files.delete(Paths.get(filePath));
     }
 
     @Test
@@ -60,24 +80,5 @@ public class FileS3ClientTest {
         final String newFileContents = IOUtils.toString(input.getObjectContent());
 
         assertEquals(fileContents, newFileContents);
-    }
-
-    @Test
-    public void testListFiles() throws IOException {
-
-        final String filePath = "src/test/resources";
-        final List<String> expectedPaths =
-            Lists.newArrayList(new File("src/test/resources/file1").getAbsolutePath(), new File(
-                "src/test/resources/file2").getAbsolutePath(), new File("src/test/resources/file3").getAbsolutePath());
-        final List<String> expectedNames = Lists.newArrayList("file1", "file2", "file3");
-
-        final IS3Client s3Client = new FileS3Client();
-        final List<S3FileObject> files = s3Client.listFiles(null, filePath, false);
-
-        assertEquals(files.size(), 3);
-        for (S3FileObject s3FileObject : files) {
-            assertTrue(expectedPaths.contains(s3FileObject.getAbsolutePath()));
-            assertTrue(expectedNames.contains(s3FileObject.getName()));
-        }
     }
 }

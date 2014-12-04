@@ -18,7 +18,9 @@ public class FileS3Client implements IS3Client {
     @Override
     public void put(String bucketName, String path, long contentLength, InputStream inputStream) throws IOException {
 
-        ByteStreams.copy(inputStream, new FileOutputStream(new File(path)));
+        try(FileOutputStream stream = new FileOutputStream(new File(path))) {
+            ByteStreams.copy(inputStream,stream);
+        }   
     }
 
     @Override

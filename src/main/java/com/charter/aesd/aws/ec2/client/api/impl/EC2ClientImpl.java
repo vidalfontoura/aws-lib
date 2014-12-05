@@ -12,10 +12,10 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.charter.aesd.aws.ec2.client.api.EC2AuthType;
 import com.charter.aesd.aws.ec2.client.api.EC2Client;
 import com.charter.aesd.aws.ec2.command.EC2Command;
 import com.charter.aesd.aws.ec2.securitygroup.SecurityGroupQuery;
+import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.s3client.S3Client;
 
 import java.lang.invoke.MethodHandles;
@@ -79,17 +79,17 @@ public class EC2ClientImpl implements EC2Client {
      */
     public static class Builder {
 
-        private EC2AuthType authType;
+        private AWSAuthType authType;
         private String profileName;
         private String profileConfigFilePath;
         private ClientConfiguration config;
 
         /**
-         * Constructor for {@link EC2AuthType}
+         * Constructor for {@link AWSAuthType}
          * 
-         * @param authType {@link EC2AuthType}
+         * @param authType {@link AWSAuthType}
          */
-        public Builder(EC2AuthType authType) {
+        public Builder(AWSAuthType authType) {
 
             this.authType = authType;
             this.config = new ClientConfiguration();
@@ -101,7 +101,7 @@ public class EC2ClientImpl implements EC2Client {
          * @param authType
          * @return {@link Builder}
          */
-        public Builder setAuthType(EC2AuthType authType) {
+        public Builder setAuthType(AWSAuthType authType) {
 
             this.authType = authType;
             return this;
@@ -109,7 +109,7 @@ public class EC2ClientImpl implements EC2Client {
 
         /**
          * Sets the name of the profile specified in the profile config, and
-         * used with an auth type of {@link EC2AuthType#PROFILE} <br />
+         * used with an auth type of {@link AWSAuthType#PROFILE} <br />
          * <br />
          * Default value is <code>"default"</code>
          * 
@@ -124,7 +124,7 @@ public class EC2ClientImpl implements EC2Client {
 
         /**
          * Sets the physical location of the profile config, and used with an
-         * auth type of {@link EC2AuthType#PROFILE} <br />
+         * auth type of {@link AWSAuthType#PROFILE} <br />
          * <br />
          * 
          * Default behavior loads the profile config from
@@ -154,20 +154,20 @@ public class EC2ClientImpl implements EC2Client {
 
         public EC2Client build() {
 
-            if (this.authType == EC2AuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
+            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
                 return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(), config));
             }
 
-            if (this.authType == EC2AuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
+            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
                 return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(profileName), config));
             }
 
-            if (this.authType == EC2AuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
+            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
                 return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
                     profileConfigFilePath), profileName), getConfiguration()));
             }
 
-            if (this.authType == EC2AuthType.INSTANCE_ROLE) {
+            if (this.authType == AWSAuthType.INSTANCE_ROLE) {
                 return new EC2ClientImpl(new AmazonEC2Client(new InstanceProfileCredentialsProvider(), config));
             }
 

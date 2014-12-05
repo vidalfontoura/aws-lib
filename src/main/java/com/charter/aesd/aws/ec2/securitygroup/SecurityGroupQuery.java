@@ -5,14 +5,11 @@ package com.charter.aesd.aws.ec2.securitygroup;
 
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import java.util.stream.Collectors;
 
 /**
  * The {@code SecurityGroupQuery} provides a flexible means for constructing an
@@ -62,30 +59,22 @@ public class SecurityGroupQuery {
         public Builder withFilters(Collection<Filter> filters) {
 
             final Collection<com.amazonaws.services.ec2.model.Filter> ec2Filters =
-                Lists.newArrayListWithExpectedSize(filters.size());
-            Observable.from(filters).map(new Func1<Filter, com.amazonaws.services.ec2.model.Filter>() {
-
-                public com.amazonaws.services.ec2.model.Filter call(Filter t1) {
-
-                    return new com.amazonaws.services.ec2.model.Filter(t1.name, t1.values);
-                }
-
-            }).subscribe(new Action1<com.amazonaws.services.ec2.model.Filter>() {
-
-                public void call(com.amazonaws.services.ec2.model.Filter t1) {
-
-                    ec2Filters.add(t1);
-                }
-
-            });
+                filters.stream().map(filter -> new com.amazonaws.services.ec2.model.Filter(filter.name, filter.values))
+                    .collect(Collectors.toCollection(ArrayList::new));
             this.filters = ec2Filters;
+            return this;
+        }
+
+        public Builder withEC2Filters(Collection<com.amazonaws.services.ec2.model.Filter> filters) {
+
+            this.filters = filters;
             return this;
         }
 
         public SecurityGroupQuery build() {
 
             Preconditions.checkArgument((ids != null && !ids.isEmpty()) || (names != null && !names.isEmpty()),
-                "list of security group names or ids must not be empty");
+                "list of security group ids or names must not be empty");
 
             DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
             if (ids != null && !ids.isEmpty())
@@ -121,7 +110,7 @@ public class SecurityGroupQuery {
 
         return request.getGroupIds();
     }
-    
+
     public List<String> getGroupNames() {
 
         return request.getGroupNames();

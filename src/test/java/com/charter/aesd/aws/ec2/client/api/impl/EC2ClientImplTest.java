@@ -3,10 +3,13 @@
  */
 package com.charter.aesd.aws.ec2.client.api.impl;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.charter.aesd.aws.ec2.client.api.EC2AuthType;
 import com.charter.aesd.aws.ec2.client.api.EC2Client;
 import com.charter.aesd.aws.ec2.securitygroup.SecurityGroupQuery;
+import com.charter.aesd.aws.enums.AWSAuthType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -18,8 +21,6 @@ import org.junit.Test;
 
 import rx.Observable;
 import rx.functions.Action1;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class EC2ClientImplTest {
 
@@ -28,7 +29,7 @@ public class EC2ClientImplTest {
     @Before
     public void setUp() {
 
-        client = new EC2ClientImpl.Builder(EC2AuthType.PROFILE).setProfileName("ec2client-test").build();
+        client = new EC2ClientImpl.Builder(AWSAuthType.PROFILE).setProfileName("ec2client-test").build();
     }
 
     @Test
@@ -51,9 +52,8 @@ public class EC2ClientImplTest {
         SecurityGroup actualGroup = group.get(0);
         assertGroup(actualGroup);
     }
-
+    
     private void assertGroup(SecurityGroup group) {
-
         assertThat("Group name matches", group.getGroupName(), is("ec2-security-group-test"));
         assertThat("Group id matches", group.getGroupId(), is("sg-d243aab6"));
         assertThat("Group description matches", group.getDescription(), is("Test EC2 Security Group"));

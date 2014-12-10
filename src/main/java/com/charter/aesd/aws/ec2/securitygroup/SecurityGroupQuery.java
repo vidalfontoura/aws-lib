@@ -42,14 +42,29 @@ public class SecurityGroupQuery {
 
         }
 
-        public static Builder withGroupNames(Collection<String> names) {
+        public static Builder clone(SecurityGroupQuery query) {
+
+            Builder builder = new Builder();
+            builder.names = query.request.getGroupIds();
+            builder.ids = query.request.getGroupIds();
+            builder.filters = query.request.getFilters();
+            return builder;
+        }
+
+        public static Builder create() {
+
+            Builder builder = new Builder();
+            return builder;
+        }
+
+        public Builder withGroupNames(Collection<String> names) {
 
             Builder builder = new Builder();
             builder.names = names;
             return builder;
         }
 
-        public static Builder withGroupIds(Collection<String> ids) {
+        public Builder withGroupIds(Collection<String> ids) {
 
             Builder builder = new Builder();
             builder.ids = ids;
@@ -62,12 +77,6 @@ public class SecurityGroupQuery {
                 filters.stream().map(filter -> new com.amazonaws.services.ec2.model.Filter(filter.name, filter.values))
                     .collect(Collectors.toCollection(ArrayList::new));
             this.filters = ec2Filters;
-            return this;
-        }
-
-        public Builder withEC2Filters(Collection<com.amazonaws.services.ec2.model.Filter> filters) {
-
-            this.filters = filters;
             return this;
         }
 
@@ -104,11 +113,6 @@ public class SecurityGroupQuery {
     public DescribeSecurityGroupsRequest getRequest() {
 
         return request;
-    }
-
-    public List<String> getGroupIds() {
-
-        return request.getGroupIds();
     }
 
     public List<String> getGroupNames() {

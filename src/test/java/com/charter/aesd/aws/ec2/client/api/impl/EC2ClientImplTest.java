@@ -36,7 +36,7 @@ public class EC2ClientImplTest {
     public void testDescribeSecurityGroupsWithSingleGroup() {
 
         SecurityGroupQuery query =
-            SecurityGroupQuery.Builder
+            SecurityGroupQuery.Builder.create()
                 .withGroupIds(ImmutableList.of("sg-d243aab6"))
                 .build();
         Observable<SecurityGroup> groups = client.describeSecurityGroups(Optional.of(query));

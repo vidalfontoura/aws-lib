@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * {@link com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest}.
  * 
  * {@code com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest}
- * construction starts off with the static withGroupNames method, which returns
+ * construction starts off with the static create method, which returns
  * a SecurityGroupQuery.Builder that can take a chained list of group query
  * properties, until the build method is invoked to return the constructed
  * {@code SecurityGroupQuery} instance.

@@ -59,16 +59,14 @@ public class SecurityGroupQuery {
 
         public Builder withGroupNames(Collection<String> names) {
 
-            Builder builder = new Builder();
-            builder.names = names;
-            return builder;
+            this.names = names;
+            return this;
         }
 
         public Builder withGroupIds(Collection<String> ids) {
 
-            Builder builder = new Builder();
-            builder.ids = ids;
-            return builder;
+            this.ids = ids;
+            return this;
         }
 
         public Builder withFilters(Collection<Filter> filters) {
@@ -119,5 +117,11 @@ public class SecurityGroupQuery {
 
         return request.getGroupNames();
     }
+    
+    public List<String> getGroupIds() {
+
+        return request.getGroupIds();
+    }
+
 
 }

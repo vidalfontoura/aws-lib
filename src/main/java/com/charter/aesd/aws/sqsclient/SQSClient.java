@@ -368,19 +368,20 @@ public class SQSClient implements ISQSClient {
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
-     *        that resolves to the Queue instance in the AWS space.
-     * 
-     * @return {@code String} The content that was submitted to the Queue via a
-     *         sendMessage call. This content is the user space content and
-     *         includes nothing from the AWS SQS envelope. This value should
-     *         match what was submitted exactly. This call returns the next
-     *         message on the Queue. NOTE: order is NOT maintained. This method
-     *         returns at most the content of 1 message.
-     * 
+     *                                that resolves to the Queue instance in
+     *                                the Service Provider space.
+     *
+     * @return {@code Message} The message that was submitted to the Queue via a
+     *                        sendMessage call. This call returns the next message
+     *                        on the Queue.  NOTE:  order is
+     *                        NOT implied.  It is up to Service Provider implementation
+     *                        whether the Message Queue implementation is actually a
+     *                        FIFO.  This method returns at most the content of 1 message.
+     *
      * @throws IOException
      */
     @Override
-    public Optional<String> receiveMessage(final String queueUrl) throws IOException {
+    public Optional<Message> receiveMessage(final String queueUrl) throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("receiveMessage(" + queueUrl + ")");
@@ -403,24 +404,25 @@ public class SQSClient implements ISQSClient {
             LOGGER.debug("RECEIVED message[id=" + msg.getMessageId() + "]");
         }
 
-        return Optional.of(msg.getBody());
+        return Optional.of(msg);
     }
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
-     *        that resolves to the Queue instance in the AWS space.
-     * 
-     * @return {@code String} The content(s) that were submitted to the Queue
-     *         via sendMessage calls. This content is the user space content and
-     *         includes nothing from the Service Provider envelope. This value
-     *         should match what was submitted exactly. This call empties the
-     *         Queue. NOTE: order is NOT maintained. This method returns all of
-     *         the messages on the Queue at the time of the call.
-     * 
+     *                                that resolves to the Queue instance in
+     *                                the Service Provider space.
+     *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *                        sendMessage calls.  This call empties the Queue.  
+     *                        NOTE:  order is NOT implied.  It is up
+     *                        to Service Provider implementation whether the Message Queue
+     *                        implementation is actually a FIFO.  This method returns all
+     *                        of the messages on the Queue at the time of the call.
+     *
      * @throws IOException
      */
     @Override
-    public List<String> receiveMessages(final String queueUrl) throws IOException {
+    public List<Message> receiveMessages(final String queueUrl) throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("receiveMessages(" + queueUrl + ")");
@@ -428,7 +430,7 @@ public class SQSClient implements ISQSClient {
 
         // Drain the queue...
         // ToDo :: implement a threshold here
-        List<String> contentMsgs = new ArrayList<String>();
+        List<Message> contentMsgs = new ArrayList<Message>();
         while (getPendingMessageCount(queueUrl) > 0) {
             ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
             request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK);
@@ -449,7 +451,7 @@ public class SQSClient implements ISQSClient {
                     continue;
                 }
 
-                contentMsgs.add(msg.getBody());
+                contentMsgs.add(msg);
             }
         }
 
@@ -458,6 +460,14 @@ public class SQSClient implements ISQSClient {
         }
 
         return contentMsgs;
+    }
+    
+    public void deleteMessage(final String queueUrl, final String receiptHandle) {
+    	
+    	LOGGER.info("Deleting message with receiptHandle = ["+ receiptHandle +"] from queue = ["+ queueUrl +"]");
+    	
+    	getClient().deleteMessage(queueUrl, receiptHandle);
+    	
     }
 
     /**

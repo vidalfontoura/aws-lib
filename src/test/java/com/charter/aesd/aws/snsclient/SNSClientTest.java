@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.snsclient;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.sqsclient.SQSClient;
 import com.google.common.base.Optional;
@@ -172,10 +173,10 @@ public class SNSClientTest {
             }
         }
 
-        Optional<String> msg = sqsClient.receiveMessage(url);
+        Optional<Message> msg = sqsClient.receiveMessage(url);
 
         if (msg.isPresent()) {
-            String msgContent = msg.get();
+            String msgContent = msg.get().getBody();
 
             System.out.println("RECEIVED:: " + msgContent);
 
@@ -226,10 +227,10 @@ public class SNSClientTest {
             }
         }
 
-        Optional<String> msg = sqsClient.receiveMessage(url);
+        Optional<Message> msg = sqsClient.receiveMessage(url);
 
         if (msg.isPresent()) {
-            String msgContent = msg.get();
+            String msgContent = msg.get().getBody();
 
             System.out.println("RECEIVED:: " + msgContent);
 

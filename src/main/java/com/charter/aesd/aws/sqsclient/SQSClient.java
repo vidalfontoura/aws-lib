@@ -462,6 +462,16 @@ public class SQSClient implements ISQSClient {
         return contentMsgs;
     }
     
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the Service Provider space.
+     *                                
+     * @param receiptHandle {@code String} the identifier associated with the act 
+     *                                     of receiving the message.
+     *
+     */    
+    @Override
     public void deleteMessage(final String queueUrl, final String receiptHandle) {
     	
     	LOGGER.info("Deleting message with receiptHandle = ["+ receiptHandle +"] from queue = ["+ queueUrl +"]");

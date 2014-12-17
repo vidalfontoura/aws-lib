@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.sqsclient;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.google.common.base.Optional;
 
 import java.io.IOException;
@@ -109,34 +110,41 @@ public interface ISQSClient
      *                                that resolves to the Queue instance in
      *                                the Service Provider space.
      *
-     * @return {@code String} The content that was submitted to the Queue via a
-     *                        sendMessage call.  This content is the user space content
-     *                        and includes nothing from the Service Provider envelope.
-     *                        This value should match what was submitted exactly.  This call
-     *                        returns the next message on the Queue.  NOTE:  order is
+     * @return {@code Message} The message that was submitted to the Queue via a
+     *                        sendMessage call. This call returns the next message
+     *                        on the Queue.  NOTE:  order is
      *                        NOT implied.  It is up to Service Provider implementation
      *                        whether the Message Queue implementation is actually a
      *                        FIFO.  This method returns at most the content of 1 message.
      *
      * @throws IOException
      */
-    Optional<String> receiveMessage(String queueUrl) throws IOException;
+    Optional<Message> receiveMessage(String queueUrl) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *                                that resolves to the Queue instance in
      *                                the Service Provider space.
      *
-     * @return {@code String} The content(s) that were submitted to the Queue via
-     *                        sendMessage calls.  This content is the user space content
-     *                        and includes nothing from the Service Provider envelope.
-     *                        This value should match what was submitted exactly.  This call
-     *                        empties the Queue.  NOTE:  order is NOT implied.  It is up
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *                        sendMessage calls.  This call empties the Queue.  
+     *                        NOTE:  order is NOT implied.  It is up
      *                        to Service Provider implementation whether the Message Queue
      *                        implementation is actually a FIFO.  This method returns all
      *                        of the messages on the Queue at the time of the call.
      *
      * @throws IOException
      */
-    List<String> receiveMessages(String queueUrl) throws IOException;
+    List<Message> receiveMessages(String queueUrl) throws IOException;
+    
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *                                that resolves to the Queue instance in
+     *                                the Service Provider space.
+     *                                
+     * @param receiptHandle {@code String} the identifier associated with the act 
+     *                                     of receiving the message.
+     *
+     */
+    void deleteMessage(final String queueUrl, final String receiptHandle);
 } // ISQSClient

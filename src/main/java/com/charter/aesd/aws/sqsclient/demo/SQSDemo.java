@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.sqsclient.demo;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.sqsclient.SQSClient;
 import com.google.common.base.Optional;
@@ -107,9 +108,9 @@ public class SQSDemo {
             System.out.println("INITIATING Message Consumption");
             int numRecvd = 0;
             while (numRecvd < numMessages) {
-                Optional<String> msg = sqsClient.receiveMessage(queueUrl);
+                Optional<Message> msg = sqsClient.receiveMessage(queueUrl);
                 if (msg.isPresent()) {
-                    process(msg.get());
+                    process(msg.get().getBody());
                 }
 
                 numRecvd++;

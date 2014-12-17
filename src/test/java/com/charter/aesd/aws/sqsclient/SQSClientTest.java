@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.sqsclient;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.charter.aesd.aws.enums.AWSAuthType;
 import com.google.common.base.Optional;
 
@@ -155,9 +156,9 @@ public class SQSClientTest {
 
         // Send a message, receive a message and then verify no pending
         client.sendMessage(qUrl, TEST_MSG_CONTENT);
-        Optional<String> recvdMsg = client.receiveMessage(qUrl);
+        Optional<Message> recvdMsg = client.receiveMessage(qUrl);
 
-        Assert.assertEquals(TEST_MSG_CONTENT, recvdMsg.get());
+        Assert.assertEquals(TEST_MSG_CONTENT, recvdMsg.get().getBody());
     }
 
     @Test
@@ -166,7 +167,7 @@ public class SQSClientTest {
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
 
-        Optional<String> recvdMsg = client.receiveMessage(qUrl);
+        Optional<Message> recvdMsg = client.receiveMessage(qUrl);
 
         Assert.assertFalse(recvdMsg.isPresent());
     }
@@ -226,14 +227,18 @@ public class SQSClientTest {
         }
 
         // Now, drain the Q and verify all were received
-        java.util.List<String> recvdMsgs = client.receiveMessages(qUrl);
+        java.util.List<Message> recvdMsgs = client.receiveMessages(qUrl);
 
         if ((recvdMsgs == null) || (recvdMsgs.size() != 10)) {
             Assert.fail("Invalid Number of Messages Received");
         }
 
-        for (String msg : recvdMsgs) {
-            msgs.remove(msg);
+        for (Message recvdMsg : recvdMsgs) {
+        	for (String msg : msgs) {
+        		if (recvdMsg.getBody().equals(msg)) {
+        			msgs.remove(msg);        			
+        		}
+        	}
         }
 
         Assert.assertEquals(0, msgs.size());

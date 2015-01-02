@@ -96,4 +96,13 @@ public interface IS3Client {
      * @param path <code>String</code> path of directory
      */
     void mkdir(String bucketName, String path);
+
+    /**
+     * Returns boolean value of whether or not an S3 object exists
+     *
+     * @param bucketName name of the S3 bucket
+     * @param path <code>String</code> path of object
+     * @return {@link Boolean}
+     */
+    boolean exists(String bucketName, String path);
 }

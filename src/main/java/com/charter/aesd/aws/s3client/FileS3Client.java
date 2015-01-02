@@ -84,4 +84,9 @@ public class FileS3Client implements IS3Client {
     public void mkdir(String bucketName, String path) {
         (new File(path)).mkdirs();
     }
+
+    @Override
+    public boolean exists(String bucketName, String path) {
+        return (new File(path)).exists();
+    }
 }

@@ -5,6 +5,7 @@ import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -202,6 +203,36 @@ public class S3Client implements IS3Client {
         client.deleteObject(request);
     }
 
+    @Override
+    public void mkdir(String bucketName, String path) {
+        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+
+        final String correctedPath = path.endsWith("/") ? path : path + "/";
+
+        final ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(0L);
+        objectMetadata.setContentType("application/x-directory");
+
+        final PutObjectRequest putObjectRequest = new PutObjectRequest(
+                bucketName, correctedPath, inputStream, objectMetadata);
+
+        client.putObject(putObjectRequest);
+    }
+
+    @Override
+    public boolean exists(String bucketName, String path) {
+
+        try {
+            client.getObjectMetadata(bucketName, path);
+
+            return true;
+        } catch (AmazonS3Exception e) {
+            if (e.getStatusCode() == 404) {
+                return false;
+            }
+            throw e;
+        }
+    }
     /**
      * Returns the {@code AmazonS3Client} for this instance.
      * 
@@ -346,21 +377,5 @@ public class S3Client implements IS3Client {
 
             return config;
         }
-    }
-
-    @Override
-    public void mkdir(String bucketName, String path) {
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-
-        final String correctedPath = path.endsWith("/") ? path : path + "/";
-
-        final ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(0L);
-        objectMetadata.setContentType("application/x-directory");
-
-        final PutObjectRequest putObjectRequest = new PutObjectRequest(
-                bucketName, correctedPath, inputStream, objectMetadata);
-
-        client.putObject(putObjectRequest);
     }
 }

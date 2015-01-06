@@ -18,9 +18,7 @@ public class FileS3Client implements IS3Client {
     @Override
     public void put(String bucketName, String path, long contentLength, InputStream inputStream) throws IOException {
 
-        try(FileOutputStream stream = new FileOutputStream(new File(path))) {
-            ByteStreams.copy(inputStream,stream);
-        }   
+        ByteStreams.copy(inputStream, new FileOutputStream(new File(path)));
     }
 
     @Override
@@ -85,5 +83,10 @@ public class FileS3Client implements IS3Client {
     @Override
     public void mkdir(String bucketName, String path) {
         (new File(path)).mkdirs();
+    }
+
+    @Override
+    public boolean exists(String bucketName, String path) {
+        return (new File(path)).exists();
     }
 }

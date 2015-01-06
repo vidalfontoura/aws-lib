@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.snsclient.demo;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.snsclient.ISNSClient;
 import com.charter.aesd.aws.snsclient.SNSClient;
@@ -165,6 +166,7 @@ public class QueuePOC {
         /**
          *
          */
+        @Override
         public void run() {
 
             System.out.println("Consumer " + getName() + " WAITING...");
@@ -178,12 +180,12 @@ public class QueuePOC {
                         continue;
                     }
 
-                    Optional<String> msg = _sqsClient.receiveMessage(_queueUrl);
+                    Optional<Message> msg = _sqsClient.receiveMessage(_queueUrl);
                     if (!msg.isPresent()) {
                         continue;
                     }
 
-                    process(msg.get());
+                    process(msg.get().getBody());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

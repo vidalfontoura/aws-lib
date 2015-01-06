@@ -1,5 +1,6 @@
 package com.charter.aesd.aws.snsclient.demo;
 
+import com.amazonaws.services.sqs.model.Message;
 import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.snsclient.ISNSClient;
 import com.charter.aesd.aws.snsclient.SNSClient;
@@ -258,6 +259,7 @@ public class SNSMultipleSQSDeliveryDemo {
         /**
          *
          */
+        @Override
         public void run() {
 
             System.out.println("Consumer " + getName() + " WAITING...");
@@ -274,10 +276,10 @@ public class SNSMultipleSQSDeliveryDemo {
                     }
 
                     System.out.println("Processing Messages on Q " + _queueUrl);
-                    Optional<String> msg = _sqsClient.receiveMessage(_queueUrl);
+                    Optional<Message> msg = _sqsClient.receiveMessage(_queueUrl);
 
                     if (msg.isPresent()) {
-                        process(msg.get());
+                        process(msg.get().getBody());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -6,6 +6,8 @@ import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import junit.framework.Assert;
 
@@ -233,14 +235,9 @@ public class SQSClientTest {
             Assert.fail("Invalid Number of Messages Received");
         }
 
-        for (Message recvdMsg : recvdMsgs) {
-        	for (String msg : msgs) {
-        		if (recvdMsg.getBody().equals(msg)) {
-        			msgs.remove(msg);        			
-        		}
-        	}
-        }
+        List<Message> filterMsgs =
+            recvdMsgs.stream().filter(msg -> msgs.contains(msg.getBody())).collect(Collectors.toList());
 
-        Assert.assertEquals(0, msgs.size());
+        Assert.assertEquals(msgs.size(), filterMsgs.size());
     }
 }

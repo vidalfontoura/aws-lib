@@ -6,7 +6,6 @@ import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.Assert;
 
@@ -92,7 +91,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testCreate() {
+    public void testCreate() throws IOException {
 
         ISQSClient client = getClient();
 
@@ -100,7 +99,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testDestroy() {
+    public void testDestroy() throws IOException {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -188,7 +187,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testExistingQueueURL() {
+    public void testExistingQueueURL() throws IOException {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -197,7 +196,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueExists() {
+    public void testQueueExists() throws IOException {
 
         ISQSClient client = getClient();
 
@@ -205,7 +204,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueNotExists() {
+    public void testQueueNotExists() throws IOException {
 
         ISQSClient client = getClient();
 
@@ -233,12 +232,15 @@ public class SQSClientTest {
         if ((recvdMsgs == null) || (recvdMsgs.size() != 10)) {
             Assert.fail("Invalid Number of Messages Received");
         }
-        else {
-            List<Message> filterMsgs = new ArrayList<>();
-            for (Message msg : recvdMsgs)
-                if (msgs.contains(msg.getBody()))
-                    filterMsgs.add(msg);
-            Assert.assertEquals(msgs.size(), filterMsgs.size());
+
+        for (Message recvdMsg : recvdMsgs) {
+            for (String msg : msgs) {
+                if (recvdMsg.getBody().equals(msg)) {
+                    msgs.remove(msg);                   
+                }
+            }
         }
+
+        Assert.assertEquals(0, msgs.size());
     }
 }

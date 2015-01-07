@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The {@code SecurityGroupQuery} provides a flexible means for constructing an
@@ -71,9 +70,9 @@ public class SecurityGroupQuery {
 
         public Builder withFilters(Collection<Filter> filters) {
 
-            final Collection<com.amazonaws.services.ec2.model.Filter> ec2Filters =
-                filters.stream().map(filter -> new com.amazonaws.services.ec2.model.Filter(filter.name, filter.values))
-                    .collect(Collectors.toCollection(ArrayList::new));
+            final Collection<com.amazonaws.services.ec2.model.Filter> ec2Filters = new ArrayList<>(filters.size());
+            for (Filter filter : filters) 
+                ec2Filters.add(new com.amazonaws.services.ec2.model.Filter(filter.name, filter.values));
             this.filters = ec2Filters;
             return this;
         }

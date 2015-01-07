@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import rx.Observable;
+import rx.functions.Action1;
 
 public class EC2ClientImplTest {
 
@@ -38,9 +39,18 @@ public class EC2ClientImplTest {
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of("sg-d243aab6")).build();
         Observable<SecurityGroup> groups = client.describeSecurityGroups(Optional.of(query));
-        IpPermission inboundPerm = new IpPermission().withFromPort(80).withToPort(80).withIpProtocol("tcp").withIpRanges("0.0.0.0/0");
-        IpPermission outboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-8e52a6ea").withUserId("460570964411"));
-        groups.forEach(item -> assertGroup(item,"ec2-security-group-test","sg-d243aab6","Test EC2 Security Group",inboundPerm,outboundPerm));
+        final IpPermission inboundPerm = new IpPermission().withFromPort(80).withToPort(80).withIpProtocol("tcp").withIpRanges("0.0.0.0/0");
+        final IpPermission outboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-8e52a6ea").withUserId("460570964411"));
+        groups.forEach(new Action1<SecurityGroup>() {
+
+            public void call(SecurityGroup obj) {
+
+                assertGroup(obj, "ec2-security-group-test", "sg-d243aab6", "Test EC2 Security Group", inboundPerm,
+                    outboundPerm);
+
+            }
+
+        });
     }
     
     @Test
@@ -49,9 +59,14 @@ public class EC2ClientImplTest {
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of("sg-8e52a6ea")).build();
         Observable<SecurityGroup> groups = client.describeSecurityGroups(Optional.of(query));
-        IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-d243aab6").withUserId("460570964411"));
-        IpPermission outboundPerm = new IpPermission().withIpProtocol("-1").withIpRanges("0.0.0.0/0");
-        groups.forEach(item -> assertGroup(item,"ec2-security-group-test-2","sg-8e52a6ea","Second Security Test group",inboundPerm,outboundPerm));
+        final IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-d243aab6").withUserId("460570964411"));
+        final IpPermission outboundPerm = new IpPermission().withIpProtocol("-1").withIpRanges("0.0.0.0/0");
+        groups.forEach(new Action1<SecurityGroup>() {
+
+            public void call(SecurityGroup obj) {
+                assertGroup(obj,"ec2-security-group-test-2","sg-8e52a6ea","Second Security Test group",inboundPerm,outboundPerm);
+            }
+        });
     }
     
     @Test
@@ -60,8 +75,13 @@ public class EC2ClientImplTest {
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of("sg-51946235")).build();
         Observable<SecurityGroup> groups = client.describeSecurityGroups(Optional.of(query));
-        IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withIpRanges("0.0.0.0/0","1.0.0.0/32");
-        groups.forEach(item -> assertGroup(item,"ec2-security-group-test-3","sg-51946235","Third Test Security Group",inboundPerm));
+        final IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp").withIpRanges("0.0.0.0/0","1.0.0.0/32");
+        groups.forEach(new Action1<SecurityGroup>() {
+
+            public void call(SecurityGroup obj) {
+                assertGroup(obj,"ec2-security-group-test-3","sg-51946235","Third Test Security Group",inboundPerm);
+            }
+        });
     }
     
     @Test
@@ -70,9 +90,14 @@ public class EC2ClientImplTest {
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of("sg-10956374")).build();
         Observable<SecurityGroup> groups = client.describeSecurityGroups(Optional.of(query));
-        IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("udp").withIpRanges("0.0.0.0/0");
-        IpPermission inboundPerm1 = new IpPermission().withIpProtocol("icmp").withIpRanges("0.0.0.0/0");
-        groups.forEach(item -> assertGroup(item,"ec2-security-group-test-4","sg-10956374","Fourth Test Security Group",ImmutableList.of(inboundPerm,inboundPerm1)));
+        final IpPermission inboundPerm = new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("udp").withIpRanges("0.0.0.0/0");
+        final IpPermission inboundPerm1 = new IpPermission().withIpProtocol("icmp").withIpRanges("0.0.0.0/0");
+        groups.forEach(new Action1<SecurityGroup>() {
+
+            public void call(SecurityGroup obj) {
+                assertGroup(obj,"ec2-security-group-test-4","sg-10956374","Fourth Test Security Group",ImmutableList.of(inboundPerm,inboundPerm1));
+            }
+        });
     }
     
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound) {
@@ -88,7 +113,7 @@ public class EC2ClientImplTest {
         assertThat("Group name matches", group.getGroupName(), is(name));
         assertThat("Group id matches", group.getGroupId(), is(id));
         assertThat("Group description matches", group.getDescription(), is(description));
-        inbound.stream().allMatch(grp -> group.getIpPermissions().contains(grp));
+        inbound.containsAll(group.getIpPermissions());
     }
     
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound, IpPermission outbound) {

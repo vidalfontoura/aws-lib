@@ -7,7 +7,6 @@ import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import junit.framework.Assert;
 
@@ -93,7 +92,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testCreate() throws IOException {
+    public void testCreate() {
 
         ISQSClient client = getClient();
 
@@ -101,7 +100,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testDestroy() throws IOException {
+    public void testDestroy() {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -189,7 +188,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testExistingQueueURL() throws IOException {
+    public void testExistingQueueURL() {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -198,7 +197,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueExists() throws IOException {
+    public void testQueueExists() {
 
         ISQSClient client = getClient();
 
@@ -206,7 +205,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueNotExists() throws IOException {
+    public void testQueueNotExists() {
 
         ISQSClient client = getClient();
 
@@ -234,10 +233,14 @@ public class SQSClientTest {
         if ((recvdMsgs == null) || (recvdMsgs.size() != 10)) {
             Assert.fail("Invalid Number of Messages Received");
         }
+        else {
 
-        List<Message> filterMsgs =
-            recvdMsgs.stream().filter(msg -> msgs.contains(msg.getBody())).collect(Collectors.toList());
+            List<Message> filterMsgs = new ArrayList<>();
+            for (Message msg : recvdMsgs)
+                if (msgs.contains(msg.getBody()))
+                    filterMsgs.add(msg);
 
-        Assert.assertEquals(msgs.size(), filterMsgs.size());
+            Assert.assertEquals(msgs.size(), filterMsgs.size());
+        }
     }
 }

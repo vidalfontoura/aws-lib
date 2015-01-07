@@ -177,5 +177,18 @@ public class S3ClientTest {
        System.setProperty("http.proxyPassword", "");
        
     }
-}
+    
+    @Test
+    public void testExists() {
 
+        String expected = "this exists";
+        byte[] bytes = expected.getBytes();
+        client.put("s3client-test", "exists", bytes.length, new ByteArrayInputStream(bytes));
+
+        boolean doesNotExist = client.exists("s3client-test", "does_not_exist");
+        boolean exists = client.exists("s3client-test", "exists");
+
+        Assert.assertFalse(doesNotExist);
+        Assert.assertTrue(exists);
+    }
+}

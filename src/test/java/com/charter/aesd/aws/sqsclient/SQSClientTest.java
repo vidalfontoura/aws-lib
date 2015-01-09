@@ -6,6 +6,7 @@ import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -91,7 +92,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testCreate() throws IOException {
+    public void testCreate() {
 
         ISQSClient client = getClient();
 
@@ -99,7 +100,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testDestroy() throws IOException {
+    public void testDestroy() {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -187,7 +188,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testExistingQueueURL() throws IOException {
+    public void testExistingQueueURL() {
 
         ISQSClient client = getClient();
         String qUrl = getQueueUrl();
@@ -196,7 +197,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueExists() throws IOException {
+    public void testQueueExists() {
 
         ISQSClient client = getClient();
 
@@ -204,7 +205,7 @@ public class SQSClientTest {
     }
 
     @Test
-    public void testQueueNotExists() throws IOException {
+    public void testQueueNotExists() {
 
         ISQSClient client = getClient();
 
@@ -226,21 +227,16 @@ public class SQSClientTest {
             msgs.add(msgContent);
         }
 
-        // Now, drain the Q and verify all were received
         java.util.List<Message> recvdMsgs = client.receiveMessages(qUrl);
-
         if ((recvdMsgs == null) || (recvdMsgs.size() != 10)) {
             Assert.fail("Invalid Number of Messages Received");
         }
-
-        for (Message recvdMsg : recvdMsgs) {
-        	for (String msg : msgs) {
-        		if (recvdMsg.getBody().equals(msg)) {
-        			msgs.remove(msg);        			
-        		}
-        	}
+        else {
+            List<Message> filterMsgs = new ArrayList<>();
+            for (Message msg : recvdMsgs)
+                if (msgs.contains(msg.getBody()))
+                    filterMsgs.add(msg);
+            Assert.assertEquals(msgs.size(), filterMsgs.size());
         }
-
-        Assert.assertEquals(0, msgs.size());
     }
 }

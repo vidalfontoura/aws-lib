@@ -234,7 +234,7 @@ public class SNSClientTest {
 
             System.out.println("RECEIVED:: " + msgContent);
 
-            Assert.assertEquals(TEST_MSG_CONTENT, msg.get());
+            Assert.assertEquals(TEST_MSG_CONTENT, msg.get().getBody());
         } else {
             Assert.fail("FAILED to receive original message on SQS Queue");
         }

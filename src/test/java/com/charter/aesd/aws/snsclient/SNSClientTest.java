@@ -157,7 +157,9 @@ public class SNSClientTest {
         String topicARN = getTopicARN();
 
         // Use an SQS Queue to receive and verify the content
-        SQSClient sqsClient = new SQSClient.Builder(AWSAuthType.PROFILE).build();
+        SQSClient sqsClient =
+            Boolean.getBoolean("use.iam.role") ? new SQSClient.Builder(AWSAuthType.INSTANCE_ROLE).build()
+                : new SQSClient.Builder(AWSAuthType.PROFILE).build();
         String url = sqsClient.createQueue(TEST_CONSUMER_QUEUE_NAME + "-" + System.currentTimeMillis() + "-" + randomKey);
 
         sqsClient.allowTopic(url, topicARN);
@@ -208,7 +210,9 @@ public class SNSClientTest {
         }
 
         // Use an SQS Queue to receive and verify the content
-        SQSClient sqsClient = new SQSClient.Builder(AWSAuthType.PROFILE).build();
+        SQSClient sqsClient =
+                        Boolean.getBoolean("use.iam.role") ? new SQSClient.Builder(AWSAuthType.INSTANCE_ROLE).build()
+                            : new SQSClient.Builder(AWSAuthType.PROFILE).build();
         String url = sqsClient.createQueue(TEST_CONSUMER_QUEUE_NAME + "-" + System.currentTimeMillis() + "-" + randomKey);
 
         sqsClient.allowTopic(url, topicARN);

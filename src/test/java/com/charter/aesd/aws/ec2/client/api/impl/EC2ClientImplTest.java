@@ -30,7 +30,8 @@ public class EC2ClientImplTest {
     @Before
     public void setUp() {
 
-        client = new EC2ClientImpl.Builder(AWSAuthType.PROFILE).setProfileName("ec2client-test").build();
+        client = Boolean.getBoolean("use.iam.role") ? new EC2ClientImpl.Builder(AWSAuthType.INSTANCE_ROLE).build() :
+            new EC2ClientImpl.Builder(AWSAuthType.PROFILE).setProfileName("ec2client-test").build();
     }
 
     @Test

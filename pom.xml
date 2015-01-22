@@ -158,6 +158,14 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+	   <profile>
+	       <id>iam</id>
+	       <properties>
+	           <use.iam.role>true</use.iam.role>
+	       </properties>
+	   </profile>
+	</profiles>
 	<distributionManagement>
 		<repository>
 			<id>charter-release</id>

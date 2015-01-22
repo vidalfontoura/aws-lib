@@ -56,7 +56,9 @@ public class SQSClientTest {
     @Before
     public void setUp() {
 
-        _client = new SQSClient.Builder(AWSAuthType.PROFILE).setProfileName(TEST_PROFILE_NAME).build();
+        _client =
+            Boolean.getBoolean("use.iam.role") ? new SQSClient.Builder(AWSAuthType.INSTANCE_ROLE).build()
+                : new SQSClient.Builder(AWSAuthType.PROFILE).setProfileName(TEST_PROFILE_NAME).build();
 
         String qUrl = null;
         try {

@@ -60,7 +60,9 @@ public class SNSClientTest {
     @Before
     public void setUp() {
 
-        _client = new SNSClient.Builder(AWSAuthType.PROFILE).setProfileName(TEST_PROFILE_NAME).build();
+        _client =
+            Boolean.getBoolean("use.iam.role") ? new SNSClient.Builder(AWSAuthType.INSTANCE_ROLE).build()
+                : new SNSClient.Builder(AWSAuthType.PROFILE).setProfileName(TEST_PROFILE_NAME).build();
 
         randomKey = UUID.randomUUID().toString();
         String topicArn = null;

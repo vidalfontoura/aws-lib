@@ -30,7 +30,9 @@ public class EC2ClientImplTest {
     @Before
     public void setUp() {
 
-        client = new EC2ClientImpl.Builder(AWSAuthType.PROFILE).setProfileName("ec2client-test").build();
+        client =
+            Boolean.getBoolean("use.iam.role") ? new EC2ClientImpl.Builder(AWSAuthType.INSTANCE_ROLE).build()
+                : new EC2ClientImpl.Builder(AWSAuthType.PROFILE).setProfileName("ec2client-test").build();
     }
 
     @Test
@@ -52,7 +54,7 @@ public class EC2ClientImplTest {
 
         });
     }
-    
+
     @Test
     public void testDescribeSecurityGroupsWithAllOutbound() {
 
@@ -68,7 +70,7 @@ public class EC2ClientImplTest {
             }
         });
     }
-    
+
     @Test
     public void testDescribeSecurityGroupsWithMultipleInboundCIDRs() {
 
@@ -83,7 +85,7 @@ public class EC2ClientImplTest {
             }
         });
     }
-    
+
     @Test
     public void testDescribeSecurityGroupsWithRemainingProtocols() {
 
@@ -99,7 +101,7 @@ public class EC2ClientImplTest {
             }
         });
     }
-    
+
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound) {
 
         assertThat("Group name matches", group.getGroupName(), is(name));
@@ -107,7 +109,7 @@ public class EC2ClientImplTest {
         assertThat("Group description matches", group.getDescription(), is(description));
         assertThat("Inbound permission matches", group.getIpPermissions().get(0), is(inbound));
     }
-    
+
     private void assertGroup(SecurityGroup group, String name, String id, String description, List<IpPermission> inbound) {
 
         assertThat("Group name matches", group.getGroupName(), is(name));
@@ -115,7 +117,7 @@ public class EC2ClientImplTest {
         assertThat("Group description matches", group.getDescription(), is(description));
         inbound.containsAll(group.getIpPermissions());
     }
-    
+
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound, IpPermission outbound) {
 
         assertThat("Group name matches", group.getGroupName(), is(name));

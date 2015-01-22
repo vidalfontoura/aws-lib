@@ -2,6 +2,8 @@ package com.charter.aesd.aws.s3client;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
+import com.charter.aesd.aws.ec2.client.api.impl.EC2ClientImpl;
+import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.s3client.enums.S3AuthType;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Charsets;
@@ -31,9 +33,9 @@ public class S3ClientTest {
     @Before
     public void setUp() {
 
-        client = new S3Client.Builder(S3AuthType.PROFILE)
-        .setProfileName("s3client-test")
-        .build();
+        client =
+            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build()
+                : new S3Client.Builder(S3AuthType.PROFILE).setProfileName("s3client-test").build();
     }
 
     @Test

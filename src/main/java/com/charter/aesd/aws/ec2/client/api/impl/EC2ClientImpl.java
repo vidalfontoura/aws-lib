@@ -4,6 +4,7 @@
 package com.charter.aesd.aws.ec2.client.api.impl;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
@@ -82,6 +83,8 @@ public class EC2ClientImpl implements EC2Client {
         private AWSAuthType authType;
         private String profileName;
         private String profileConfigFilePath;
+        private String awsAccountKey;
+        private String awsSecretKey;
         private ClientConfiguration config;
 
         /**
@@ -151,11 +154,39 @@ public class EC2ClientImpl implements EC2Client {
             this.config = config;
             return this;
         }
+        
+        /**
+         * Sets the AWS Account Key used to configure the
+         * {@link AmazonEC2Client}
+         * 
+         * @param awsAccountKey {@code awsAccountKey}
+         * @return {@link Builder}
+         */
+        public Builder setAwsAccountKey(String awsAccountKey) {
+
+            this.awsAccountKey = awsAccountKey;
+            return this;
+        }
+        
+        /**
+         * Sets the AWS Secret Key used to configure the
+         * {@link AmazonEC2Client}
+         * 
+         * @param awsSecretKey {@code awsSecretKey}
+         * @return {@link Builder}
+         */
+        public Builder setAwsSecretKey(String awsSecretKey) {
+
+            this.awsSecretKey = awsSecretKey;
+            return this;
+        }
 
         public EC2Client build() {
 
-            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
-                return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(), config));
+
+            if (this.authType == AWSAuthType.PROFILE && awsAccountKey != null && awsSecretKey != null) {
+                return new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
+                    getConfiguration()));
             }
 
             if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName != null) {

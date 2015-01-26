@@ -183,8 +183,7 @@ public class EC2ClientImpl implements EC2Client {
 
         public EC2Client build() {
 
-
-            if (this.authType == AWSAuthType.PROFILE && awsAccountKey != null && awsSecretKey != null) {
+            if (this.authType == AWSAuthType.CREDENTIALS && awsAccountKey != null && awsSecretKey != null) {
                 return new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
                     getConfiguration()));
             }

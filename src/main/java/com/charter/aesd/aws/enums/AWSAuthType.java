@@ -16,7 +16,13 @@ public enum AWSAuthType {
      * Uses {@link ProfileCredentialsProvider} for an
      * {@link AWSCredentialsProvider}
      */
-    PROFILE("Profile");
+    PROFILE("Profile"),
+    
+    /**
+     * Uses {@link BasicAWSCredentials} for an
+     * {@link AWSCredentials}
+     */
+    CREDENTIALS("Credentials");
 
     private final String value;
 

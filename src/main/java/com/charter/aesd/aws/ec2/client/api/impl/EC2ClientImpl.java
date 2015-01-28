@@ -9,9 +9,11 @@ import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+
 import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
 import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
 import com.amazonaws.services.ec2.model.DeleteSecurityGroupRequest;
+
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -47,29 +49,13 @@ public class EC2ClientImpl implements EC2Client {
 
         this.awsEC2Client = client;
     }
-
-    @Override
-    public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
-
-        Callable<Observable<SecurityGroup>> function = new Callable<Observable<SecurityGroup>>() {
-
-            public Observable<SecurityGroup> call() throws Exception {
-
-                DescribeSecurityGroupsResult securityGroupsResult =
-                    awsEC2Client.describeSecurityGroups(query.isPresent() ? query.get().getRequest()
-                        : new DescribeSecurityGroupsRequest());
-                return Observable.from(securityGroupsResult.getSecurityGroups());
-            }
-
-        };
-        EC2Command<Observable<SecurityGroup>> command = new EC2Command<Observable<SecurityGroup>>(function);
-        try {
-            return command.run();
-        } catch (Exception e) {
-            LOGGER.error("Error executing AWS EC2 command", e);
-        }
-        return Observable.empty();
-    }
+    
+    /**
+     * This method returns all of the security groups for a particular
+     * environment germane to the {@link AmazonEC2Client}.
+     * 
+     * @return {@code Observable<SecurityGroup>} for the environment.
+     */
     
     @Override
     public Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,

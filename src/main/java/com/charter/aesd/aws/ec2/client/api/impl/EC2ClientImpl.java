@@ -4,10 +4,14 @@
 package com.charter.aesd.aws.ec2.client.api.impl;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
+import com.amazonaws.services.ec2.model.DeleteSecurityGroupRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -44,12 +48,6 @@ public class EC2ClientImpl implements EC2Client {
         this.awsEC2Client = client;
     }
 
-    /**
-     * This method returns all of the security groups for a particular
-     * environment germane to the {@link AmazonEC2Client}.
-     * 
-     * @return {@code Observable<SecurityGroup>} for the environment.
-     */
     @Override
     public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
 
@@ -72,6 +70,50 @@ public class EC2ClientImpl implements EC2Client {
         }
         return Observable.empty();
     }
+    
+    @Override
+    public Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,
+                                                                     Optional<String> groupDescription) {
+
+        Callable<Observable<CreateSecurityGroupResult>> function =
+            new Callable<Observable<CreateSecurityGroupResult>>() {
+
+                public Observable<CreateSecurityGroupResult> call() throws Exception {
+
+                    CreateSecurityGroupRequest request = new CreateSecurityGroupRequest();
+                    if (groupDescription.isPresent())
+                        request.withGroupName(groupName).withVpcId(vpcId).withDescription(groupDescription.get());
+                    else
+                        request.withGroupName(groupName).withVpcId(vpcId);
+                    return Observable.just(awsEC2Client.createSecurityGroup(request));
+                }
+
+            };
+        EC2Command<Observable<CreateSecurityGroupResult>> command =
+            new EC2Command<Observable<CreateSecurityGroupResult>>(function);
+        try {
+            return command.run();
+        } catch (Exception e) {
+            LOGGER.error("Error executing AWS EC2 command", e);
+        }
+        return Observable.empty();
+    }
+    
+    @Override
+    public Observable<Void> deleteSecurityGroup(String groupId) {
+
+        Callable<Observable<Void>> function = () -> {
+            awsEC2Client.deleteSecurityGroup(new DeleteSecurityGroupRequest().withGroupId(groupId));
+            return Observable.empty();
+        };
+        EC2Command<Observable<Void>> command = new EC2Command<Observable<Void>>(function);
+        try {
+            return command.run();
+        } catch (Exception e) {
+            LOGGER.error("Error executing AWS EC2 command", e);
+        }
+        return Observable.empty();
+    }
 
     /**
      * Builder class for constructing an instance of {@link S3Client}
@@ -82,6 +124,8 @@ public class EC2ClientImpl implements EC2Client {
         private AWSAuthType authType;
         private String profileName;
         private String profileConfigFilePath;
+        private String awsAccountKey;
+        private String awsSecretKey;
         private ClientConfiguration config;
 
         /**
@@ -151,11 +195,38 @@ public class EC2ClientImpl implements EC2Client {
             this.config = config;
             return this;
         }
+        
+        /**
+         * Sets the AWS Account Key used to configure the
+         * {@link AmazonEC2Client}
+         * 
+         * @param awsAccountKey {@code awsAccountKey}
+         * @return {@link Builder}
+         */
+        public Builder setAwsAccountKey(String awsAccountKey) {
+
+            this.awsAccountKey = awsAccountKey;
+            return this;
+        }
+        
+        /**
+         * Sets the AWS Secret Key used to configure the
+         * {@link AmazonEC2Client}
+         * 
+         * @param awsSecretKey {@code awsSecretKey}
+         * @return {@link Builder}
+         */
+        public Builder setAwsSecretKey(String awsSecretKey) {
+
+            this.awsSecretKey = awsSecretKey;
+            return this;
+        }
 
         public EC2Client build() {
 
-            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
-                return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(), config));
+            if (this.authType == AWSAuthType.CREDENTIALS && awsAccountKey != null && awsSecretKey != null) {
+                return new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
+                    getConfiguration()));
             }
 
             if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName != null) {

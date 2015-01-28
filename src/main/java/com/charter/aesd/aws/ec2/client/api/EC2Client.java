@@ -84,5 +84,41 @@ public interface EC2Client {
      */
     Observable<Void> createSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
                                                     Optional<String> cidr, Optional<String> destinationGroupId);
+    
+    /**
+     * Deletes a security group rule based on the supplied arguments. The cidr
+     * and destinationGroupId arguments are mutually exclusive and one of them
+     * is required to be present.
+     * 
+     * @param groupId the source group id for the rule
+     * @param toPort the port to which the rule allows access
+     * @param fromPort the port from which the rule access
+     * @param protocol the protocol associated with the rule
+     * @param cidr the CIDR IP address range to be associated if present.
+     * @param destinationGroupId the ID of the destination security group Id
+     * @throw IllegalArgumentException if both the cidr and destinationGroupId
+     *        arguments are not present.
+     * @return {@code Observable<Void>}
+     */
+    Observable<Void> deleteSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
+                                                    Optional<String> cidr, Optional<String> destinationGroupId);
+
+    /**
+     * Deletes a security group rule based on the supplied arguments. The cidr
+     * and destinationGroupId arguments are mutually exclusive and one of them
+     * is required to be present.
+     * 
+     * @param groupId the source group id for the rule
+     * @param toPort the port to which the rule allows access
+     * @param fromPort the port from which the rule access
+     * @param protocol the protocol associated with the rule
+     * @param cidr the CIDR IP address range to be associated if present.
+     * @param destinationGroupId the ID of the destination security group Id
+     * @throw IllegalArgumentException if both the cidr and destinationGroupId
+     *        arguments are not present.
+     * @return {@code Observable<Void>}
+     */
+    Observable<Void> deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
+                                                   Optional<String> cidr, Optional<String> destinationGroupId);
 
 }

@@ -78,30 +78,23 @@ public class EC2ClientImpl implements EC2Client {
                         : new DescribeSecurityGroupsRequest());
                 return Observable.from(securityGroupsResult.getSecurityGroups());
             };
-        Optional<Observable<SecurityGroup>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
 
     @Override
     public Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,
                                                                      Optional<String> groupDescription) {
 
-        Supplier<Observable<CreateSecurityGroupResult>> function =
-            new Supplier<Observable<CreateSecurityGroupResult>>() {
+        Supplier<Observable<CreateSecurityGroupResult>> function = () -> {
 
-                public Observable<CreateSecurityGroupResult> get() {
-
-                    CreateSecurityGroupRequest request = new CreateSecurityGroupRequest();
-                    if (groupDescription.isPresent())
-                        request.withGroupName(groupName).withVpcId(vpcId).withDescription(groupDescription.get());
-                    else
-                        request.withGroupName(groupName).withVpcId(vpcId);
-                    return Observable.just(awsEC2Client.createSecurityGroup(request));
-                }
-
-            };
-        Optional<Observable<CreateSecurityGroupResult>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+            CreateSecurityGroupRequest request = new CreateSecurityGroupRequest();
+            if (groupDescription.isPresent())
+                request.withGroupName(groupName).withVpcId(vpcId).withDescription(groupDescription.get());
+            else
+                request.withGroupName(groupName).withVpcId(vpcId);
+            return Observable.just(awsEC2Client.createSecurityGroup(request));
+        };
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
     
     @Override
@@ -111,8 +104,7 @@ public class EC2ClientImpl implements EC2Client {
             awsEC2Client.deleteSecurityGroup(new DeleteSecurityGroupRequest().withGroupId(groupId));
             return Observable.empty();
         };
-        Optional<Observable<Void>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
     
     @Override
@@ -131,8 +123,7 @@ public class EC2ClientImpl implements EC2Client {
             awsEC2Client.authorizeSecurityGroupEgress(request);
             return Observable.empty();
         };
-        Optional<Observable<Void>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
     
     @Override
@@ -151,8 +142,7 @@ public class EC2ClientImpl implements EC2Client {
             awsEC2Client.authorizeSecurityGroupIngress(request);
             return Observable.empty();
         };
-        Optional<Observable<Void>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
     
     @Override
@@ -171,8 +161,7 @@ public class EC2ClientImpl implements EC2Client {
             awsEC2Client.revokeSecurityGroupIngress(request);
             return Observable.empty();
         };
-        Optional<Observable<Void>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
 
     @Override
@@ -191,8 +180,7 @@ public class EC2ClientImpl implements EC2Client {
             awsEC2Client.revokeSecurityGroupEgress(request);
             return Observable.empty();
         };
-        Optional<Observable<Void>> response = invokeHystrixCommand(function);
-        return response.isPresent() ? response.get() : Observable.empty();
+        return invokeHystrixCommand(function).orElse(Observable.empty());
     }
 
     /**

@@ -4,8 +4,10 @@
 package com.charter.aesd.aws.ec2.client.api.impl;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.ec2.model.UserIdGroupPair;
@@ -99,6 +101,46 @@ public class EC2ClientImplTest {
                 assertGroup(obj,"ec2-security-group-test-4","sg-10956374","Fourth Test Security Group",ImmutableList.of(inboundPerm,inboundPerm1));
             }
         });
+    }
+    
+    @Test
+    public void testCreateSecurityGroupAndDelete() {
+
+        Observable<CreateSecurityGroupResult> result = client.createSecurityGroup("test1234", "vpc-0504b960", Optional.of("test group desc"));
+        CreateSecurityGroupResult createResult = result.toBlocking().first();
+        assertNotNull(createResult.getGroupId());
+        
+        client.deleteSecurityGroup(createResult.getGroupId());
+    }
+    
+    @Test
+    public void testCreateSecurityGroupIngressRuleAndDelete() {
+
+        Observable<CreateSecurityGroupResult> result =
+            client.createSecurityGroup("test1234", "vpc-0504b960", Optional.of("test group desc"));
+        CreateSecurityGroupResult createResult = result.toBlocking().first();
+        assertNotNull(createResult.getGroupId());
+
+        client.createSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
+            Optional.empty());
+        client.deleteSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
+            Optional.empty());
+        client.deleteSecurityGroup(createResult.getGroupId());
+    }
+    
+    @Test
+    public void testCreateSecurityGroupEgressRuleAndDelete() {
+
+        Observable<CreateSecurityGroupResult> result =
+            client.createSecurityGroup("test1234", "vpc-0504b960", Optional.of("test group desc"));
+        CreateSecurityGroupResult createResult = result.toBlocking().first();
+        assertNotNull(createResult.getGroupId());
+
+        client.createSecurityGroupEgressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
+            Optional.empty());
+        client.deleteSecurityGroupEgressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
+            Optional.empty());
+        client.deleteSecurityGroup(createResult.getGroupId());
     }
     
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound) {

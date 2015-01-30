@@ -7,7 +7,7 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 /**
  * Generic class for wrapping AWS EC2 calls in Hystrix.
@@ -20,9 +20,9 @@ public class EC2Command<R> extends HystrixCommand<R> {
     private static final HystrixCommand.Setter EC2_SETTER = Setter.withGroupKey(
         HystrixCommandGroupKey.Factory.asKey("AwsLib")).andCommandKey(HystrixCommandKey.Factory.asKey("EC2"));
 
-    private final Callable<R> function;
+    private final Supplier<R> function;
 
-    public EC2Command(Callable<R> function) {
+    public EC2Command(Supplier<R> function) {
 
         super(EC2_SETTER);
         this.function = function;
@@ -31,7 +31,7 @@ public class EC2Command<R> extends HystrixCommand<R> {
     @Override
     public R run() throws Exception {
 
-        return function.call();
+        return function.get();
     }
 
 }

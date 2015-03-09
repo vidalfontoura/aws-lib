@@ -353,7 +353,7 @@ public class SQSClient implements ISQSClient {
      * @throws IOException
      */
     @Override
-    public void sendMessage(final String queueUrl, final String content) throws IOException {
+    public SendMessageResult sendMessage(final String queueUrl, final String content) throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("sendMessage(" + queueUrl + ", content=" + content + ")");
@@ -364,19 +364,19 @@ public class SQSClient implements ISQSClient {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Message " + result.getMessageId() + " SENT");
         }
+        return result;
     }
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
-     *                                that resolves to the Queue instance in
-     *                                the Service Provider space.
+     *        that resolves to the Queue instance in the Service Provider space.
      *
      * @return {@code Message} The message that was submitted to the Queue via a
-     *                        sendMessage call. This call returns the next message
-     *                        on the Queue.  NOTE:  order is
-     *                        NOT implied.  It is up to Service Provider implementation
-     *                        whether the Message Queue implementation is actually a
-     *                        FIFO.  This method returns at most the content of 1 message.
+     *         sendMessage call. This call returns the next message on the
+     *         Queue. NOTE: order is NOT implied. It is up to Service Provider
+     *         implementation whether the Message Queue implementation is
+     *         actually a FIFO. This method returns at most the content of 1
+     *         message.
      *
      * @throws IOException
      */
@@ -409,15 +409,13 @@ public class SQSClient implements ISQSClient {
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
-     *                                that resolves to the Queue instance in
-     *                                the Service Provider space.
+     *        that resolves to the Queue instance in the Service Provider space.
      *
      * @return {@code Message} The messages that were submitted to the Queue via
-     *                        sendMessage calls.  This call empties the Queue.  
-     *                        NOTE:  order is NOT implied.  It is up
-     *                        to Service Provider implementation whether the Message Queue
-     *                        implementation is actually a FIFO.  This method returns all
-     *                        of the messages on the Queue at the time of the call.
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+     *         returns all of the messages on the Queue at the time of the call.
      *
      * @throws IOException
      */
@@ -461,23 +459,22 @@ public class SQSClient implements ISQSClient {
 
         return contentMsgs;
     }
-    
+
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
-     *                                that resolves to the Queue instance in
-     *                                the Service Provider space.
-     *                                
-     * @param receiptHandle {@code String} the identifier associated with the act 
-     *                                     of receiving the message.
+     *        that resolves to the Queue instance in the Service Provider space.
+     * 
+     * @param receiptHandle {@code String} the identifier associated with the
+     *        act of receiving the message.
      *
-     */    
+     */
     @Override
     public void deleteMessage(final String queueUrl, final String receiptHandle) {
-    	
-    	LOGGER.info("Deleting message with receiptHandle = ["+ receiptHandle +"] from queue = ["+ queueUrl +"]");
-    	
-    	getClient().deleteMessage(queueUrl, receiptHandle);
-    	
+
+        LOGGER.info("Deleting message with receiptHandle = [" + receiptHandle + "] from queue = [" + queueUrl + "]");
+
+        getClient().deleteMessage(queueUrl, receiptHandle);
+
     }
 
     /**

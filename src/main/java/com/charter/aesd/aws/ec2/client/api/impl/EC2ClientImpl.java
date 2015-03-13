@@ -8,6 +8,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupEgressRequest;
 import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressRequest;
@@ -51,14 +52,15 @@ public class EC2ClientImpl implements EC2Client {
 
         this.awsEC2Client = client;
     }
-    
+
     /**
      * Private method to invoke {@code Hystrix} command for each AWS EC2 APIO
+     * 
      * @param function
      * @return
      */
     private <T> Optional<T> invokeHystrixCommand(Supplier<T> function) {
-        
+
         EC2Command<T> command = new EC2Command<T>(function);
         try {
             return Optional.of(command.run());
@@ -67,7 +69,7 @@ public class EC2ClientImpl implements EC2Client {
         }
         return Optional.empty();
     }
-   
+
     @Override
     public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
 
@@ -96,7 +98,7 @@ public class EC2ClientImpl implements EC2Client {
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
-    
+
     @Override
     public Observable<Void> deleteSecurityGroup(String groupId) {
 
@@ -106,10 +108,10 @@ public class EC2ClientImpl implements EC2Client {
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
-    
+
     @Override
     public Observable<Void> createSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                    Optional<String> cidr, Optional<String> destinationGroupId) {
+                                                          Optional<String> cidr, Optional<String> destinationGroupId) {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
@@ -125,10 +127,10 @@ public class EC2ClientImpl implements EC2Client {
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
-    
+
     @Override
     public Observable<Void> createSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                    Optional<String> cidr, Optional<String> destinationGroupId) {
+                                                           Optional<String> cidr, Optional<String> destinationGroupId) {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
@@ -144,7 +146,7 @@ public class EC2ClientImpl implements EC2Client {
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
-    
+
     @Override
     public Observable<Void> deleteSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
                                                            Optional<String> cidr, Optional<String> destinationGroupId) {
@@ -195,6 +197,7 @@ public class EC2ClientImpl implements EC2Client {
         private String awsAccountKey;
         private String awsSecretKey;
         private ClientConfiguration config;
+        private Region region;
 
         /**
          * Constructor for {@link AWSAuthType}
@@ -263,7 +266,7 @@ public class EC2ClientImpl implements EC2Client {
             this.config = config;
             return this;
         }
-        
+
         /**
          * Sets the AWS Account Key used to configure the
          * {@link AmazonEC2Client}
@@ -276,10 +279,9 @@ public class EC2ClientImpl implements EC2Client {
             this.awsAccountKey = awsAccountKey;
             return this;
         }
-        
+
         /**
-         * Sets the AWS Secret Key used to configure the
-         * {@link AmazonEC2Client}
+         * Sets the AWS Secret Key used to configure the {@link AmazonEC2Client}
          * 
          * @param awsSecretKey {@code awsSecretKey}
          * @return {@link Builder}
@@ -290,24 +292,48 @@ public class EC2ClientImpl implements EC2Client {
             return this;
         }
 
+        /**
+         * Sets the Region uses to configure the {@link AmazonEC2Client}
+         * 
+         * @param region
+         * @return {@link Builder}
+         */
+        public Builder setRegion(Region region) {
+
+            this.region = region;
+            return this;
+        }
+
         public EC2Client build() {
 
+            EC2ClientImpl client = null;
             if (this.authType == AWSAuthType.CREDENTIALS && awsAccountKey != null && awsSecretKey != null) {
-                return new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
-                    getConfiguration()));
+                client =
+                    new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
+                        getConfiguration()));
             }
 
             if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
-                return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(profileName), config));
+                client = new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(profileName), config));
             }
 
             if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
-                return new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
-                    profileConfigFilePath), profileName), getConfiguration()));
+                client =
+                    new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
+                        profileConfigFilePath), profileName), getConfiguration()));
             }
 
             if (this.authType == AWSAuthType.INSTANCE_ROLE) {
-                return new EC2ClientImpl(new AmazonEC2Client(new InstanceProfileCredentialsProvider(), config));
+                client = new EC2ClientImpl(new AmazonEC2Client(new InstanceProfileCredentialsProvider(), config));
+            }
+
+            if (client != null && region != null) {
+                client.awsEC2Client.setRegion(region);
+                return client;
+            }
+
+            if (client != null) {
+                return client;
             }
 
             throw new IllegalStateException("Invalid S3Client configuration");

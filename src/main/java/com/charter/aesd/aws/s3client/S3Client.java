@@ -4,11 +4,16 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3EncryptionClient;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CryptoConfiguration;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.KMSEncryptionMaterialsProvider;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -30,352 +35,465 @@ import java.util.List;
  */
 public class S3Client implements IS3Client {
 
-    final private AmazonS3Client client;
+	final private AmazonS3Client client;
 
-    private S3Client(AmazonS3Client client) {
+	private S3Client(AmazonS3Client client) {
 
-        this.client = client;
-    }
+		this.client = client;
+	}
 
-    /**
-     * Puts a file into S3
-     *
-     * @param bucketName name of the S3 bucket
-     * @param path <code>String</code> path to put the file
-     * @param contentLength <code>long</code> Byte size of the file
-     * @param inputStream {@link InputStream} to upload
-     */
-    @Override
-    public void put(String bucketName, String path, long contentLength, InputStream inputStream) {
+	/**
+	 * Puts a file into S3
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param path
+	 *            <code>String</code> path to put the file
+	 * @param contentLength
+	 *            <code>long</code> Byte size of the file
+	 * @param inputStream
+	 *            {@link InputStream} to upload
+	 */
+	@Override
+	public void put(String bucketName, String path, long contentLength,
+			InputStream inputStream) {
 
-        final ObjectMetadata objectMetaData = new ObjectMetadata();
-        objectMetaData.setContentLength(contentLength);
+		final ObjectMetadata objectMetaData = new ObjectMetadata();
+		objectMetaData.setContentLength(contentLength);
 
-        final PutObjectRequest putReq = new PutObjectRequest(bucketName, path, inputStream, objectMetaData);
+		final PutObjectRequest putReq = new PutObjectRequest(bucketName, path,
+				inputStream, objectMetaData);
 
-        client.putObject(putReq);
-    }
+		client.putObject(putReq);
+	}
 
-    /**
-     * Puts a file into S3 with the ability to pass meta data in
-     * {@link ObjectMetadata}<br />
-     * {@link ObjectMetadata#setContentLength(long)} should be set to improve
-     * upload performance
-     *
-     * @param bucketName name of the S3 bucket
-     * @param path <code>String</code> path to put the file
-     * @param objectMetadata {@link ObjectMetadata} contains meta data of the
-     *        target file
-     * @param inputStream {@link InputStream} to upload to S3
-     */
-    @Override
-    public void put(String bucketName, String path, ObjectMetadata objectMetadata, InputStream inputStream) {
+	/**
+	 * Puts a file into S3 with the ability to pass meta data in
+	 * {@link ObjectMetadata}<br />
+	 * {@link ObjectMetadata#setContentLength(long)} should be set to improve
+	 * upload performance
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param path
+	 *            <code>String</code> path to put the file
+	 * @param objectMetadata
+	 *            {@link ObjectMetadata} contains meta data of the target file
+	 * @param inputStream
+	 *            {@link InputStream} to upload to S3
+	 */
+	@Override
+	public void put(String bucketName, String path,
+			ObjectMetadata objectMetadata, InputStream inputStream) {
 
-        final PutObjectRequest putReq = new PutObjectRequest(bucketName, path, inputStream, objectMetadata);
+		final PutObjectRequest putReq = new PutObjectRequest(bucketName, path,
+				inputStream, objectMetadata);
 
-        client.putObject(putReq);
-    }
+		client.putObject(putReq);
+	}
 
-    /**
-     * Gets a file from S3 with a provided {@link S3FileObject}
-     *
-     * @param bucketName name of the S3 bucket
-     * @param obj {@link S3FileObject} retrieved from
-     *        {@link S3Client#listFiles(String, String, boolean)}
-     * @return InputStream for object if it exists
-     */
-    @Override
-    public InputStream get(String bucketName, S3FileObject obj) {
+	/**
+	 * Gets a file from S3 with a provided {@link S3FileObject}
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param obj
+	 *            {@link S3FileObject} retrieved from
+	 *            {@link S3Client#listFiles(String, String, boolean)}
+	 * @return InputStream for object if it exists
+	 */
+	@Override
+	public InputStream get(String bucketName, S3FileObject obj) {
 
-        return get(bucketName, obj.getAbsolutePath());
-    }
+		return get(bucketName, obj.getAbsolutePath());
+	}
 
-    /**
-     * Gets a file from S3
-     *
-     * @param bucketName name of the S3 bucket
-     * @param path <code>String</code> path of the file
-     * @return {@link InputStream} to download the file
-     */
-    @Override
-    public InputStream get(String bucketName, String path) {
+	/**
+	 * Gets a file from S3
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param path
+	 *            <code>String</code> path of the file
+	 * @return {@link InputStream} to download the file
+	 */
+	@Override
+	public InputStream get(String bucketName, String path) {
 
-        GetObjectRequest getRequest = new GetObjectRequest(bucketName, path);
-        S3Object object = client.getObject(getRequest);
+		GetObjectRequest getRequest = new GetObjectRequest(bucketName, path);
+		S3Object object = client.getObject(getRequest);
 
-        return object.getObjectContent();
-    }
+		return object.getObjectContent();
+	}
 
-    /**
-     * Gets a file from S3 as an {@link S3Object}
-     *
-     * @param bucketName name of the S3 bucket
-     * @param path <code>String</code> path of the file
-     * @return {@link S3Object}
-     */
-    @Override
-    public S3Object getS3Object(String bucketName, String path) {
+	/**
+	 * Gets a file from S3 as an {@link S3Object}
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param path
+	 *            <code>String</code> path of the file
+	 * @return {@link S3Object}
+	 */
+	@Override
+	public S3Object getS3Object(String bucketName, String path) {
 
-        GetObjectRequest getRequest = new GetObjectRequest(bucketName, path);
-        return client.getObject(getRequest);
-    }
+		GetObjectRequest getRequest = new GetObjectRequest(bucketName, path);
+		return client.getObject(getRequest);
+	}
 
-    /**
-     * Lists files contained within a bucket
-     *
-     * @param bucketName name of the S3 bucket
-     * @param path Path prefix to search for files
-     * @return {@link List} of {@link S3FileObject}'s
-     */
-    @Override
-    public List<S3FileObject> listFiles(String bucketName, String path, boolean recursive) {
+	/**
+	 * Lists files contained within a bucket
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @param path
+	 *            Path prefix to search for files
+	 * @return {@link List} of {@link S3FileObject}'s
+	 */
+	@Override
+	public List<S3FileObject> listFiles(String bucketName, String path,
+			boolean recursive) {
 
-        final String correctedPath = path.replaceAll("/$", "").replaceAll("^/", "");
+		final String correctedPath = path.replaceAll("/$", "").replaceAll("^/",
+				"");
 
-        ObjectListing listing = client.listObjects(bucketName, correctedPath);
-        boolean truncated = false;
+		ObjectListing listing = client.listObjects(bucketName, correctedPath);
+		boolean truncated = false;
 
-        final List<S3FileObject> files = new ArrayList<S3FileObject>();
+		final List<S3FileObject> files = new ArrayList<S3FileObject>();
 
-        do {
-            final List<S3ObjectSummary> objectSummaries = listing.getObjectSummaries();
+		do {
+			final List<S3ObjectSummary> objectSummaries = listing
+					.getObjectSummaries();
 
-            for (S3ObjectSummary objectSummary : objectSummaries) {
-                final S3FileObject s3FileObject = new S3FileObject(objectSummary);
-                if (!recursive) {
-                    final String name = s3FileObject.getName();
-                    final String absolutePath = s3FileObject.getAbsolutePath();
-                    final String expectedPath =
-                        Strings.isNullOrEmpty(correctedPath) ? name : correctedPath + "/" + name;
-                    if (absolutePath.replaceAll("/$", "").equals(expectedPath) || name.equals(path)
-                        || absolutePath.equals(path)) {
-                        files.add(s3FileObject);
-                    }
-                } else {
-                    files.add(new S3FileObject(objectSummary));
-                }
-            }
+			for (S3ObjectSummary objectSummary : objectSummaries) {
+				final S3FileObject s3FileObject = new S3FileObject(
+						objectSummary);
+				if (!recursive) {
+					final String name = s3FileObject.getName();
+					final String absolutePath = s3FileObject.getAbsolutePath();
+					final String expectedPath = Strings
+							.isNullOrEmpty(correctedPath) ? name
+							: correctedPath + "/" + name;
+					if (absolutePath.replaceAll("/$", "").equals(expectedPath)
+							|| name.equals(path) || absolutePath.equals(path)) {
+						files.add(s3FileObject);
+					}
+				} else {
+					files.add(new S3FileObject(objectSummary));
+				}
+			}
 
-            truncated = listing.isTruncated();
-            if (truncated) {
-                listing = client.listNextBatchOfObjects(listing);
-            }
-        } while (truncated);
+			truncated = listing.isTruncated();
+			if (truncated) {
+				listing = client.listNextBatchOfObjects(listing);
+			}
+		} while (truncated);
 
-        return files;
-    }
+		return files;
+	}
 
-    /**
-     * Lists files contained within a bucket
-     *
-     * @param bucketName name of the S3 bucket
-     * @return {@link List} of {@link S3FileObject}'s
-     */
-    public List<S3FileObject> listFiles(String bucketName) {
+	/**
+	 * Lists files contained within a bucket
+	 *
+	 * @param bucketName
+	 *            name of the S3 bucket
+	 * @return {@link List} of {@link S3FileObject}'s
+	 */
+	public List<S3FileObject> listFiles(String bucketName) {
 
-        final ObjectListing listing = client.listObjects(bucketName);
-        final List<S3ObjectSummary> objectSummaries = listing.getObjectSummaries();
-        final List<S3FileObject> files = new ArrayList<S3FileObject>();
+		final ObjectListing listing = client.listObjects(bucketName);
+		final List<S3ObjectSummary> objectSummaries = listing
+				.getObjectSummaries();
+		final List<S3FileObject> files = new ArrayList<S3FileObject>();
 
-        for (S3ObjectSummary objectSummary : objectSummaries) {
-            files.add(new S3FileObject(objectSummary));
-        }
+		for (S3ObjectSummary objectSummary : objectSummaries) {
+			files.add(new S3FileObject(objectSummary));
+		}
 
-        return files;
-    }
+		return files;
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    public S3Object rename(String bucketName, String sourcePath, String destPath) throws IOException {
-        //Copy the object
-        client.copyObject(new CopyObjectRequest(bucketName, sourcePath, bucketName, destPath));
+	/** {@inheritDoc} */
+	@Override
+	public S3Object rename(String bucketName, String sourcePath, String destPath)
+			throws IOException {
+		// Copy the object
+		client.copyObject(new CopyObjectRequest(bucketName, sourcePath,
+				bucketName, destPath));
 
-        //Delete the original
-        client.deleteObject(new DeleteObjectRequest(bucketName, sourcePath));
+		// Delete the original
+		client.deleteObject(new DeleteObjectRequest(bucketName, sourcePath));
 
-        return getS3Object(bucketName, destPath);
-    }
+		return getS3Object(bucketName, destPath);
+	}
 
-    /** {@inheritDoc} */
-    @Override
-    public void delete(String bucketName, String path) {
-        DeleteObjectRequest request = new DeleteObjectRequest(bucketName, path);
-        client.deleteObject(request);
-    }
+	/** {@inheritDoc} */
+	@Override
+	public void delete(String bucketName, String path) {
+		DeleteObjectRequest request = new DeleteObjectRequest(bucketName, path);
+		client.deleteObject(request);
+	}
 
-    @Override
-    public void mkdir(String bucketName, String path) {
-        InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+	@Override
+	public void mkdir(String bucketName, String path) {
+		InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-        final String correctedPath = path.endsWith("/") ? path : path + "/";
+		final String correctedPath = path.endsWith("/") ? path : path + "/";
 
-        final ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(0L);
-        objectMetadata.setContentType("application/x-directory");
+		final ObjectMetadata objectMetadata = new ObjectMetadata();
+		objectMetadata.setContentLength(0L);
+		objectMetadata.setContentType("application/x-directory");
 
-        final PutObjectRequest putObjectRequest = new PutObjectRequest(
-                bucketName, correctedPath, inputStream, objectMetadata);
+		final PutObjectRequest putObjectRequest = new PutObjectRequest(
+				bucketName, correctedPath, inputStream, objectMetadata);
 
-        client.putObject(putObjectRequest);
-    }
+		client.putObject(putObjectRequest);
+	}
 
-    @Override
-    public boolean exists(String bucketName, String path) {
+	@Override
+	public boolean exists(String bucketName, String path) {
 
-        try {
-            client.getObjectMetadata(bucketName, path);
+		try {
+			client.getObjectMetadata(bucketName, path);
 
-            return true;
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
-                return false;
-            }
-            throw e;
-        }
-    }
-    /**
-     * Returns the {@code AmazonS3Client} for this instance.
-     * 
-     * @return
-     *      The {@code AmazaonS3Client}.
-     */
-    protected AmazonS3Client getClient() {
-        return client;
-    }
+			return true;
+		} catch (AmazonS3Exception e) {
+			if (e.getStatusCode() == 404) {
+				return false;
+			}
+			throw e;
+		}
+	}
 
-    /**
-     * Builder class for constructing an instance of {@link S3Client}
-     *
-     */
-    public static class Builder {
+	/**
+	 * Returns the {@code AmazonS3Client} for this instance.
+	 * 
+	 * @return The {@code AmazaonS3Client}.
+	 */
+	protected AmazonS3Client getClient() {
+		return client;
+	}
 
-        private S3AuthType authType;
-        private String profileName;
-        private String profileConfigFilePath;
-        private ClientConfiguration config;
+	/**
+	 * Builder class for constructing an instance of {@link S3Client}
+	 *
+	 */
+	public static class Builder {
 
-        /**
-         * Constructor for {@link S3AuthType}
-         *
-         * @param authType {@link S3AuthType}
-         */
-        public Builder(S3AuthType authType) {
-            this.authType = authType;
-            this.config = new ClientConfiguration();
-        }
+		private S3AuthType authType;
+		private String profileName;
+		private String profileConfigFilePath;
+		private ClientConfiguration config;
+		private CryptoConfiguration cryptoConfig;
+		private KMSEncryptionMaterialsProvider materialsProvider;
+		private Region region;
 
-        /**
-         * Type of authentication used to talk to AWS
-         *
-         * @param authType
-         * @return {@link Builder}
-         */
-        public Builder setAuthType(S3AuthType authType) {
+		/**
+		 * Constructor for {@link S3AuthType}
+		 *
+		 * @param authType
+		 *            {@link S3AuthType}
+		 */
+		public Builder(S3AuthType authType) {
+			this.authType = authType;
+			this.config = new ClientConfiguration();
+			this.cryptoConfig = new CryptoConfiguration();
+		}
 
-            this.authType = authType;
-            return this;
-        }
+		/**
+		 * Type of authentication used to talk to AWS
+		 *
+		 * @param authType
+		 * @return {@link Builder}
+		 */
+		public Builder setAuthType(S3AuthType authType) {
 
-        /**
-         * Sets the name of the profile specified in the profile config, and used
-         *  with an auth type of {@link S3AuthType#PROFILE}
-         * <br /><br />
-         * Default value is <code>"default"</code>
-         *
-         * @param profileName
-         * @return {@link Builder}
-         */
-        public Builder setProfileName(String profileName) {
+			this.authType = authType;
+			return this;
+		}
 
-            this.profileName = profileName;
-            return this;
-        }
+		/**
+		 * Sets the name of the profile specified in the profile config, and
+		 * used with an auth type of {@link S3AuthType#PROFILE} <br />
+		 * <br />
+		 * Default value is <code>"default"</code>
+		 *
+		 * @param profileName
+		 * @return {@link Builder}
+		 */
+		public Builder setProfileName(String profileName) {
 
-        /**
-         * Sets the physical location of the profile config, and used
-         *  with an auth type of {@link S3AuthType#PROFILE}
-         * <br /><br />
-         * 
-         * Default behavior loads the profile config from <code>~/.aws/credentials</code>
-         *
-         * @param profileConfigFilePath
-         * @return {@link Builder}
-         */
-        public Builder setProfileConfigFilePath(String profileConfigFilePath) {
+			this.profileName = profileName;
+			return this;
+		}
 
-            this.profileConfigFilePath = profileConfigFilePath;
-            return this;
-        }
+		/**
+		 * Sets the physical location of the profile config, and used with an
+		 * auth type of {@link S3AuthType#PROFILE} <br />
+		 * <br />
+		 * 
+		 * Default behavior loads the profile config from
+		 * <code>~/.aws/credentials</code>
+		 *
+		 * @param profileConfigFilePath
+		 * @return {@link Builder}
+		 */
+		public Builder setProfileConfigFilePath(String profileConfigFilePath) {
 
-        /**
-         * Sets the {@link ClientConfiguration} used to configure the {@link AmazonS3Client}
-         *
-         * @param config {@link ClientConfiguration}
-         * @return {@link Builder}
-         */
-        public Builder setConfig(ClientConfiguration config) {
-            this.config = config;
-            return this;
-        }
+			this.profileConfigFilePath = profileConfigFilePath;
+			return this;
+		}
 
-        public S3Client build() {
+		/**
+		 * Sets the {@link ClientConfiguration} used to configure the
+		 * {@link AmazonS3Client}
+		 *
+		 * @param config
+		 *            {@link ClientConfiguration}
+		 * @return {@link Builder}
+		 */
+		public Builder setConfig(ClientConfiguration config) {
+			this.config = config;
+			return this;
+		}
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(), config));
-            }
+		/**
+		 * Sets the {@link Regions} used to configure the
+		 * {@link AmazonS3EncryptionClient}
+		 *
+		 * @param region
+		 *            {@link CryptoConfiguration}
+		 * @return {@link Builder}
+		 */
+		public Builder setKmsRegion(Regions region) {
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(profileName), config));
-            }
+			cryptoConfig = new CryptoConfiguration().withKmsRegion(region);
+			return this;
+		}
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
-                return new S3Client(new AmazonS3Client(
-                        new ProfileCredentialsProvider(
-                                new ProfilesConfigFile(profileConfigFilePath), profileName),
-                                getConfiguration()));
-            }
+		/**
+		 * Sets the {@link Region} used to configure the {@link AmazonS3Client}
+		 *
+		 * @param region
+		 *            {@link Region}
+		 * @return {@link Builder}
+		 */
+		public Builder setRegion(Region region) {
 
-            if (this.authType == S3AuthType.INSTANCE_ROLE) {
-                return new S3Client(new AmazonS3Client(new InstanceProfileCredentialsProvider(), config));
-            }
+			this.region = region;
+			return this;
+		}
 
-            throw new IllegalStateException("Invalid S3Client configuration");
-        }
+		/**
+		 * Sets the KMS-Customer Master Key {@link KMSEncryptionMaterialsProvider} used to configure the
+		 * {@link AmazonS3EncryptionClient}
+		 *
+		 * @param kmsCmkId
+		 *            {@link KMSEncryptionMaterialsProvider}
+		 * @return {@link Builder}
+		 */
+		public Builder setKmsCmkId(
+				String kmsCmkId) {
+			materialsProvider = new KMSEncryptionMaterialsProvider(kmsCmkId);
+			return this;
+		}
 
-        /**
-         * Creates a {@code ClientConfiguration} object using the System properties
-         * for {@code http.proxyHost} and {@code http.proxyPort}. To leverage this
-         * both host and port must be set using the -D args (i.e.,
-         * {@code -Dhttp.proxyHost=my.proxy.host.com -Dhttp.proxyPort=3128} and if
-         * auth is required {@code -Dhttp.proxyUser=username -Dhttp.proxyPassword=password1234}. 
-         *
-         * @return
-         *      A {@ClientConfiguration}. Never {@code null}.
-         */
-        public ClientConfiguration getConfiguration() {
+		public S3Client build() {
+			AmazonS3Client client;
+			if (this.authType == S3AuthType.ENCRYPT_PROFILE || this.authType == S3AuthType.ENCRYPT_INSTANCE_ROLE) {
+				if (materialsProvider == null){
+					throw new IllegalStateException(
+							"Required parameter KMS CMK Id is missing");
+				}
+			}
+			if (this.authType == S3AuthType.PROFILE) {
+				if (profileConfigFilePath == null && profileName == null) {
+					client = new AmazonS3Client(new ProfileCredentialsProvider(),
+						config);
+				} else if (profileConfigFilePath == null && profileName != null) {
+					client = new AmazonS3Client(new ProfileCredentialsProvider(
+						profileName), config);
+				} else { //profileConfigFilePath != null && profileName != null) 
+					client = new AmazonS3Client(new ProfileCredentialsProvider(
+						new ProfilesConfigFile(profileConfigFilePath),
+						profileName), getConfiguration());
+				}
+			} 
+			else if (this.authType == S3AuthType.ENCRYPT_PROFILE) {
+				if(profileConfigFilePath == null && profileName == null) {
+					client = new AmazonS3EncryptionClient(
+						new ProfileCredentialsProvider(), materialsProvider,
+						config, cryptoConfig);
+				}
+				else if (profileConfigFilePath == null && profileName != null) {
+					client = new AmazonS3EncryptionClient(
+						new ProfileCredentialsProvider(profileName),
+						materialsProvider, config, cryptoConfig);
+				}
+				else  { //profileConfigFilePath != null && profileName != null
+					client = new AmazonS3EncryptionClient(
+						new ProfileCredentialsProvider(new ProfilesConfigFile(
+								profileConfigFilePath), profileName),
+						materialsProvider, getConfiguration(), cryptoConfig);
+				}
+			}
+			else if (this.authType == S3AuthType.INSTANCE_ROLE) {
+				client = new AmazonS3Client(
+					new InstanceProfileCredentialsProvider(), config);
+			}
+			else if (this.authType == S3AuthType.ENCRYPT_INSTANCE_ROLE) {
+				client = new AmazonS3EncryptionClient(
+						new InstanceProfileCredentialsProvider(),
+						materialsProvider, config, cryptoConfig);
+			} else {
+				throw new IllegalStateException(
+						"Invalid S3Client configuration");
+			}
 
-            String proxyHost = System.getProperty("http.proxyHost");
-            String proxyPort = System.getProperty("http.proxyPort");
-            String proxyUserName = System.getProperty("http.proxyUser");
-            String proxyUserPasswd = System.getProperty("http.proxyPassword");
+			if (region != null)
+				client.setRegion(region);
 
-            if(proxyHost != null) {
-                config.setProxyHost(proxyHost);
-            }
+			return new S3Client(client);
 
-            if(proxyPort != null) {
-                config.setProxyPort(Integer.parseInt(proxyPort));
-            }
+		}
 
-            if(proxyUserName != null) {
-                config.setProxyUsername(proxyUserName);
-            }
+		/**
+		 * Creates a {@code ClientConfiguration} object using the System
+		 * properties for {@code http.proxyHost} and {@code http.proxyPort}. To
+		 * leverage this both host and port must be set using the -D args (i.e.,
+		 * {@code -Dhttp.proxyHost=my.proxy.host.com -Dhttp.proxyPort=3128} and
+		 * if auth is required
+		 * {@code -Dhttp.proxyUser=username -Dhttp.proxyPassword=password1234}.
+		 *
+		 * @return A {@ClientConfiguration}. Never
+		 *         {@code null}.
+		 */
+		public ClientConfiguration getConfiguration() {
 
-            if(proxyUserPasswd != null) {
-                config.setProxyPassword(proxyUserPasswd);
-            }
+			String proxyHost = System.getProperty("http.proxyHost");
+			String proxyPort = System.getProperty("http.proxyPort");
+			String proxyUserName = System.getProperty("http.proxyUser");
+			String proxyUserPasswd = System.getProperty("http.proxyPassword");
 
-            return config;
-        }
-    }
+			if (proxyHost != null) {
+				config.setProxyHost(proxyHost);
+			}
+
+			if (proxyPort != null) {
+				config.setProxyPort(Integer.parseInt(proxyPort));
+			}
+
+			if (proxyUserName != null) {
+				config.setProxyUsername(proxyUserName);
+			}
+
+			if (proxyUserPasswd != null) {
+				config.setProxyPassword(proxyUserPasswd);
+			}
+
+			return config;
+		}
+	}
 }

@@ -2,6 +2,7 @@ package com.charter.aesd.aws.s3client.enums;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
 public enum S3AuthType {
 
@@ -11,9 +12,21 @@ public enum S3AuthType {
     INSTANCE_ROLE("InstanceRole"),
 
     /**
+     * Uses {@link InstanceProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
+     * For Clientside encryption S3 client
+     */
+    ENCRYPT_INSTANCE_ROLE("EncryptInstanceRole"),
+
+    /**
      * Uses {@link ProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
      */
-    PROFILE("Profile");
+    PROFILE("Profile"),
+
+    /**
+     * Uses {@link ProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
+     * For Clientside encryption S3 client
+     */
+    ENCRYPT_PROFILE("EncryptProfile");
 
     private final String value;
 

@@ -4,8 +4,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3EncryptionClient;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -260,7 +258,6 @@ public class S3Client implements IS3Client {
         private ClientConfiguration config;
         private CryptoConfiguration cryptoConfig;
         private KMSEncryptionMaterialsProvider materialsProvider;
-        private Region region;
 
         /**
          * Constructor for {@link S3AuthType}
@@ -328,31 +325,8 @@ public class S3Client implements IS3Client {
         }
 
         /**
-         * Sets the {@link Regions} used to configure the {@link AmazonS3EncryptionClient}
-         *
-         * @param region {@link CryptoConfiguration}
-         * @return {@link Builder}
-         */
-        public Builder setKmsRegion(Regions region) {
-
-            cryptoConfig = new CryptoConfiguration().withKmsRegion(region);
-            return this;
-        }
-
-        /**
-         * Sets the {@link Region} used to configure the {@link AmazonS3Client}
-         *
-         * @param region {@link Region}
-         * @return {@link Builder}
-         */
-        public Builder setRegion(Region region) {
-
-            this.region = region;
-            return this;
-        }
-
-        /**
-         * Sets the KMS-Customer Master Key {@link KMSEncryptionMaterialsProvider} used to configure the 
+         * Sets the KMS-Customer Master Key
+         * {@link KMSEncryptionMaterialsProvider} used to configure the
          * {@link AmazonS3EncryptionClient}
          *
          * @param kmsCmkId {@link KMSEncryptionMaterialsProvider}
@@ -364,66 +338,86 @@ public class S3Client implements IS3Client {
             return this;
         }
 
+        /**
+         * Sets the {@link CryptoConfiguration} object to be used for client
+         * side encryption {@link AmazonS3EncryptionClient}
+         *
+         * @param cryptoConfig {@link CryptoConfiguration}
+         * @return {@link Builder}
+         */
+        public Builder setCryptoConfig(CryptoConfiguration cryptoConfig) {
+
+            this.cryptoConfig = cryptoConfig;
+            return this;
+        }
+
         public S3Client build() {
 
             AmazonS3Client client;
+            boolean useEncryption = false;
+            
+            /*
+             * if a user passes the crypto config, they want to use encryption,
+             * and also need to pass the CMK ID
+             */
+            if (cryptoConfig != null && materialsProvider == null) {
+                throw new IllegalStateException("A valid CMK ID must be set in order to use encryption");
+            }
 
-            if (this.authType == S3AuthType.ENCRYPT_PROFILE || this.authType == S3AuthType.ENCRYPT_INSTANCE_ROLE) {
-                if (materialsProvider == null){
-                    throw new IllegalStateException(
-                            "Required parameter KMS CMK Id is missing");
+            if (materialsProvider != null) {
+                useEncryption = true;
+                if (cryptoConfig == null) {
+                    /*
+                     * user doesn't have to pass in the crypto config. if they
+                     * don't we just use the default
+                     */
+                    cryptoConfig = new CryptoConfiguration();
                 }
             }
 
             if (this.authType == S3AuthType.PROFILE) {
                 if (profileConfigFilePath == null && profileName == null) {
-                    client = new AmazonS3Client(new ProfileCredentialsProvider(),
-                            config);
+                    if (!useEncryption) {
+                        client = new AmazonS3Client(new ProfileCredentialsProvider(),
+                                config);
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(), materialsProvider, config,
+                                cryptoConfig);
+                    }
                 } 
                 else if (profileConfigFilePath == null && profileName != null) {
-                    client = new AmazonS3Client(new ProfileCredentialsProvider(
-                            profileName), config);
+                    if (!useEncryption) {
+                        client = new AmazonS3Client(new ProfileCredentialsProvider(profileName), config);
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(profileName),
+                                materialsProvider, config, cryptoConfig);
+                    }
                 } 
                 else { //profileConfigFilePath != null && profileName != null) 
-                    client = new AmazonS3Client(new ProfileCredentialsProvider(
-                            new ProfilesConfigFile(profileConfigFilePath),
-                            profileName), getConfiguration());
+                    if (!useEncryption) {
+                        client =
+                            new AmazonS3Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
+                                profileConfigFilePath), profileName), getConfiguration());
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(new ProfilesConfigFile(
+                                profileConfigFilePath), profileName), materialsProvider, getConfiguration(),
+                                cryptoConfig);
+                    }
                 }
-            } 
-            else if (this.authType == S3AuthType.ENCRYPT_PROFILE) {
-                if(profileConfigFilePath == null && profileName == null) {
-                    client = new AmazonS3EncryptionClient(
-                            new ProfileCredentialsProvider(), materialsProvider,
+            } else if (this.authType == S3AuthType.INSTANCE_ROLE) {
+                if (!useEncryption) {
+                    client = new AmazonS3Client(new InstanceProfileCredentialsProvider(), config);
+                } else {
+                    client =
+                        new AmazonS3EncryptionClient(new InstanceProfileCredentialsProvider(), materialsProvider,
                             config, cryptoConfig);
                 }
-                else if (profileConfigFilePath == null && profileName != null) {
-                    client = new AmazonS3EncryptionClient(
-                            new ProfileCredentialsProvider(profileName),
-                            materialsProvider, config, cryptoConfig);
-                }
-                else  { //profileConfigFilePath != null && profileName != null
-                    client = new AmazonS3EncryptionClient(
-                            new ProfileCredentialsProvider(new ProfilesConfigFile(
-                                    profileConfigFilePath), profileName),
-                                    materialsProvider, getConfiguration(), cryptoConfig);
-                }
-            }
-            else if (this.authType == S3AuthType.INSTANCE_ROLE) {
-                client = new AmazonS3Client(
-                        new InstanceProfileCredentialsProvider(), config);
-            }
-            else if (this.authType == S3AuthType.ENCRYPT_INSTANCE_ROLE) {
-                client = new AmazonS3EncryptionClient(
-                        new InstanceProfileCredentialsProvider(),
-                        materialsProvider, config, cryptoConfig);
-            }
-            else {
+            } else {
                 throw new IllegalStateException(
                         "Invalid S3Client configuration");
-            }
-
-            if (region != null){
-                client.setRegion(region);
             }
 
             return new S3Client(client);

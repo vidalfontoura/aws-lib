@@ -1,11 +1,9 @@
 package com.charter.aesd.aws.s3client;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.model.CryptoConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
-import com.charter.aesd.aws.ec2.client.api.impl.EC2ClientImpl;
-import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.s3client.enums.S3AuthType;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Charsets;
@@ -21,7 +19,9 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * XXX NOTE: Tests do not delete files, so may not be accurate over time
@@ -31,19 +31,20 @@ public class S3EncryptionClientTest {
 
     private static final String KEY = "teststring";
     private static final String BUCKET_NAME = "s3client-test";
-    private static final String KMS_CMK_ID = "insert kms cmk id here";
-    
+    private static final String PROFILE_NAME = "s3client-test";
+    private static final String KMS_CMK_ID = "43c753e5-22bf-441a-808b-d44c4b75c723";
+
     private S3Client client;
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Before
     public void setUp() {
-
        client =
-            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.ENCRYPT_INSTANCE_ROLE).build()
-                : new S3Client.Builder(S3AuthType.ENCRYPT_PROFILE)
+            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build()
+                : new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME)
                               .setKmsCmkId(KMS_CMK_ID)
-                              .setKmsRegion(Regions.US_WEST_2)
-                              .setRegion(Region.getRegion(Regions.US_WEST_2))
                               .build();
     }
 
@@ -128,6 +129,20 @@ public class S3EncryptionClientTest {
         Assert.assertEquals("testfiles2/teststring2", files2.get(1).getAbsolutePath());
     }
 
+    @Test
+    public void testCryptoConfigNoKey() {
+
+        expectedEx.expect(IllegalStateException.class);
+        expectedEx.expectMessage("A valid CMK ID must be set in order to use encryption");
+
+        CryptoConfiguration cryptoConfig = new CryptoConfiguration();
+        cryptoConfig.setKmsRegion(Regions.SA_EAST_1);
+        S3Client testClient =
+            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build()
+                : new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setCryptoConfig(cryptoConfig)
+                    .build();
+    }
+
     /** 
      * TODO: This test fails inconsistently and needs to be updated/fixed.
      */
@@ -136,7 +151,8 @@ public class S3EncryptionClientTest {
     public void testClientConfigurationNoProxy() {
 
         // if you have a proxy configured in your network settings on a mac this will fail.
-       S3Client.Builder builder = new S3Client.Builder(S3AuthType.ENCRYPT_PROFILE);
+        S3Client.Builder builder =
+            new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setKmsCmkId(KMS_CMK_ID);
        ClientConfiguration config = builder.getConfiguration();
        Assert.assertNull(config.getProxyHost());
        Assert.assertEquals(config.getProxyPort(), -1);
@@ -150,7 +166,8 @@ public class S3EncryptionClientTest {
         System.setProperty("http.proxyHost", "keaulcgwp01.corp.chartercom.com");
         System.setProperty("http.proxyPort", "8080");
         // if you have a proxy configured in your network settings on a mac this will fail.
-       S3Client.Builder builder = new S3Client.Builder(S3AuthType.ENCRYPT_PROFILE);
+        S3Client.Builder builder =
+            new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setKmsCmkId(KMS_CMK_ID);
        ClientConfiguration config = builder.getConfiguration();
        Assert.assertNotNull(config.getProxyHost());
        Assert.assertEquals("keaulcgwp01.corp.chartercom.com", config.getProxyHost());
@@ -170,7 +187,8 @@ public class S3EncryptionClientTest {
         System.setProperty("http.proxyUser", "proxyUser");
         System.setProperty("http.proxyPassword", "proxyPassword");
         // if you have a proxy configured in your network settings on a mac this will fail.
-       S3Client.Builder builder = new S3Client.Builder(S3AuthType.ENCRYPT_PROFILE);
+        S3Client.Builder builder =
+            new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setKmsCmkId(KMS_CMK_ID);
        ClientConfiguration config = builder.getConfiguration();
        Assert.assertNotNull(config.getProxyHost());
        Assert.assertEquals("keaulcgwp01.corp.chartercom.com", config.getProxyHost());

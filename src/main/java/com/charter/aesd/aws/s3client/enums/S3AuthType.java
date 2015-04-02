@@ -12,21 +12,9 @@ public enum S3AuthType {
     INSTANCE_ROLE("InstanceRole"),
 
     /**
-     * Uses {@link InstanceProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
-     * For Clientside encryption S3 client
-     */
-    ENCRYPT_INSTANCE_ROLE("EncryptInstanceRole"),
-
-    /**
      * Uses {@link ProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
      */
-    PROFILE("Profile"),
-
-    /**
-     * Uses {@link ProfileCredentialsProvider} for an {@link AWSCredentialsProvider}
-     * For Clientside encryption S3 client
-     */
-    ENCRYPT_PROFILE("EncryptProfile");
+    PROFILE("Profile");
 
     private final String value;
 

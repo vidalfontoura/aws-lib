@@ -138,7 +138,8 @@ public class S3EncryptionClientTest {
         CryptoConfiguration cryptoConfig = new CryptoConfiguration();
         cryptoConfig.setKmsRegion(Regions.SA_EAST_1);
         S3Client testClient =
-            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build()
+            Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).setCryptoConfig(
+                cryptoConfig).build()
                 : new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setCryptoConfig(cryptoConfig)
                     .build();
 

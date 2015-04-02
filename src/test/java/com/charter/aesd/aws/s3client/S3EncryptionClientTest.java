@@ -132,7 +132,7 @@ public class S3EncryptionClientTest {
     @Test
     public void testCryptoConfigNoKey() {
 
-        expectedEx.expect(IllegalStateException.class);
+        expectedEx.expect(java.lang.IllegalStateException.class);
         expectedEx.expectMessage("A valid CMK ID must be set in order to use encryption");
 
         CryptoConfiguration cryptoConfig = new CryptoConfiguration();
@@ -141,6 +141,7 @@ public class S3EncryptionClientTest {
             Boolean.getBoolean("use.iam.role") ? new S3Client.Builder(S3AuthType.INSTANCE_ROLE).build()
                 : new S3Client.Builder(S3AuthType.PROFILE).setProfileName(PROFILE_NAME).setCryptoConfig(cryptoConfig)
                     .build();
+
     }
 
     /** 

@@ -4,9 +4,11 @@
 package com.charter.aesd.aws.ec2.client.api;
 
 import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
+import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.charter.aesd.aws.ec2.securitygroup.SecurityGroupQuery;
 
+import java.util.List;
 import java.util.Optional;
 
 import rx.Observable;
@@ -120,5 +122,13 @@ public interface EC2Client {
      */
     Observable<Void> deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
                                                    Optional<String> cidr, Optional<String> destinationGroupId);
+    
+    /**
+     * Returns information for all the VPCs within a given region if the parameter list doesn't contain
+     * any VPC Ids.
+     * @param vpcs the list of vpcs to be returned.
+     * @return {@code Observable<DescribeVpcsResult>}
+     */
+    Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs);
 
 }

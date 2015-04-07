@@ -17,6 +17,8 @@ import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
 import com.amazonaws.services.ec2.model.DeleteSecurityGroupRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
+import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.RevokeSecurityGroupEgressRequest;
 import com.amazonaws.services.ec2.model.RevokeSecurityGroupIngressRequest;
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -28,6 +30,7 @@ import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.s3client.S3Client;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -181,6 +184,18 @@ public class EC2ClientImpl implements EC2Client {
                 request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
             awsEC2Client.revokeSecurityGroupEgress(request);
             return Observable.empty();
+        };
+        return invokeHystrixCommand(function).orElse(Observable.empty());
+    }
+    
+    @Override
+    public Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs) {
+        
+        Supplier<Observable<DescribeVpcsResult>> function = () -> {
+            DescribeVpcsRequest request = new DescribeVpcsRequest();
+            if (vpcs.isPresent())
+                request.withVpcIds(vpcs.get());
+            return Observable.just(awsEC2Client.describeVpcs(request));
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }

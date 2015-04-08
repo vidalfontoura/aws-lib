@@ -2,6 +2,7 @@ package com.charter.aesd.aws.s3client.enums;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
 public enum S3AuthType {
 

@@ -13,6 +13,8 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.amazonaws.services.sqs.model.SendMessageBatchResult;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.charter.aesd.aws.enums.AWSAuthType;
@@ -27,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +39,15 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * Implementation of the ISQSClient that is connected to AWS SQS as the message
  * queue provider.
- * 
+ *
  * @see <a
  *      href="http://aws.amazon.com/sqs/faqs/">http://aws.amazon.com/sqs/faqs/</a>
  * @see <a
  *      href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQS.html">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQS.html</a>
- * 
+ *
  *      <p/>
  *      User: matthewsmith Date: 7/10/14 Time: 10:23 AM
- * 
+ *
  * @author $Author: $
  * @version $Rev: $
  * @since ${date}
@@ -98,7 +102,7 @@ public class SQSClient implements ISQSClient {
     /**
      * @param queueName {@code String} the name used by the Queue creation that
      *        resolves to the Queue instance in the Service Provider space.
-     * 
+     *
      * @return (@code Boolean} true - If there is an existing Queue with the
      *         specified name false - No Queue by that name exists in the
      *         Service Provider Space
@@ -131,13 +135,13 @@ public class SQSClient implements ISQSClient {
 
     /**
      * Resolve the URL to use for an existing Queue
-     * 
+     *
      * @param queueName {@code String} the name of the Queue to lookup. Should
      *        follow Service Provider naming conventions
-     * 
+     *
      * @return {@code String} the URL to use to reference the Queue in
      *         subsequent calls
-     * 
+     *
      * @throws IOException
      */
     @Override
@@ -166,13 +170,13 @@ public class SQSClient implements ISQSClient {
 
     /**
      * Resolve the ARN to use for an existing Queue
-     * 
+     *
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the AWS space.
-     * 
+     *
      * @return {@code String} the ARN to use to reference the Queue in
      *         subsequent calls
-     * 
+     *
      * @throws IOException
      */
     public String resolveQueueARN(final String queueUrl) {
@@ -210,7 +214,7 @@ public class SQSClient implements ISQSClient {
      * @param topicArn {@code String} the arn returned by the Topic
      *        creation/attachment that resolves to the Topic instance in the AWS
      *        space.
-     * 
+     *
      *        Add a permission to the SQS instance in AWS that allows the
      *        specified SNS Topic to publish to the Queue.
      */
@@ -245,13 +249,13 @@ public class SQSClient implements ISQSClient {
 
     /**
      * Create a new Message Queue in the attached AWS Account.
-     * 
+     *
      * @param queueName {@code String} the name to assign to the created Queue.
      *        Should follow AWS SQS naming conventions
-     * 
+     *
      * @return {@code String} the AWS region URL to use to reference the new
      *         Queue in subsequent calls
-     * 
+     *
      * @throws IOException
      */
     @Override
@@ -273,7 +277,7 @@ public class SQSClient implements ISQSClient {
     /**
      * @param queueUrl {@code String} the AWS url returned by the Queue creation
      *        that resolves to the Queue instance in the proper AWS region.
-     * 
+     *
      * @throws IOException
      */
     @Override
@@ -293,7 +297,7 @@ public class SQSClient implements ISQSClient {
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the AWS space.
-     * 
+     *
      * @return (@code Boolean} true - If there are messages waiting on the Queue
      *         false - No messages have been sent to the Queue that are waiting
      *         to be processed
@@ -307,9 +311,9 @@ public class SQSClient implements ISQSClient {
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the AWS space.
-     * 
+     *
      * @return (@code int} the current Queue depth
-     * 
+     *
      */
     @Override
     public int getPendingMessageCount(final String queueUrl) {
@@ -349,7 +353,7 @@ public class SQSClient implements ISQSClient {
      *        the message sent to the Queue. The content may be enveloped by
      *        Amazon SQS, but the content returned via a receiveMessage call
      *        should match this explicitly.
-     * 
+     *
      * @throws IOException
      */
     @Override
@@ -365,6 +369,19 @@ public class SQSClient implements ISQSClient {
             LOGGER.debug("Message " + result.getMessageId() + " SENT");
         }
         return result;
+    }
+
+    @Override
+    public SendMessageBatchResult sendMessages(final String queueUrl, final List<String> content) {
+
+        List<SendMessageBatchRequestEntry> entries = content.stream().map(row -> {
+            SendMessageBatchRequestEntry entry = new SendMessageBatchRequestEntry();
+            entry.setId(UUID.randomUUID().toString());
+            entry.setMessageBody(row);
+            return entry;
+        }).collect(Collectors.toList());
+
+        return getClient().sendMessageBatch(queueUrl, entries);
     }
 
     /**
@@ -463,7 +480,7 @@ public class SQSClient implements ISQSClient {
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.
-     * 
+     *
      * @param receiptHandle {@code String} the identifier associated with the
      *        act of receiving the message.
      *
@@ -478,23 +495,23 @@ public class SQSClient implements ISQSClient {
     }
 
     /**
-     * Builder class for constructing an instance of {@link SQSClient}
+     * Builder class for constructing an instance of {@link SQSClient}i
      */
     public static class Builder extends AbstractAWSClientBuilder<SQSClient> {
 
         /**
          * @param authType
          */
-        public Builder(AWSAuthType authType) {
+        public Builder(final AWSAuthType authType) {
 
             super(authType);
         }
 
         /**
-         * 
+         *
          * @param provider AWS credentials provider
          * @param config
-         * 
+         *
          * @return the AWS SQS client implementation
          */
         @Override
@@ -522,4 +539,5 @@ public class SQSClient implements ISQSClient {
 
         }
     }
+
 } // SQSClient

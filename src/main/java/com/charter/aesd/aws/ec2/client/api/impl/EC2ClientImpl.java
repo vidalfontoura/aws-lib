@@ -19,9 +19,11 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
+import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.RevokeSecurityGroupEgressRequest;
 import com.amazonaws.services.ec2.model.RevokeSecurityGroupIngressRequest;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.UserIdGroupPair;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.charter.aesd.aws.ec2.client.api.EC2Client;
 import com.charter.aesd.aws.ec2.command.EC2Command;
@@ -112,22 +114,38 @@ public class EC2ClientImpl implements EC2Client {
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
 
+    /**
+     * Private method to construct {@link IpPermission} as part of a request to authorize ingress or egress to a
+     * security group.
+     * @param fromPort the port for which access should be granted from
+     * @param toPort the port for which access should be granted to
+     * @param protocol the protocol associated with the permission
+     * @param groupId the group id that is the destination of the permission
+     * @return {@link IpPermission}
+     */
+    private IpPermission constructPermission(int fromPort, int toPort, String protocol, String groupId) {
+
+        return new IpPermission().withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol)
+            .withUserIdGroupPairs(new UserIdGroupPair().withGroupId(groupId));
+    }
+
     @Override
     public Observable<Void> createSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
                                                           Optional<String> cidr, Optional<String> destinationGroupId) {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Observable<Void>> function = () -> {
-            AuthorizeSecurityGroupEgressRequest request = new AuthorizeSecurityGroupEgressRequest();
-            request.withGroupId(groupId);
-            if (cidr.isPresent())
-                request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
-            else
-                request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
-            awsEC2Client.authorizeSecurityGroupEgress(request);
-            return Observable.empty();
-        };
+        Supplier<Observable<Void>> function =
+            () -> {
+                AuthorizeSecurityGroupEgressRequest request = new AuthorizeSecurityGroupEgressRequest();
+                request.withGroupId(groupId);
+                if (cidr.isPresent())
+                    request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
+                else
+                    request.withIpPermissions(constructPermission(fromPort,toPort,protocol,destinationGroupId.get()));
+                awsEC2Client.authorizeSecurityGroupEgress(request);
+                return Observable.empty();
+            };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
 
@@ -143,7 +161,7 @@ public class EC2ClientImpl implements EC2Client {
             if (cidr.isPresent())
                 request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
             else
-                request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
+                request.withIpPermissions(constructPermission(fromPort,toPort,protocol,destinationGroupId.get()));
             awsEC2Client.authorizeSecurityGroupIngress(request);
             return Observable.empty();
         };
@@ -162,7 +180,7 @@ public class EC2ClientImpl implements EC2Client {
             if (cidr.isPresent())
                 request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
             else
-                request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
+                request.withIpPermissions(constructPermission(fromPort,toPort,protocol,destinationGroupId.get()));
             awsEC2Client.revokeSecurityGroupIngress(request);
             return Observable.empty();
         };
@@ -181,16 +199,16 @@ public class EC2ClientImpl implements EC2Client {
             if (cidr.isPresent())
                 request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
             else
-                request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
+                request.withIpPermissions(constructPermission(fromPort,toPort,protocol,destinationGroupId.get()));
             awsEC2Client.revokeSecurityGroupEgress(request);
             return Observable.empty();
         };
         return invokeHystrixCommand(function).orElse(Observable.empty());
     }
-    
+
     @Override
     public Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs) {
-        
+
         Supplier<Observable<DescribeVpcsResult>> function = () -> {
             DescribeVpcsRequest request = new DescribeVpcsRequest();
             if (vpcs.isPresent())

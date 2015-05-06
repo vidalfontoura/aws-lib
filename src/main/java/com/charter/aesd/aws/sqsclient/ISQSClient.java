@@ -1,6 +1,7 @@
 package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.SendMessageBatchResult;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.google.common.base.Optional;
 
@@ -97,6 +98,8 @@ public interface ISQSClient extends ISNSTopicListener {
      */
     SendMessageResult sendMessage(String queueUrl, String content) throws IOException;
 
+    SendMessageBatchResult sendMessages(String queueUrl, List<String> content);
+
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.
@@ -129,10 +132,11 @@ public interface ISQSClient extends ISNSTopicListener {
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.
-     * 
+     *
      * @param receiptHandle {@code String} the identifier associated with the
      *        act of receiving the message.
      *
      */
     void deleteMessage(final String queueUrl, final String receiptHandle);
+
 } // ISQSClient

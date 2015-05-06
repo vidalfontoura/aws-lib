@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import rx.Observable;
-import rx.functions.Action1;
 
 public class EC2ClientImplTest {
 
@@ -54,16 +53,8 @@ public class EC2ClientImplTest {
         final IpPermission outboundPerm =
             new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp")
                 .withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-8e52a6ea").withUserId("460570964411"));
-        groups.forEach(new Action1<SecurityGroup>() {
-
-            public void call(SecurityGroup obj) {
-
-                assertGroup(obj, "ec2-security-group-test", "sg-d243aab6", "Test EC2 Security Group", inboundPerm,
-                    outboundPerm);
-
-            }
-
-        });
+        groups.forEach(obj -> assertGroup(obj, "ec2-security-group-test", "sg-d243aab6", "Test EC2 Security Group",
+            inboundPerm, outboundPerm));
     }
 
     @Test
@@ -76,14 +67,8 @@ public class EC2ClientImplTest {
             new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp")
                 .withUserIdGroupPairs(new UserIdGroupPair().withGroupId("sg-d243aab6").withUserId("460570964411"));
         final IpPermission outboundPerm = new IpPermission().withIpProtocol("-1").withIpRanges("0.0.0.0/0");
-        groups.forEach(new Action1<SecurityGroup>() {
-
-            public void call(SecurityGroup obj) {
-
-                assertGroup(obj, "ec2-security-group-test-2", "sg-8e52a6ea", "Second Security Test group", inboundPerm,
-                    outboundPerm);
-            }
-        });
+        groups.forEach(obj -> assertGroup(obj, "ec2-security-group-test-2", "sg-8e52a6ea",
+            "Second Security Test group", inboundPerm, outboundPerm));
     }
 
     @Test
@@ -95,13 +80,8 @@ public class EC2ClientImplTest {
         final IpPermission inboundPerm =
             new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("tcp")
                 .withIpRanges("0.0.0.0/0", "1.0.0.0/32");
-        groups.forEach(new Action1<SecurityGroup>() {
-
-            public void call(SecurityGroup obj) {
-
-                assertGroup(obj, "ec2-security-group-test-3", "sg-51946235", "Third Test Security Group", inboundPerm);
-            }
-        });
+        groups.forEach(obj -> assertGroup(obj, "ec2-security-group-test-3", "sg-51946235", "Third Test Security Group",
+            inboundPerm));
     }
 
     @Test
@@ -113,14 +93,8 @@ public class EC2ClientImplTest {
         final IpPermission inboundPerm =
             new IpPermission().withFromPort(8080).withToPort(8080).withIpProtocol("udp").withIpRanges("0.0.0.0/0");
         final IpPermission inboundPerm1 = new IpPermission().withIpProtocol("icmp").withIpRanges("0.0.0.0/0");
-        groups.forEach(new Action1<SecurityGroup>() {
-
-            public void call(SecurityGroup obj) {
-
-                assertGroup(obj, "ec2-security-group-test-4", "sg-10956374", "Fourth Test Security Group",
-                    ImmutableList.of(inboundPerm, inboundPerm1));
-            }
-        });
+        groups.forEach(obj -> assertGroup(obj, "ec2-security-group-test-4", "sg-10956374",
+            "Fourth Test Security Group", ImmutableList.of(inboundPerm, inboundPerm1)));
     }
 
     @Test
@@ -142,8 +116,7 @@ public class EC2ClientImplTest {
         CreateSecurityGroupResult createResult = result.toBlocking().first();
         assertNotNull(createResult.getGroupId());
 
-        client.createSecurityGroupIngressRule("test1234", 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
-            Optional.empty());
+        client.createSecurityGroupIngressRule("test1234", 8080, 8080, "tcp", Optional.empty(), Optional.of("appclu"));
         client.deleteSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
             Optional.empty());
         client.deleteSecurityGroup(createResult.getGroupId());
@@ -152,8 +125,7 @@ public class EC2ClientImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateSecurityGroupIngressRuleAndDeleteError() {
 
-        client.createSecurityGroupIngressRule("1234", 8080, 8080, "tcp", Optional.empty(),
-            Optional.empty());
+        client.createSecurityGroupIngressRule("1234", 8080, 8080, "tcp", Optional.empty(), Optional.empty());
     }
 
     @Test

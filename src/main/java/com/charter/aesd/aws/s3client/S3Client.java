@@ -5,10 +5,13 @@ import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3EncryptionClient;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CryptoConfiguration;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.KMSEncryptionMaterialsProvider;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -253,6 +256,8 @@ public class S3Client implements IS3Client {
         private String profileName;
         private String profileConfigFilePath;
         private ClientConfiguration config;
+        private CryptoConfiguration cryptoConfig;
+        private KMSEncryptionMaterialsProvider materialsProvider;
 
         /**
          * Constructor for {@link S3AuthType}
@@ -314,32 +319,108 @@ public class S3Client implements IS3Client {
          * @return {@link Builder}
          */
         public Builder setConfig(ClientConfiguration config) {
+
             this.config = config;
+            return this;
+        }
+
+        /**
+         * Sets the KMS-Customer Master Key
+         * {@link KMSEncryptionMaterialsProvider} used to configure the
+         * {@link AmazonS3EncryptionClient}
+         *
+         * @param kmsCmkId {@link KMSEncryptionMaterialsProvider}
+         * @return {@link Builder}
+         */
+        public Builder setKmsCmkId(String kmsCmkId) {
+
+            materialsProvider = new KMSEncryptionMaterialsProvider(kmsCmkId);
+            return this;
+        }
+
+        /**
+         * Sets the {@link CryptoConfiguration} object to be used for client
+         * side encryption {@link AmazonS3EncryptionClient}
+         *
+         * @param cryptoConfig {@link CryptoConfiguration}
+         * @return {@link Builder}
+         */
+        public Builder setCryptoConfig(CryptoConfiguration cryptoConfig) {
+
+            this.cryptoConfig = cryptoConfig;
             return this;
         }
 
         public S3Client build() {
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName == null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(), config));
+            AmazonS3Client client;
+            boolean useEncryption = false;
+            
+            /*
+             * if a user passes the crypto config, they want to use encryption,
+             * and also need to pass the CMK ID
+             */
+            if (cryptoConfig != null && materialsProvider == null) {
+                throw new IllegalStateException("A valid CMK ID must be set in order to use encryption");
             }
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
-                return new S3Client(new AmazonS3Client(new ProfileCredentialsProvider(profileName), config));
+            if (materialsProvider != null) {
+                useEncryption = true;
+                if (cryptoConfig == null) {
+                    /*
+                     * user doesn't have to pass in the crypto config. if they
+                     * don't we just use the default
+                     */
+                    cryptoConfig = new CryptoConfiguration();
+                }
             }
 
-            if (this.authType == S3AuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
-                return new S3Client(new AmazonS3Client(
-                        new ProfileCredentialsProvider(
-                                new ProfilesConfigFile(profileConfigFilePath), profileName),
-                                getConfiguration()));
+            if (this.authType == S3AuthType.PROFILE) {
+                if (profileConfigFilePath == null && profileName == null) {
+                    if (!useEncryption) {
+                        client = new AmazonS3Client(new ProfileCredentialsProvider(),
+                                config);
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(), materialsProvider, config,
+                                cryptoConfig);
+                    }
+                } 
+                else if (profileConfigFilePath == null && profileName != null) {
+                    if (!useEncryption) {
+                        client = new AmazonS3Client(new ProfileCredentialsProvider(profileName), config);
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(profileName),
+                                materialsProvider, config, cryptoConfig);
+                    }
+                } 
+                else { //profileConfigFilePath != null && profileName != null) 
+                    if (!useEncryption) {
+                        client =
+                            new AmazonS3Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
+                                profileConfigFilePath), profileName), getConfiguration());
+                    } else {
+                        client =
+                            new AmazonS3EncryptionClient(new ProfileCredentialsProvider(new ProfilesConfigFile(
+                                profileConfigFilePath), profileName), materialsProvider, getConfiguration(),
+                                cryptoConfig);
+                    }
+                }
+            } else if (this.authType == S3AuthType.INSTANCE_ROLE) {
+                if (!useEncryption) {
+                    client = new AmazonS3Client(new InstanceProfileCredentialsProvider(), config);
+                } else {
+                    client =
+                        new AmazonS3EncryptionClient(new InstanceProfileCredentialsProvider(), materialsProvider,
+                            config, cryptoConfig);
+                }
+            } else {
+                throw new IllegalStateException(
+                        "Invalid S3Client configuration");
             }
 
-            if (this.authType == S3AuthType.INSTANCE_ROLE) {
-                return new S3Client(new AmazonS3Client(new InstanceProfileCredentialsProvider(), config));
-            }
-
-            throw new IllegalStateException("Invalid S3Client configuration");
+            return new S3Client(client);
         }
 
         /**

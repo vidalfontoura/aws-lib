@@ -142,11 +142,18 @@ public class EC2ClientImplTest {
         CreateSecurityGroupResult createResult = result.toBlocking().first();
         assertNotNull(createResult.getGroupId());
 
-        client.createSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
+        client.createSecurityGroupIngressRule("test1234", 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
             Optional.empty());
         client.deleteSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
             Optional.empty());
         client.deleteSecurityGroup(createResult.getGroupId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateSecurityGroupIngressRuleAndDeleteError() {
+
+        client.createSecurityGroupIngressRule("1234", 8080, 8080, "tcp", Optional.empty(),
+            Optional.empty());
     }
 
     @Test
@@ -167,11 +174,13 @@ public class EC2ClientImplTest {
     @Test
     public void testDescribeVpcs() {
 
-        Observable<DescribeVpcsResult> result = client.describeVpcs(Optional.of(Collections.singletonList("vpc-3a125f5f")));
+        Observable<DescribeVpcsResult> result =
+            client.describeVpcs(Optional.of(Collections.singletonList("vpc-3a125f5f")));
         DescribeVpcsResult describeResult = result.toBlocking().first();
         Vpc returnedVpc = describeResult.getVpcs().get(0);
         assertThat("VPC names matches", returnedVpc.getVpcId(), is("vpc-3a125f5f"));
-        assertThat("Name tag matchees", returnedVpc.getTags().stream().anyMatch(obj -> obj.getValue().equals("dev_environment_vpc")),is(true));
+        assertThat("Name tag matchees",
+            returnedVpc.getTags().stream().anyMatch(obj -> obj.getValue().equals("dev_environment_vpc")), is(true));
     }
 
     private void assertGroup(SecurityGroup group, String name, String id, String description, IpPermission inbound) {

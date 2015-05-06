@@ -120,9 +120,9 @@ public class EC2ClientImpl implements EC2Client {
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
         Supplier<Observable<Void>> function = () -> {
             AuthorizeSecurityGroupEgressRequest request = new AuthorizeSecurityGroupEgressRequest();
-            request.withFromPort(fromPort).withToPort(toPort).withGroupId(groupId).withIpProtocol(protocol);
+            request.withGroupId(groupId).withIpProtocol(protocol);
             if (cidr.isPresent())
-                request.withCidrIp(cidr.get());
+                request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort);
             else
                 request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
             awsEC2Client.authorizeSecurityGroupEgress(request);
@@ -139,9 +139,9 @@ public class EC2ClientImpl implements EC2Client {
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
         Supplier<Observable<Void>> function = () -> {
             AuthorizeSecurityGroupIngressRequest request = new AuthorizeSecurityGroupIngressRequest();
-            request.withFromPort(fromPort).withToPort(toPort).withGroupId(groupId).withIpProtocol(protocol);
+            request.withGroupId(groupId).withIpProtocol(protocol);
             if (cidr.isPresent())
-                request.withCidrIp(cidr.get());
+                request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort);
             else
                 request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
             awsEC2Client.authorizeSecurityGroupIngress(request);
@@ -158,9 +158,9 @@ public class EC2ClientImpl implements EC2Client {
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
         Supplier<Observable<Void>> function = () -> {
             RevokeSecurityGroupIngressRequest request = new RevokeSecurityGroupIngressRequest();
-            request.withFromPort(fromPort).withToPort(toPort).withGroupId(groupId).withIpProtocol(protocol);
+            request.withGroupId(groupId).withIpProtocol(protocol);
             if (cidr.isPresent())
-                request.withCidrIp(cidr.get());
+                request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort);
             else
                 request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
             awsEC2Client.revokeSecurityGroupIngress(request);
@@ -177,9 +177,9 @@ public class EC2ClientImpl implements EC2Client {
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
         Supplier<Observable<Void>> function = () -> {
             RevokeSecurityGroupEgressRequest request = new RevokeSecurityGroupEgressRequest();
-            request.withFromPort(fromPort).withToPort(toPort).withGroupId(groupId).withIpProtocol(protocol);
+            request.withGroupId(groupId).withIpProtocol(protocol);
             if (cidr.isPresent())
-                request.withCidrIp(cidr.get());
+                request.withCidrIp(cidr.get()).withFromPort(fromPort).withToPort(toPort);
             else
                 request.withSourceSecurityGroupOwnerId(destinationGroupId.get());
             awsEC2Client.revokeSecurityGroupEgress(request);

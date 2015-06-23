@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * AWS client for accessing EC2 resources within the AWS EC2 API<br />
@@ -64,54 +65,54 @@ public class EC2ClientImpl implements EC2Client {
      * @param function
      * @return
      */
-    private <T> Optional<T> invokeHystrixCommand(Supplier<T> function) {
+    private <T> Observable<T> invokeHystrixCommand(Supplier<T> function) {
 
         EC2Command<T> command = new EC2Command<T>(function);
         try {
-            return Optional.of(command.run());
+            return command.observe().subscribeOn(Schedulers.io());
         } catch (Exception e) {
             LOGGER.error("Error executing AWS EC2 command", e);
         }
-        return Optional.empty();
+        return Observable.empty();
     }
 
     @Override
     public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
 
-        Supplier<Observable<SecurityGroup>> function =
+        Supplier<List<SecurityGroup>> function =
             () -> {
                 DescribeSecurityGroupsResult securityGroupsResult =
                     awsEC2Client.describeSecurityGroups(query.isPresent() ? query.get().getRequest()
                         : new DescribeSecurityGroupsRequest());
-                return Observable.from(securityGroupsResult.getSecurityGroups());
+                return securityGroupsResult.getSecurityGroups();
             };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function).flatMap(lst -> Observable.from(lst));
     }
 
     @Override
     public Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,
                                                                      Optional<String> groupDescription) {
 
-        Supplier<Observable<CreateSecurityGroupResult>> function = () -> {
+        Supplier<CreateSecurityGroupResult> function = () -> {
 
             CreateSecurityGroupRequest request = new CreateSecurityGroupRequest();
             if (groupDescription.isPresent())
                 request.withGroupName(groupName).withVpcId(vpcId).withDescription(groupDescription.get());
             else
                 request.withGroupName(groupName).withVpcId(vpcId);
-            return Observable.just(awsEC2Client.createSecurityGroup(request));
+            return awsEC2Client.createSecurityGroup(request);
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     @Override
     public Observable<Void> deleteSecurityGroup(String groupId) {
 
-        Supplier<Observable<Void>> function = () -> {
+        Supplier<Void> function = () -> {
             awsEC2Client.deleteSecurityGroup(new DeleteSecurityGroupRequest().withGroupId(groupId));
-            return Observable.empty();
+            return null;
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     /**
@@ -139,13 +140,13 @@ public class EC2ClientImpl implements EC2Client {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Observable<Void>> function = () -> {
+        Supplier<Void> function = () -> {
             AuthorizeSecurityGroupEgressRequest request = new AuthorizeSecurityGroupEgressRequest();
             IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
             awsEC2Client.authorizeSecurityGroupEgress(request.withGroupId(groupId).withIpPermissions(permission));
-            return Observable.empty();
+            return null;
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     @Override
@@ -154,13 +155,13 @@ public class EC2ClientImpl implements EC2Client {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Observable<Void>> function = () -> {
+        Supplier<Void> function = () -> {
             AuthorizeSecurityGroupIngressRequest request = new AuthorizeSecurityGroupIngressRequest();
             IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
             awsEC2Client.authorizeSecurityGroupIngress(request.withGroupId(groupId).withIpPermissions(permission));
-            return Observable.empty();
+            return null;
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     @Override
@@ -169,13 +170,13 @@ public class EC2ClientImpl implements EC2Client {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Observable<Void>> function = () -> {
+        Supplier<Void> function = () -> {
             RevokeSecurityGroupIngressRequest request = new RevokeSecurityGroupIngressRequest();
             IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
             awsEC2Client.revokeSecurityGroupIngress(request.withGroupId(groupId).withIpPermissions(permission));
-            return Observable.empty();
+            return null;
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     @Override
@@ -184,25 +185,25 @@ public class EC2ClientImpl implements EC2Client {
 
         if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
             throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Observable<Void>> function = () -> {
+        Supplier<Void> function = () -> {
             RevokeSecurityGroupEgressRequest request = new RevokeSecurityGroupEgressRequest();
             IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
             awsEC2Client.revokeSecurityGroupEgress(request.withGroupId(groupId).withIpPermissions(permission));
-            return Observable.empty();
+            return null;
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     @Override
     public Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs) {
 
-        Supplier<Observable<DescribeVpcsResult>> function = () -> {
+        Supplier<DescribeVpcsResult> function = () -> {
             DescribeVpcsRequest request = new DescribeVpcsRequest();
             if (vpcs.isPresent())
                 request.withVpcIds(vpcs.get());
-            return Observable.just(awsEC2Client.describeVpcs(request));
+            return awsEC2Client.describeVpcs(request);
         };
-        return invokeHystrixCommand(function).orElse(Observable.empty());
+        return invokeHystrixCommand(function);
     }
 
     /**

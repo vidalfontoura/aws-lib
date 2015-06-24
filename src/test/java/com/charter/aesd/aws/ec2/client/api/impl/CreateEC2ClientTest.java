@@ -25,7 +25,7 @@ public class CreateEC2ClientTest extends BaseEC2ClientTest {
     public void tearDown() {
 
         if (createResult != null)
-            client.deleteSecurityGroup(createResult.getGroupId()).toBlocking().first();
+            client.deleteSecurityGroup(createResult.getGroupId()).toBlocking().single();
     }
 
     @Test
@@ -33,7 +33,7 @@ public class CreateEC2ClientTest extends BaseEC2ClientTest {
 
         Observable<CreateSecurityGroupResult> result =
             client.createSecurityGroup("test1234", "vpc-3a125f5f", Optional.of("test group desc"));
-        createResult = result.toBlocking().first();
+        createResult = result.toBlocking().single();
         assertNotNull(createResult.getGroupId());
 
     }
@@ -43,19 +43,19 @@ public class CreateEC2ClientTest extends BaseEC2ClientTest {
 
         Observable<CreateSecurityGroupResult> result =
             client.createSecurityGroup("test1234", "vpc-3a125f5f", Optional.of("test group desc"));
-        createResult = result.toBlocking().first();
+        createResult = result.toBlocking().single();
         assertNotNull(createResult.getGroupId());
 
         client
             .createSecurityGroupIngressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.empty(),
-                Optional.of(createResult.getGroupId())).toBlocking().first();
+                Optional.of(createResult.getGroupId())).toBlocking().single();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateSecurityGroupIngressRuleAndDeleteError() {
 
         client.createSecurityGroupIngressRule("1234", 8080, 8080, "tcp", Optional.empty(), Optional.empty())
-            .toBlocking().first();
+            .toBlocking().single();
     }
 
     @Test
@@ -63,12 +63,12 @@ public class CreateEC2ClientTest extends BaseEC2ClientTest {
 
         Observable<CreateSecurityGroupResult> result =
             client.createSecurityGroup("test1234", "vpc-3a125f5f", Optional.of("test group desc"));
-        createResult = result.toBlocking().first();
+        createResult = result.toBlocking().single();
         assertNotNull(createResult.getGroupId());
 
         client
             .createSecurityGroupEgressRule(createResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().firstOrDefault(null);
+                Optional.empty()).toBlocking().single();
     }
 
 }

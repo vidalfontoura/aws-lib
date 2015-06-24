@@ -43,16 +43,16 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
         Observable<CreateSecurityGroupResult> result2 =
             client.createSecurityGroup("ec2-security-group-test-2", "vpc-3a125f5f",
                 Optional.of("Test EC2 Security Group 2"));
-        firstGrpResult = result.toBlocking().first();
-        secondGrpResult = result2.toBlocking().first();
-    }
+        firstGrpResult = result.toBlocking().single();
+        secondGrpResult = result2.toBlocking().single();
+     }
 
     @After
     public void tearDown() {
 
         if (firstGrpResult != null && secondGrpResult != null) {
-            client.deleteSecurityGroup(firstGrpResult.getGroupId()).toBlocking().first();
-            client.deleteSecurityGroup(secondGrpResult.getGroupId()).toBlocking().first();
+            client.deleteSecurityGroup(firstGrpResult.getGroupId()).toBlocking().single();
+            client.deleteSecurityGroup(secondGrpResult.getGroupId()).toBlocking().single();
         }
     }
 
@@ -61,13 +61,13 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
 
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), 80, 80, "tcp", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
         client
             .createSecurityGroupEgressRule(firstGrpResult.getGroupId(), 8080, 8080, "tcp", Optional.empty(),
-                Optional.of(secondGrpResult.getGroupId())).toBlocking().first();
+                Optional.of(secondGrpResult.getGroupId())).toBlocking().single();
         client
             .deleteSecurityGroupEgressRule(firstGrpResult.getGroupId(), 0, 65535, "-1", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
 
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of(firstGrpResult.getGroupId())).build();
@@ -91,7 +91,7 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
 
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), 8080, 8080, "tcp", Optional.empty(),
-                Optional.of(secondGrpResult.getGroupId())).toBlocking().first();
+                Optional.of(secondGrpResult.getGroupId())).toBlocking().single();
 
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of(firstGrpResult.getGroupId())).build();
@@ -113,13 +113,13 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
 
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), 8080, 8080, "tcp", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), 8080, 8080, "tcp", Optional.of("1.0.0.0/32"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
         client
             .deleteSecurityGroupEgressRule(firstGrpResult.getGroupId(), 0, 65535, "-1", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
 
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of(firstGrpResult.getGroupId())).build();
@@ -136,13 +136,13 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
 
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), 8080, 8080, "udp", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
         client
             .createSecurityGroupIngressRule(firstGrpResult.getGroupId(), -1, -1, "icmp", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
         client
             .deleteSecurityGroupEgressRule(firstGrpResult.getGroupId(), 0, 65535, "-1", Optional.of("0.0.0.0/0"),
-                Optional.empty()).toBlocking().first();
+                Optional.empty()).toBlocking().single();
 
         SecurityGroupQuery query =
             SecurityGroupQuery.Builder.create().withGroupIds(ImmutableList.of(firstGrpResult.getGroupId())).build();
@@ -159,7 +159,7 @@ public class DescribeEC2ClientTest extends BaseEC2ClientTest {
 
         Observable<DescribeVpcsResult> result =
             client.describeVpcs(Optional.of(Collections.singletonList("vpc-3a125f5f")));
-        DescribeVpcsResult describeResult = result.toBlocking().first();
+        DescribeVpcsResult describeResult = result.toBlocking().single();
         Vpc returnedVpc = describeResult.getVpcs().get(0);
         assertThat("VPC names matches", returnedVpc.getVpcId(), is("vpc-3a125f5f"));
         assertThat("Name tag matchees",

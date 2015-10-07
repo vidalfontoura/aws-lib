@@ -534,11 +534,9 @@ public class SQSClient implements ISQSClient {
      * @throws IOException
      */
     @Override
-    public List<Message> receiveMessagesWithLongPollintSupport(final String queueUrl) throws IOException {
+    public List<Message> receiveMessagesWithLongPollingSupport(final String queueUrl) throws IOException {
 
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("receiveMessages(" + queueUrl + ")");
-        }
+        LOGGER.trace("receiveMessages(" + queueUrl + ")");
 
         // Drain the queue...
         // ToDo :: implement a threshold here
@@ -555,11 +553,8 @@ public class SQSClient implements ISQSClient {
 
             java.util.List<Message> msgs = null;
             if ((result == null) || ((msgs = result.getMessages()) == null) || (msgs.size() == 0)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No Message Available");
-                }
+                LOGGER.debug("No Message Available");
 
-                continue;
             }
 
             for (Message msg : msgs) {
@@ -571,9 +566,7 @@ public class SQSClient implements ISQSClient {
             }
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Received " + contentMsgs.size() + " messages");
-        }
+        LOGGER.debug("Received " + contentMsgs.size() + " messages");
 
         return contentMsgs;
     }

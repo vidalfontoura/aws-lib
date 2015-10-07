@@ -143,7 +143,7 @@ public interface ISQSClient extends ISNSTopicListener {
      *
      * @throws IOException
      */
-    List<Message> receiveMessagesWithLongPollintSupport(String queueUrl) throws IOException;
+    List<Message> receiveMessagesWithLongPollingSupport(String queueUrl) throws IOException;
     
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation

@@ -133,6 +133,22 @@ public interface ISQSClient extends ISNSTopicListener {
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.
      *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+	 *         returns all of the messages on the Queue at the time of the call
+	 *         using Long Polling model when the set Wait Time value is greater
+	 *         than 0 seconds.
+     *
+     * @throws IOException
+     */
+    List<Message> receiveMessagesWithLongPollintSupport(String queueUrl) throws IOException;
+    
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *        that resolves to the Queue instance in the Service Provider space.
+     *
      * @param receiptHandle {@code String} the identifier associated with the
      *        act of receiving the message.
      *

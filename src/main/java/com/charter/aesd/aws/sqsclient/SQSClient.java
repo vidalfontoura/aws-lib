@@ -519,67 +519,64 @@ public class SQSClient implements ISQSClient {
 		return contentMsgs;
 	}
 
-	/**
-	 * @param queueUrl
-	 *            {@code String} the url returned by the Queue creation that
-	 *            resolves to the Queue instance in the Service Provider space.
-	 *
-	 * @return {@code Message} The messages that were submitted to the Queue via
-	 *         sendMessage calls. This call empties the Queue. NOTE: order is
-	 *         NOT implied. It is up to Service Provider implementation whether
-	 *         the Message Queue implementation is actually a FIFO. This method
-	 *         returns all of the messages on the Queue at the time of the call
-	 *         using Long Polling model when the set Wait Time value is greater
-	 *         than 0 seconds.
-	 *
-	 * @throws IOException
-	 */
-	@Override
-	public List<Message> receiveMessagesWithLongPollintSupport(
-			final String queueUrl) throws IOException {
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *        that resolves to the Queue instance in the Service Provider space.
+     *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+     *         returns all of the messages on the Queue at the time of the call
+     *         using Long Polling model when the set Wait Time value is greater
+     *         than 0 seconds.
+     *
+     * @throws IOException
+     */
+    @Override
+    public List<Message> receiveMessagesWithLongPollintSupport(final String queueUrl) throws IOException {
 
-		if (LOGGER.isTraceEnabled()) {
-			LOGGER.trace("receiveMessages(" + queueUrl + ")");
-		}
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("receiveMessages(" + queueUrl + ")");
+        }
 
-		// Drain the queue...
-		// ToDo :: implement a threshold here
-		List<Message> contentMsgs = new ArrayList<Message>();
-		while (getPendingMessageCount(queueUrl) > 0) {
-			ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
-			request.setWaitTimeSeconds(MAX_WAIT_TIME_SECONDS); // Enable Long
-																// Polling
-																// (greater than
-																// 0-seconds)
-			request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK);
+        // Drain the queue...
+        // ToDo :: implement a threshold here
+        List<Message> contentMsgs = new ArrayList<Message>();
+        while (getPendingMessageCount(queueUrl) > 0) {
+            ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+            request.setWaitTimeSeconds(MAX_WAIT_TIME_SECONDS); // Enable Long
+                                                               // Polling
+                                                               // (greater than
+                                                               // 0-seconds)
+            request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK);
 
-			ReceiveMessageResult result = getClient().receiveMessage(request);
+            ReceiveMessageResult result = getClient().receiveMessage(request);
 
-			java.util.List<Message> msgs = null;
-			if ((result == null) || ((msgs = result.getMessages()) == null)
-					|| (msgs.size() == 0)) {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("No Message Available");
-				}
+            java.util.List<Message> msgs = null;
+            if ((result == null) || ((msgs = result.getMessages()) == null) || (msgs.size() == 0)) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("No Message Available");
+                }
 
-				continue;
-			}
+                continue;
+            }
 
-			for (Message msg : msgs) {
-				if (msg == null) {
-					continue;
-				}
+            for (Message msg : msgs) {
+                if (msg == null) {
+                    continue;
+                }
 
-				contentMsgs.add(msg);
-			}
-		}
+                contentMsgs.add(msg);
+            }
+        }
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Received " + contentMsgs.size() + " messages");
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Received " + contentMsgs.size() + " messages");
+        }
 
-		return contentMsgs;
-	}
+        return contentMsgs;
+    }
 
 	/**
 	 * @param queueUrl

@@ -60,20 +60,20 @@ public class SQSClient implements ISQSClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(SQSClient.class);
 
     private static final DynamicStringProperty QUEUE_DEPTH_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("com.charter.aesd.aws.sqsClient.queueDepthAttrName", "ApproximateNumberOfMessages");
+        .getStringProperty("aws.sqsClient.queueDepthAttrName", "ApproximateNumberOfMessages");
 
     private static final DynamicStringProperty QUEUE_ARN_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("com.charter.aesd.aws.sqsClient.queueArnAttrName", "QueueArn");
+        .getStringProperty("aws.sqsClient.queueArnAttrName", "QueueArn");
 
     private static final DynamicStringProperty QUEUE_SNS_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("com.charter.aesd.aws.sqsClient.queueSnsAttrName", "DefaultSNSPolicy");
+        .getStringProperty("aws.sqsClient.queueSnsAttrName", "DefaultSNSPolicy");
 
     private static final DynamicIntProperty MAX_NUM_MESSAGES_CHUNK = DynamicPropertyFactory.getInstance()
-        .getIntProperty("com.charter.aesd.aws.sqsClient.maxNumberMessagesChunk", 10); // Max
-                                                                                      // Allowed
-                                                                                      // by
-                                                                                      // Amazon
-                                                                                      // SQS
+        .getIntProperty("aws.sqsClient.maxNumberMessagesChunk", 10); // Max
+                                                                     // Allowed
+                                                                     // by
+                                                                     // Amazon
+                                                                     // SQS
 
     private static final DynamicStringProperty DEFAULT_SNS_PUBLISH_POLICY_NAME = DynamicPropertyFactory.getInstance()
         .getStringProperty("com.charter.aesd.aws.sqsClient.defaultSnsPublishPolicyName", "DefaultSNSPolicy");

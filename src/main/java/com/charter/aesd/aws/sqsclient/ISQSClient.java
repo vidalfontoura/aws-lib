@@ -1,6 +1,7 @@
 package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchResult;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.google.common.base.Optional;
@@ -116,6 +117,21 @@ public interface ISQSClient extends ISNSTopicListener {
     Optional<Message> receiveMessage(String queueUrl) throws IOException;
 
     /**
+     * @param request {@code ReceiveMessageRequest} the container for the
+     *        parameters to the ReceiveMessage operation.
+     *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+     *         returns all of the messages on the Queue according to parameters
+     *         for the operation.
+     *
+     * @throws IOException
+     */
+    List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException;
+
+    /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.
      *
@@ -129,22 +145,6 @@ public interface ISQSClient extends ISNSTopicListener {
      */
     List<Message> receiveMessages(String queueUrl) throws IOException;
 
-    /**
-     * @param queueUrl {@code String} the url returned by the Queue creation
-     *        that resolves to the Queue instance in the Service Provider space.
-     *
-     * @return {@code Message} The messages that were submitted to the Queue via
-     *         sendMessage calls. This call empties the Queue. NOTE: order is
-     *         NOT implied. It is up to Service Provider implementation whether
-     *         the Message Queue implementation is actually a FIFO. This method
-	 *         returns all of the messages on the Queue at the time of the call
-	 *         using Long Polling model when the set Wait Time value is greater
-	 *         than 0 seconds.
-     *
-     * @throws IOException
-     */
-    List<Message> receiveMessagesWithLongPollingSupport(String queueUrl) throws IOException;
-    
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
      *        that resolves to the Queue instance in the Service Provider space.

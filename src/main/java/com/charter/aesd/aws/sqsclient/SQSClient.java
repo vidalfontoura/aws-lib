@@ -59,14 +59,11 @@ public class SQSClient implements ISQSClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SQSClient.class);
 
-    private static final DynamicStringProperty QUEUE_DEPTH_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("aws.sqsClient.queueDepthAttrName", "ApproximateNumberOfMessages");
+    private final static String QUEUE_DEPTH_ATTR_NAME = "ApproximateNumberOfMessages";
 
-    private static final DynamicStringProperty QUEUE_ARN_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("aws.sqsClient.queueArnAttrName", "QueueArn");
+    private final static String QUEUE_ARN_ATTR_NAME = "QueueArn";
 
-    private static final DynamicStringProperty QUEUE_SNS_ATTR_NAME = DynamicPropertyFactory.getInstance()
-        .getStringProperty("aws.sqsClient.queueSnsAttrName", "DefaultSNSPolicy");
+    private final static String QUEUE_SNS_ATTR_NAME = "Policy";
 
     private static final DynamicIntProperty MAX_NUM_MESSAGES_CHUNK = DynamicPropertyFactory.getInstance()
         .getIntProperty("aws.sqsClient.maxNumberMessagesChunk", 10); // Max
@@ -197,7 +194,7 @@ public class SQSClient implements ISQSClient {
         String qArn = null;
 
         List<String> attrs = new ArrayList<String>();
-        attrs.add(QUEUE_ARN_ATTR_NAME.get());
+        attrs.add(QUEUE_ARN_ATTR_NAME);
 
         GetQueueAttributesResult result = getClient().getQueueAttributes(queueUrl, attrs);
 
@@ -248,7 +245,7 @@ public class SQSClient implements ISQSClient {
 
         // Using this for now... JSON policy is working fine
         attrs
-            .put(QUEUE_SNS_ATTR_NAME.get(),
+            .put(QUEUE_SNS_ATTR_NAME,
                 allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME.get(), resolveQueueARN(queueUrl), topicArn)
                     .toJson());
         getClient().setQueueAttributes(queueUrl, attrs);
@@ -334,12 +331,12 @@ public class SQSClient implements ISQSClient {
         }
 
         List<String> attrs = new ArrayList<String>();
-        attrs.add(QUEUE_DEPTH_ATTR_NAME.get());
+        attrs.add(QUEUE_DEPTH_ATTR_NAME);
 
         GetQueueAttributesResult result = getClient().getQueueAttributes(queueUrl, attrs);
 
         int msgCnt = 0;
-        String val = result.getAttributes().get(QUEUE_DEPTH_ATTR_NAME.get());
+        String val = result.getAttributes().get(QUEUE_DEPTH_ATTR_NAME);
         try {
             msgCnt = Integer.parseInt(val);
         } catch (Exception e) {

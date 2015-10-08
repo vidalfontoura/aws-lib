@@ -508,7 +508,6 @@ public class SQSClient implements ISQSClient {
         LOGGER.trace("receiveMessages(" + request.getQueueUrl() + ")");
 
         // Drain the queue...
-        // ToDo :: implement a threshold here
         List<Message> contentMsgs = new ArrayList<Message>();
         while (getPendingMessageCount(request.getQueueUrl()) > 0) {
 

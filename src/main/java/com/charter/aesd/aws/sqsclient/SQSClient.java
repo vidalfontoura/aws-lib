@@ -21,6 +21,7 @@ import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.sqsclient.util.DefaultSNSSQSPolicy;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
@@ -501,9 +502,7 @@ public class SQSClient implements ISQSClient {
     @Override
     public List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException {
 
-        if (request == null) {
-            throw new IllegalArgumentException("ReceiveMessageRequest cannot be null");
-        }
+        Preconditions.checkArgument(request != null, "ReceiveMessageRequest cannot be null");
 
         LOGGER.trace("receiveMessages(" + request.getQueueUrl() + ")");
 
@@ -513,16 +512,13 @@ public class SQSClient implements ISQSClient {
 
             ReceiveMessageResult result = getClient().receiveMessage(request);
 
-            java.util.List<Message> msgs = null;
-            if ((result == null) || ((msgs = result.getMessages()) == null) || (msgs.size() == 0)) {
+            java.util.List<Message> msgs = result.getMessages();
+            if ((msgs == null) || msgs.isEmpty()) {
                 LOGGER.debug("No Message Available");
+                return contentMsgs;
             }
 
             for (Message msg : msgs) {
-                if (msg == null) {
-                    continue;
-                }
-
                 contentMsgs.add(msg);
             }
         }

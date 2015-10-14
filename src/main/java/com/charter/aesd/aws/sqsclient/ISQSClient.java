@@ -1,6 +1,7 @@
 package com.charter.aesd.aws.sqsclient;
 
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchResult;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.google.common.base.Optional;
@@ -114,6 +115,21 @@ public interface ISQSClient extends ISNSTopicListener {
      * @throws IOException
      */
     Optional<Message> receiveMessage(String queueUrl) throws IOException;
+
+    /**
+     * @param request {@code ReceiveMessageRequest} the container for the
+     *        parameters to the ReceiveMessage operation.
+     *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+     *         returns all of the messages on the Queue according to parameters
+     *         for the operation.
+     *
+     * @throws IOException
+     */
+    List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation

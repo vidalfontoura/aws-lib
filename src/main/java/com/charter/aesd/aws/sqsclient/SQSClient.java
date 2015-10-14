@@ -21,6 +21,10 @@ import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.sqsclient.util.DefaultSNSSQSPolicy;
 import com.charter.aesd.aws.util.AbstractAWSClientBuilder;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,20 +58,23 @@ import org.slf4j.LoggerFactory;
  */
 public class SQSClient implements ISQSClient {
 
-    /**
-     *
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(SQSClient.class);
 
-    /**
-     *
-     */
     private final static String QUEUE_DEPTH_ATTR_NAME = "ApproximateNumberOfMessages";
+
     private final static String QUEUE_ARN_ATTR_NAME = "QueueArn";
+
     private final static String QUEUE_SNS_ATTR_NAME = "Policy";
-    private final static int MAX_NUM_MESSAGES_CHUNK = 10; // Max Allowed by
-                                                          // Amazon SQS
-    private final static String DEFAULT_SNS_PUBLISH_POLICY_NAME = "DefaultSNSPolicy";
+
+    private static final DynamicIntProperty MAX_NUM_MESSAGES_CHUNK = DynamicPropertyFactory.getInstance()
+        .getIntProperty("aws.sqsClient.maxNumberMessagesChunk", 10); // Max
+                                                                     // Allowed
+                                                                     // by
+                                                                     // Amazon
+                                                                     // SQS
+
+    private static final DynamicStringProperty DEFAULT_SNS_PUBLISH_POLICY_NAME = DynamicPropertyFactory.getInstance()
+        .getStringProperty("com.charter.aesd.aws.sqsClient.defaultSnsPublishPolicyName", "DefaultSNSPolicy");
 
     /**
      * local ref to the AWS SQS API
@@ -238,8 +245,10 @@ public class SQSClient implements ISQSClient {
         // generateSqsPolicyForTopic(topicArn).toJson());
 
         // Using this for now... JSON policy is working fine
-        attrs.put(QUEUE_SNS_ATTR_NAME,
-            allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME, resolveQueueARN(queueUrl), topicArn).toJson());
+        attrs
+            .put(QUEUE_SNS_ATTR_NAME,
+                allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME.get(), resolveQueueARN(queueUrl), topicArn)
+                    .toJson());
         getClient().setQueueAttributes(queueUrl, attrs);
 
         if (LOGGER.isDebugEnabled()) {
@@ -448,7 +457,7 @@ public class SQSClient implements ISQSClient {
         List<Message> contentMsgs = new ArrayList<Message>();
         while (getPendingMessageCount(queueUrl) > 0) {
             ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
-            request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK);
+            request.setMaxNumberOfMessages(MAX_NUM_MESSAGES_CHUNK.get());
 
             ReceiveMessageResult result = getClient().receiveMessage(request);
 
@@ -473,6 +482,48 @@ public class SQSClient implements ISQSClient {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Received " + contentMsgs.size() + " messages");
         }
+
+        return contentMsgs;
+    }
+
+    /**
+     * @param request {@code ReceiveMessageRequest} the container for the
+     *        parameters to the ReceiveMessage operation.
+     *
+     * @return {@code Message} The messages that were submitted to the Queue via
+     *         sendMessage calls. This call empties the Queue. NOTE: order is
+     *         NOT implied. It is up to Service Provider implementation whether
+     *         the Message Queue implementation is actually a FIFO. This method
+     *         returns all of the messages on the Queue according to parameters
+     *         for the operation.
+     *
+     * @throws IOException
+     */
+    @Override
+    public List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException {
+
+        Preconditions.checkArgument(request != null, "ReceiveMessageRequest cannot be null");
+
+        LOGGER.trace("receiveMessages(" + request.getQueueUrl() + ")");
+
+        // Drain the queue...
+        List<Message> contentMsgs = new ArrayList<Message>();
+        while (getPendingMessageCount(request.getQueueUrl()) > 0) {
+
+            ReceiveMessageResult result = getClient().receiveMessage(request);
+
+            java.util.List<Message> msgs = result.getMessages();
+            if ((msgs == null) || msgs.isEmpty()) {
+                LOGGER.debug("No Message Available");
+                return contentMsgs;
+            }
+
+            for (Message msg : msgs) {
+                contentMsgs.add(msg);
+            }
+        }
+
+        LOGGER.debug("Received " + contentMsgs.size() + " messages");
 
         return contentMsgs;
     }

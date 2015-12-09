@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -166,6 +167,16 @@ public class SQSClientStub implements ISQSClient {
 
         if (deletedMessage != null) {
             stubQueue.remove(deletedMessage);
+        }
+    }
+
+    @Override
+    public void deleteMessages(String queueUrl, final Map<String, String> content) {
+
+        for (Message message : stubQueue) {
+            if (content.values().contains(message.getReceiptHandle())) {
+                stubQueue.remove(message);
+            }
         }
     }
 }

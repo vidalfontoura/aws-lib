@@ -8,6 +8,7 @@ import com.google.common.base.Optional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p/>
@@ -154,5 +155,16 @@ public interface ISQSClient extends ISNSTopicListener {
      *
      */
     void deleteMessage(final String queueUrl, final String receiptHandle);
+
+    /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *        that resolves to the Queue instance in the Service Provider space.
+     *
+     * @param content {@code Map<String, String>} the identifiers composed by Id
+     *        and receipt Handle associated with the act of receiving the
+     *        messages.
+     *
+     */
+    void deleteMessages(final String queueUrl, final Map<String, String> content);
 
 } // ISQSClient

@@ -7,6 +7,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
@@ -44,10 +45,12 @@ import org.slf4j.LoggerFactory;
  * Implementation of the ISQSClient that is connected to AWS SQS as the message
  * queue provider.
  *
- * @see <a
- *      href="http://aws.amazon.com/sqs/faqs/">http://aws.amazon.com/sqs/faqs/</a>
- * @see <a
- *      href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQS.html">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQS.html</a>
+ * @see <a href="http://aws.amazon.com/sqs/faqs/">http://aws.amazon.com/sqs/
+ *      faqs/</a>
+ * @see <a href=
+ *      "http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQS.html">
+ *      http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/
+ *      services/sqs/AmazonSQS.html</a>
  *
  *      <p/>
  *      User: matthewsmith Date: 7/10/14 Time: 10:23 AM
@@ -66,12 +69,12 @@ public class SQSClient implements ISQSClient {
 
     private final static String QUEUE_SNS_ATTR_NAME = "Policy";
 
-    private static final DynamicIntProperty MAX_NUM_MESSAGES_CHUNK = DynamicPropertyFactory.getInstance()
-        .getIntProperty("aws.sqsClient.maxNumberMessagesChunk", 10); // Max
-                                                                     // Allowed
-                                                                     // by
-                                                                     // Amazon
-                                                                     // SQS
+    private static final DynamicIntProperty MAX_NUM_MESSAGES_CHUNK =
+        DynamicPropertyFactory.getInstance().getIntProperty("aws.sqsClient.maxNumberMessagesChunk", 10); // Max
+                                                                                                         // Allowed
+                                                                                                         // by
+                                                                                                         // Amazon
+                                                                                                         // SQS
 
     private static final DynamicStringProperty DEFAULT_SNS_PUBLISH_POLICY_NAME = DynamicPropertyFactory.getInstance()
         .getStringProperty("com.charter.aesd.aws.sqsClient.defaultSnsPublishPolicyName", "DefaultSNSPolicy");
@@ -245,10 +248,9 @@ public class SQSClient implements ISQSClient {
         // generateSqsPolicyForTopic(topicArn).toJson());
 
         // Using this for now... JSON policy is working fine
-        attrs
-            .put(QUEUE_SNS_ATTR_NAME,
-                allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME.get(), resolveQueueARN(queueUrl), topicArn)
-                    .toJson());
+        attrs.put(QUEUE_SNS_ATTR_NAME,
+            allocateSQSTopicPolicy(DEFAULT_SNS_PUBLISH_POLICY_NAME.get(), resolveQueueARN(queueUrl), topicArn)
+                .toJson());
         getClient().setQueueAttributes(queueUrl, attrs);
 
         if (LOGGER.isDebugEnabled()) {
@@ -546,6 +548,29 @@ public class SQSClient implements ISQSClient {
     }
 
     /**
+     * @param queueUrl {@code String} the url returned by the Queue creation
+     *        that resolves to the Queue instance in the Service Provider space.
+     *
+     * @param content {@code Map<String, String>} the identifiers composed by Id
+     *        and receipt Handle associated with the act of receiving the
+     *        messages.
+     *
+     */
+    @Override
+    public void deleteMessages(final String queueUrl, final Map<String, String> content) {
+
+        LOGGER.info("Deleting messages with receiptHandle = [" + content.values().toString() + "] from queue = ["
+            + queueUrl + "]");
+
+        List<DeleteMessageBatchRequestEntry> entries = content.entrySet().stream().map(row -> {
+            return new DeleteMessageBatchRequestEntry(row.getKey(), row.getValue());
+        }).collect(Collectors.toList());
+
+        getClient().deleteMessageBatch(queueUrl, entries);
+
+    }
+
+    /**
      * Builder class for constructing an instance of {@link SQSClient}i
      */
     public static class Builder extends AbstractAWSClientBuilder<SQSClient> {
@@ -585,8 +610,8 @@ public class SQSClient implements ISQSClient {
             }
             // If the ${archaius.deployment.region} is not set will create using
             // the default region which is us-east1
-            return (provider == null) ? new SQSClient(new AmazonSQSClient(getConfig())) : new SQSClient(
-                new AmazonSQSClient(provider, getConfig()));
+            return (provider == null) ? new SQSClient(new AmazonSQSClient(getConfig()))
+                : new SQSClient(new AmazonSQSClient(provider, getConfig()));
 
         }
     }

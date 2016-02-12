@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.CryptoConfiguration;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.KMSEncryptionMaterialsProvider;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -20,6 +21,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.charter.aesd.aws.s3client.enums.S3AuthType;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -167,6 +169,32 @@ public class S3Client implements IS3Client {
 
         return files;
     }
+    
+    /**
+     * Lists files path contained within a bucket, searching by prefix and delimiter 
+     *
+     * @param bucketName name of the S3 bucket
+     * @param prefix Path prefix to search for files
+     * @param delimiter Path delimiter to search for files
+     * @return {@link List} of {@link String}'s
+     */
+    @Override
+	public List<String> listFilesPath(String bucketName, String prefix, String delimiter) {
+	
+    	final ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucketName)
+				.withPrefix(prefix).withDelimiter(delimiter);
+
+		final List<String> paths = Lists.newArrayList();
+
+		ObjectListing objectListing;
+		do {
+			objectListing = client.listObjects(listObjectsRequest);
+			paths.addAll(objectListing.getCommonPrefixes());
+			listObjectsRequest.setMarker(objectListing.getNextMarker());
+		} while (objectListing.isTruncated());
+		
+		return paths;
+	}
 
     /**
      * Lists files contained within a bucket
@@ -459,4 +487,5 @@ public class S3Client implements IS3Client {
             return config;
         }
     }
+
 }

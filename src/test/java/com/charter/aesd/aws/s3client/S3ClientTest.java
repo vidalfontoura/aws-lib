@@ -13,11 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 /**
  * XXX NOTE: Tests do not delete files, so may not be accurate over time

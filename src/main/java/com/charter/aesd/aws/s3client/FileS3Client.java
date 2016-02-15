@@ -73,7 +73,7 @@ public class FileS3Client implements IS3Client {
     @Override
 	public List<String> listFilesPath(String bucketName, String prefix, String delimiter) throws IOException {
 
-    	final List<String> s3FileObjects = Lists.newArrayList();
+    	final List<String> filesPath = Lists.newArrayList();
 
         final File folder = new File(prefix);
         final File[] files = folder.listFiles(new FilenameFilter() {
@@ -83,10 +83,10 @@ public class FileS3Client implements IS3Client {
         });
 
         for (File file : files) {
-            s3FileObjects.add(file.getAbsolutePath());
+            filesPath.add(file.getAbsolutePath());
         }
 
-        return s3FileObjects;
+        return filesPath;
 	}
 
     @Override

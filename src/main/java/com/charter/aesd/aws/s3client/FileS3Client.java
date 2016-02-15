@@ -3,11 +3,13 @@ package com.charter.aesd.aws.s3client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -67,6 +69,25 @@ public class FileS3Client implements IS3Client {
 
         return s3FileObjects;
     }
+    
+    @Override
+	public List<String> listFilesPath(String bucketName, String prefix, String delimiter) throws IOException {
+
+    	final List<String> filesPath = Lists.newArrayList();
+
+        final File folder = new File(prefix);
+        final File[] files = folder.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(delimiter);
+            }
+        });
+
+        for (File file : files) {
+            filesPath.add(file.getAbsolutePath());
+        }
+
+        return filesPath;
+	}
 
     @Override
     public S3Object rename(String bucketName, String sourcePath, String destPath) throws IOException {
@@ -91,4 +112,5 @@ public class FileS3Client implements IS3Client {
     public boolean exists(String bucketName, String path) {
         return (new File(path)).exists();
     }
+
 }

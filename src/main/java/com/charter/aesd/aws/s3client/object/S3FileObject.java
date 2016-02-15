@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -105,6 +106,8 @@ public class S3FileObject {
      * @return file name
      */
     public static String getNameFromPath(String path) {
+    	
+    	path = path.replaceAll("\\\\", "/");
 
         if (path.endsWith("/")) {
             path = path.replaceAll("/$", "");

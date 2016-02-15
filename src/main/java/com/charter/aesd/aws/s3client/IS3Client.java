@@ -62,6 +62,17 @@ public interface IS3Client {
     S3Object getS3Object(String bucketName, String path) throws IOException;
 
     /**
+     * Lists files path contained within a bucket, searching by prefix and delimiter 
+     *
+     * @param bucketName name of the S3 bucket
+     * @param prefix Path prefix to search for files
+     * @param delimiter Path delimiter to search for files
+     * @return {@link List} of {@link String}'s
+     * @throws IOException
+     */
+    List<String> listFilesPath(String bucketName, String prefix, String delimiter) throws IOException;
+    
+    /**
      * Lists files contained within a bucket
      *
      * @param bucketName name of the S3 bucket

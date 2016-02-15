@@ -2,8 +2,6 @@ package com.charter.aesd.aws.s3client;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.s3.model.S3Object;
-import com.charter.aesd.aws.ec2.client.api.impl.EC2ClientImpl;
-import com.charter.aesd.aws.enums.AWSAuthType;
 import com.charter.aesd.aws.s3client.enums.S3AuthType;
 import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Charsets;
@@ -15,8 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -97,6 +94,21 @@ public class S3ClientTest {
         final InputStream is = client.get("s3client-test", lastObj);
         String actual = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
         Assert.assertEquals(expected, actual);
+    }
+    
+    @Test
+    public void testListFilesPath() {
+
+        String expected = "hello world";
+
+        byte[] bytes = expected.getBytes();
+        client.put("s3client-test", "testfiles/" + KEY + "1", bytes.length, new ByteArrayInputStream(bytes));
+        client.put("s3client-test", "testfiles/" + KEY + "2", bytes.length, new ByteArrayInputStream(bytes));
+
+        final List<String> filesPath = client.listFilesPath("s3client-test", "testfiles/", KEY + "1");
+
+        Assert.assertEquals(1, filesPath.size());
+        Assert.assertEquals("testfiles/" + KEY + "1", filesPath.get(0));
     }
 
     @Test

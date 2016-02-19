@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -79,17 +80,22 @@ public class FileS3Client implements IS3Client {
     @Override
 	public List<String> listFilesPath(String bucketName, String prefix, String delimiter) throws IOException {
 
-    	final List<String> filesPath = Lists.newArrayList();
-    	final Collection<File> paths = FileUtils.listFiles(new File(prefix), null, true);
+    	
+    	final File folder = new File(prefix);
+    	if(folder.exists()){
+    		final List<String> filesPath = Lists.newArrayList();
+	    	final Collection<File> paths = FileUtils.listFiles(folder, null, true);
+	
+	        for (File file : paths) {
+	        	String path = file.getAbsolutePath().replaceAll("\\\\", "/");
+	        	if(path.endsWith(delimiter.replaceAll("\\\\", "/"))){
+	        		filesPath.add(file.getAbsolutePath());
+	        	}
+	        }
+	        return filesPath;
+    	}
 
-        for (File file : paths) {
-        	String path = file.getAbsolutePath().replaceAll("\\\\", "/");
-        	if(path.endsWith(delimiter.replaceAll("\\\\", "/"))){
-        		filesPath.add(file.getAbsolutePath());
-        	}
-        }
-
-        return filesPath;
+        return Collections.emptyList();
 	}
     
     @Override

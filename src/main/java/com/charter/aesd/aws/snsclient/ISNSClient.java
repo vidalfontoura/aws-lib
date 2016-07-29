@@ -65,10 +65,11 @@ public interface ISNSClient {
      *                               may be enveloped by the Service Provider, but
      *                               the content received by a subscriber should
      *                               match this explicitly.
+     * @return {@code String} The ID of the published message
      *
      * @throws IOException
      */
-    void publishMessage(String topicArn,
+    String publishMessage(String topicArn,
                         String content) throws IOException;
 
     /**

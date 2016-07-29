@@ -2,6 +2,8 @@ package com.charter.aesd.aws.snsclient;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishResult;
@@ -358,8 +360,11 @@ public class SNSClient implements ISNSClient {
                 LOGGER.trace("allocateClient()");
             }
 
-            return (provider == null) ? new SNSClient(new AmazonSNSClient(getConfig())) : new SNSClient(
+            SNSClient client = (provider == null) ? new SNSClient(new AmazonSNSClient(getConfig())) : new SNSClient(
                 new AmazonSNSClient(provider, getConfig()));
+            client.getClient().setRegion(Region
+                            .getRegion(Regions.fromName(System.getProperty("archaius.deployment.region"))));
+            return client;
         }
     }
 } // SNSClient

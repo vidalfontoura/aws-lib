@@ -7,6 +7,12 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 public enum AWSAuthType {
 
     /**
+     * Uses {@link com.amazonaws.auth.DefaultAWSCredentialsProviderChain} for an
+     * {@link AWSCredentialsProvider}
+     */
+    DEFAULT_AWS("DefaultAWS"),
+
+    /**
      * Uses {@link InstanceProfileCredentialsProvider} for an
      * {@link AWSCredentialsProvider}
      */

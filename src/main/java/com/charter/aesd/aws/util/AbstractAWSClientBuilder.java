@@ -2,6 +2,7 @@ package com.charter.aesd.aws.util;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
@@ -139,6 +140,10 @@ abstract public class AbstractAWSClientBuilder<T> {
      * @return
      */
     public T build() {
+
+        if (this.authType == AWSAuthType.DEFAULT_AWS) {
+            return allocateClient(new DefaultAWSCredentialsProviderChain(), getConfig());
+        }
 
         if (this.authType == AWSAuthType.INSTANCE_ROLE) {
             return allocateClient(new InstanceProfileCredentialsProvider(), getConfig());

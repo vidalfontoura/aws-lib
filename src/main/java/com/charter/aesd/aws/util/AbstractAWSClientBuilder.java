@@ -1,11 +1,15 @@
 package com.charter.aesd.aws.util;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.charter.aesd.aws.enums.AWSAuthType;
 
 /**
@@ -21,6 +25,7 @@ import com.charter.aesd.aws.enums.AWSAuthType;
  */
 abstract public class AbstractAWSClientBuilder<T> {
 
+    private final static Logger log = LoggerFactory.getLogger(AbstractAWSClientBuilder.class);
     /**
      *
      */
@@ -142,7 +147,11 @@ abstract public class AbstractAWSClientBuilder<T> {
     public T build() {
 
         if (this.authType == AWSAuthType.DEFAULT_AWS) {
-            return allocateClient(new DefaultAWSCredentialsProviderChain(), getConfig());
+            try {
+                return allocateClient(new DefaultAWSCredentialsProviderChain(), getConfig());
+            } catch (AmazonClientException ex) {
+                log.warn(ex.getMessage());
+            }
         }
 
         if (this.authType == AWSAuthType.INSTANCE_ROLE) {

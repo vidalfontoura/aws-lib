@@ -2,6 +2,8 @@ package com.charter.aesd.aws.snsclient;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishResult;
@@ -156,10 +158,11 @@ public class SNSClient implements ISNSClient {
      *        the message sent to the Topic. The content is enveloped by AWS,
      *        but the content received by a subscriber should match this
      *        explicitly.
+     * @return {@code String} The ID of the published message
      * 
      * @throws IOException
      */
-    public void publishMessage(final String topicArn, final String content) throws IOException {
+    public String publishMessage(final String topicArn, final String content) throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
@@ -170,7 +173,7 @@ public class SNSClient implements ISNSClient {
                 LOGGER.trace("Invalid / empty Topic ARN specified");
             }
 
-            return;
+            return null;
         }
 
         PublishResult result = getClient().publish(topicArn, content);
@@ -178,6 +181,8 @@ public class SNSClient implements ISNSClient {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Published message, id=" + result.getMessageId() + " to " + topicArn);
         }
+
+        return result.getMessageId();
     }
 
     /**
@@ -355,8 +360,11 @@ public class SNSClient implements ISNSClient {
                 LOGGER.trace("allocateClient()");
             }
 
-            return (provider == null) ? new SNSClient(new AmazonSNSClient(getConfig())) : new SNSClient(
+            SNSClient client = (provider == null) ? new SNSClient(new AmazonSNSClient(getConfig())) : new SNSClient(
                 new AmazonSNSClient(provider, getConfig()));
+            client.getClient().setRegion(Region
+                            .getRegion(Regions.fromName(System.getProperty("archaius.deployment.region"))));
+            return client;
         }
     }
 } // SNSClient

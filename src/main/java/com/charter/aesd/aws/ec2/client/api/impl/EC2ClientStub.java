@@ -212,15 +212,13 @@ public class EC2ClientStub implements EC2Client {
     @Override
     public Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs) {
 
-        DescribeVpcsRequest request = new DescribeVpcsRequest();
-        if (vpcs.isPresent())
-            request.withVpcIds(vpcs.get());
-
         DescribeVpcsResult describeVpcsResult = Mockito.mock(DescribeVpcsResult.class);
         List<Vpc> vpcList = new ArrayList<>();
-        vpcs.get().forEach(vpc -> {
-            vpcList.add(new Vpc().withVpcId(vpc));
-        });
+        if (vpcs.isPresent()) {
+            vpcs.get().forEach(vpc -> {
+                vpcList.add(new Vpc().withVpcId(vpc));
+            });
+        }
         Mockito.when(describeVpcsResult.getVpcs()).thenReturn(vpcList);
 
         return Observable.just(describeVpcsResult);

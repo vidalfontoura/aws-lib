@@ -4,9 +4,11 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Owner;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.charter.aesd.aws.s3client.FileS3Client;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import com.netflix.config.DynamicPropertyFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,6 +137,30 @@ public class S3FileObject {
      */
     public static S3FileObject fromFile(File file) throws IOException {
 
+        return new S3FileObject(createS3ObjectSummary(file));
+    }
+
+    public static S3FileObject fromFile(File file, String bucketName) throws IOException {
+
+        final S3ObjectSummary objectSummary = createS3ObjectSummary(file);
+        if (DynamicPropertyFactory.getInstance().getBooleanProperty(FileS3Client.BUCKET_NAME_AS_PATH, false).get()) {
+            objectSummary.setBucketName(bucketName);
+            objectSummary.setKey(getPath(file, bucketName));
+        }
+        return new S3FileObject(objectSummary);
+    }
+
+    public static String getPath(File file, String bucketName) {
+        String filePath = file.getAbsolutePath();
+        if (DynamicPropertyFactory.getInstance().getBooleanProperty(FileS3Client.BUCKET_NAME_AS_PATH, false).get()) {
+            int idx = filePath.indexOf(bucketName);
+            filePath = filePath.substring(idx + bucketName.length() + 1);
+        }
+        return filePath;
+    }
+
+    public static S3ObjectSummary createS3ObjectSummary(File file) throws IOException {
+
         final S3ObjectSummary objectSummary = new S3ObjectSummary();
         objectSummary.setKey(file.getAbsolutePath());
         objectSummary.setLastModified(new Date(file.lastModified()));
@@ -148,7 +174,7 @@ public class S3FileObject {
             final byte[] bytes = md5.asBytes();
             objectSummary.setETag(bytes.toString());
         }
-
-        return new S3FileObject(objectSummary);
+        return objectSummary;
     }
+
 }

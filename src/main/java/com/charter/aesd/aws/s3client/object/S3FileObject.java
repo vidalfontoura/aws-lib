@@ -143,7 +143,7 @@ public class S3FileObject {
     public static S3FileObject fromFile(File file, String bucketName) throws IOException {
 
         final S3ObjectSummary objectSummary = createS3ObjectSummary(file);
-        if (DynamicPropertyFactory.getInstance().getBooleanProperty(FileS3Client.BUCKET_NAME_AS_PATH, false).get()) {
+        if (getUsetBucketName()) {
             objectSummary.setBucketName(bucketName);
             objectSummary.setKey(getPath(file, bucketName));
         }
@@ -152,11 +152,15 @@ public class S3FileObject {
 
     public static String getPath(File file, String bucketName) {
         String filePath = file.getAbsolutePath();
-        if (DynamicPropertyFactory.getInstance().getBooleanProperty(FileS3Client.BUCKET_NAME_AS_PATH, false).get()) {
+        if (getUsetBucketName()) {
             int idx = filePath.indexOf(bucketName);
             filePath = filePath.substring(idx + bucketName.length() + 1);
         }
         return filePath;
+    }
+
+    private static boolean getUsetBucketName() {
+        return DynamicPropertyFactory.getInstance().getBooleanProperty(FileS3Client.BUCKET_NAME_AS_PATH, false).get();
     }
 
     public static S3ObjectSummary createS3ObjectSummary(File file) throws IOException {

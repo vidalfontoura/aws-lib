@@ -34,6 +34,10 @@ public class FileS3Client implements IS3Client {
         useBucketName = DynamicPropertyFactory.getInstance().getBooleanProperty(BUCKET_NAME_AS_PATH, false).get();
     }
 
+    /**
+     * Returns null if Bucket Name is not used, controlled via the <code>BUCKET_NAME_AS_PATH</code> property. Then
+     * FileS3Client will not use a base directory to support backwards compatibility.
+     */
     private String directory(String bucketName) {
         return useBucketName ? bucketName : null;
     }
@@ -99,16 +103,16 @@ public class FileS3Client implements IS3Client {
 	public List<String> listFilesPath(String bucketName, String prefix, String delimiter) throws IOException {
 
     	final File folder = new File(directory(bucketName), prefix);
-    	if(folder.exists()){
-    		final List<String> filesPath = Lists.newArrayList();
-	    	final Collection<File> paths = FileUtils.listFiles(folder, null, true);
+    	if(folder.exists()) {
+            final List<String> filesPath = Lists.newArrayList();
+            final Collection<File> paths = FileUtils.listFiles(folder, null, true);
 
-            for (File file : paths) {
+            paths.forEach(file -> {
                 String path = file.getAbsolutePath().replaceAll("\\\\", "/");
                 if (path.endsWith(delimiter.replaceAll("\\\\", "/"))) {
                     filesPath.add(S3FileObject.getPath(file, bucketName));
                 }
-            }
+            });
             return filesPath;
         }
 

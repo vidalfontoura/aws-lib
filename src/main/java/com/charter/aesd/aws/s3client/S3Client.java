@@ -1,5 +1,11 @@
 package com.charter.aesd.aws.s3client;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -18,16 +24,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.charter.aesd.aws.s3client.enums.S3AuthType;
-import com.charter.aesd.aws.s3client.object.S3FileObject;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import com.charter.aesd.aws.s3client.enums.S3AuthType;
+import com.charter.aesd.aws.s3client.object.S3FileObject;
 
 /**
  * AWS client for retrieving and adding files to an S3 bucket<br />
@@ -280,12 +281,18 @@ public class S3Client implements IS3Client {
      */
     public static class Builder {
 
+        private AmazonS3Client amazonS3Client;
         private S3AuthType authType;
         private String profileName;
         private String profileConfigFilePath;
         private ClientConfiguration config;
         private CryptoConfiguration cryptoConfig;
         private KMSEncryptionMaterialsProvider materialsProvider;
+
+
+        public Builder(AmazonS3Client amazonS3Client) {
+            this.amazonS3Client = amazonS3Client;
+        }
 
         /**
          * Constructor for {@link S3AuthType}
@@ -380,6 +387,10 @@ public class S3Client implements IS3Client {
         }
 
         public S3Client build() {
+
+            if (amazonS3Client != null) {
+                return new S3Client(amazonS3Client);
+            }
 
             AmazonS3Client client;
             boolean useEncryption = false;

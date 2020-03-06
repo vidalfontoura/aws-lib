@@ -15,12 +15,11 @@ import java.util.List;
  * {@link com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest}.
  * 
  * {@code com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest}
- * construction starts off with the static create method, which returns
- * a SecurityGroupQuery.Builder that can take a chained list of group query
+ * construction starts off with the static create method, which returns a
+ * SecurityGroupQuery.Builder that can take a chained list of group query
  * properties, until the build method is invoked to return the constructed
  * {@code SecurityGroupQuery} instance.
  * 
- * @author jappel
  */
 public class SecurityGroupQuery {
 
@@ -70,19 +69,23 @@ public class SecurityGroupQuery {
 
         public Builder withFilters(Collection<Filter> filters) {
 
-            final Collection<com.amazonaws.services.ec2.model.Filter> ec2Filters = new ArrayList<>(filters.size());
-            for (Filter filter : filters) 
-                ec2Filters.add(new com.amazonaws.services.ec2.model.Filter(filter.name, filter.values));
+            final Collection<com.amazonaws.services.ec2.model.Filter> ec2Filters =
+                new ArrayList<>(filters.size());
+            for (Filter filter : filters)
+                ec2Filters.add(new com.amazonaws.services.ec2.model.Filter(
+                    filter.name, filter.values));
             this.filters = ec2Filters;
             return this;
         }
 
         public SecurityGroupQuery build() {
 
-            Preconditions.checkArgument((ids != null && !ids.isEmpty()) || (names != null && !names.isEmpty()),
+            Preconditions.checkArgument((ids != null && !ids.isEmpty())
+                || (names != null && !names.isEmpty()),
                 "list of security group ids or names must not be empty");
 
-            DescribeSecurityGroupsRequest request = new DescribeSecurityGroupsRequest();
+            DescribeSecurityGroupsRequest request =
+                new DescribeSecurityGroupsRequest();
             if (ids != null && !ids.isEmpty())
                 request.withGroupIds(ids);
             if (names != null && !names.isEmpty())
@@ -116,11 +119,10 @@ public class SecurityGroupQuery {
 
         return request.getGroupNames();
     }
-    
+
     public List<String> getGroupIds() {
 
         return request.getGroupIds();
     }
-
 
 }

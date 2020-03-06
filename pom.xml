@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
-			<version>1.9.33</version>
+			<version>1.11.737</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -187,16 +187,4 @@
 	       </properties>
 	   </profile>
 	</profiles>
-	<distributionManagement>
-		<repository>
-			<id>charter-release</id>
-			<name>Charter Advanced Engineering Artifactory</name>
-			<url>http://nexusnpm.dev-charter.net:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>charter-snapshot</id>
-			<name>Charter Advanced Engineering Artifactory</name>
-			<url>http://nexusnpm.dev-charter.net:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>

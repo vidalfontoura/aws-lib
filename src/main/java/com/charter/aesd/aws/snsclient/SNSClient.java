@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  *      href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sns/AmazonSNS.html">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sns/AmazonSNS.html</a>
  * 
  *      <p/>
- *      User: matthewsmith Date: 7/10/14 Time: 10:23 AM
  * 
  * @author $Author: $
  * @version $Rev: $
@@ -41,7 +40,8 @@ public class SNSClient implements ISNSClient {
     /**
      *
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SNSClient.class);
+    private static final Logger LOGGER = LoggerFactory
+        .getLogger(SNSClient.class);
 
     /**
      * Protocol indicator used by SNS to target AWS SQS queue instances as topic
@@ -91,8 +91,8 @@ public class SNSClient implements ISNSClient {
             LOGGER.trace("createTopic(" + topicName + ")");
         }
 
-        return ((topicName == null) || (topicName.length() == 0)) ? null : getClient().createTopic(topicName)
-            .getTopicArn();
+        return ((topicName == null) || (topicName.length() == 0)) ? null
+            : getClient().createTopic(topicName).getTopicArn();
     }
 
     /**
@@ -113,8 +113,8 @@ public class SNSClient implements ISNSClient {
         }
 
         String topicArn =
-            ((topicName == null) || (topicName.length() == 0)) ? null : getClient().createTopic(topicName)
-                .getTopicArn();
+            ((topicName == null) || (topicName.length() == 0)) ? null
+                : getClient().createTopic(topicName).getTopicArn();
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Topic " + topicName + " resolves to ARN " + topicArn);
@@ -162,7 +162,8 @@ public class SNSClient implements ISNSClient {
      * 
      * @throws IOException
      */
-    public String publishMessage(final String topicArn, final String content) throws IOException {
+    public String publishMessage(final String topicArn, final String content)
+        throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
@@ -179,7 +180,8 @@ public class SNSClient implements ISNSClient {
         PublishResult result = getClient().publish(topicArn, content);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Published message, id=" + result.getMessageId() + " to " + topicArn);
+            LOGGER.debug("Published message, id=" + result.getMessageId()
+                + " to " + topicArn);
         }
 
         return result.getMessageId();
@@ -195,7 +197,8 @@ public class SNSClient implements ISNSClient {
      * 
      * @throws IOException
      */
-    public void publishMessages(final String topicArn, final List<String> content) throws IOException {
+    public void publishMessages(final String topicArn,
+                                final List<String> content) throws IOException {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("publishMessage(" + topicArn + ", " + content + ")");
@@ -224,7 +227,8 @@ public class SNSClient implements ISNSClient {
                 if (LOGGER.isInfoEnabled()) {
                     StringWriter errDetailsWriter = new StringWriter();
                     e.printStackTrace(new PrintWriter(errDetailsWriter));
-                    LOGGER.info("Error sending message:  error=" + e.getMessage() + ", content=" + msg
+                    LOGGER.info("Error sending message:  error="
+                        + e.getMessage() + ", content=" + msg
                         + ", error details=" + errDetailsWriter.toString());
                 }
 
@@ -242,10 +246,12 @@ public class SNSClient implements ISNSClient {
      * @return {@code String} the ARN to use to reference the subscription
      *         mapping between the topic and the queue
      */
-    public String subscribeToTopic(final String topicArn, final String queueArn) {
+    public String
+        subscribeToTopic(final String topicArn, final String queueArn) {
 
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("subscribeToTopic(" + topicArn + ", " + queueArn + ")");
+            LOGGER
+                .trace("subscribeToTopic(" + topicArn + ", " + queueArn + ")");
         }
 
         if ((topicArn == null) || (topicArn.length() == 0)) {
@@ -256,12 +262,13 @@ public class SNSClient implements ISNSClient {
             return null;
         }
 
-        SubscribeResult result = getClient().subscribe(topicArn, AWS_SQS_SNS_PROTOCOL, queueArn);
+        SubscribeResult result =
+            getClient().subscribe(topicArn, AWS_SQS_SNS_PROTOCOL, queueArn);
         String subArn = (result == null) ? null : result.getSubscriptionArn();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Queue[arn=" + queueArn + "] SUBSCRIBED to Topic[arn=" + topicArn + "] AS Subscription[arn="
-                + subArn + "]");
+            LOGGER.debug("Queue[arn=" + queueArn + "] SUBSCRIBED to Topic[arn="
+                + topicArn + "] AS Subscription[arn=" + subArn + "]");
         }
 
         return subArn;
@@ -288,7 +295,8 @@ public class SNSClient implements ISNSClient {
         getClient().unsubscribe(subscriptionArn);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn=" + subscriptionArn + "]");
+            LOGGER.debug("UNSUBSCRIBE request COMPLETE for Subscription[arn="
+                + subscriptionArn + "]");
         }
     }
 
@@ -306,10 +314,12 @@ public class SNSClient implements ISNSClient {
             LOGGER.trace("enableEnvelope(" + subscriptionArn + ")");
         }
 
-        getClient().setSubscriptionAttributes(subscriptionArn, RAW_MESSAGE_ATRR_NAME, RAW_MESSAGE_INDICATOR_OFF);
+        getClient().setSubscriptionAttributes(subscriptionArn,
+            RAW_MESSAGE_ATRR_NAME, RAW_MESSAGE_INDICATOR_OFF);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("RawMessageDelivery is ENABLED for Subscription[arn=" + subscriptionArn + "]");
+            LOGGER.debug("RawMessageDelivery is ENABLED for Subscription[arn="
+                + subscriptionArn + "]");
         }
     }
 
@@ -327,10 +337,12 @@ public class SNSClient implements ISNSClient {
             LOGGER.trace("disableEnvelope(" + subscriptionArn + ")");
         }
 
-        getClient().setSubscriptionAttributes(subscriptionArn, RAW_MESSAGE_ATRR_NAME, RAW_MESSAGE_INDICATOR_ON);
+        getClient().setSubscriptionAttributes(subscriptionArn,
+            RAW_MESSAGE_ATRR_NAME, RAW_MESSAGE_INDICATOR_ON);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("RawMessageDelivery is DISABLED for Subscription[arn=" + subscriptionArn + "]");
+            LOGGER.debug("RawMessageDelivery is DISABLED for Subscription[arn="
+                + subscriptionArn + "]");
         }
     }
 
@@ -354,16 +366,21 @@ public class SNSClient implements ISNSClient {
          * @return
          */
         @Override
-        protected SNSClient allocateClient(final AWSCredentialsProvider provider, final ClientConfiguration config) {
+        protected SNSClient
+            allocateClient(final AWSCredentialsProvider provider,
+                           final ClientConfiguration config) {
 
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("allocateClient()");
             }
 
-            SNSClient client = (provider == null) ? new SNSClient(new AmazonSNSClient(getConfig())) : new SNSClient(
-                new AmazonSNSClient(provider, getConfig()));
-            client.getClient().setRegion(Region
-                            .getRegion(Regions.fromName(System.getProperty("archaius.deployment.region"))));
+            SNSClient client =
+                (provider == null) ? new SNSClient(new AmazonSNSClient(
+                    getConfig())) : new SNSClient(new AmazonSNSClient(provider,
+                    getConfig()));
+            client.getClient().setRegion(
+                Region.getRegion(Regions.fromName(System
+                    .getProperty("archaius.deployment.region"))));
             return client;
         }
     }

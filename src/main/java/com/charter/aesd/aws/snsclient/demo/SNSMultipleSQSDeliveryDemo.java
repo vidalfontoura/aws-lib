@@ -24,7 +24,6 @@ import java.util.UUID;
  * <p/>
  * {@code java om.charter.aesd.aws.snsclient.demo.SNSMultipleSQSDeliveryDemo <topicName> <numMessages> <numConsumers>}
  * <p/>
- * User: matthewsmith Date: 7/22/14 Time: 12:12 PM
  * 
  * @author $Author: $
  * @version $Rev: $
@@ -39,8 +38,10 @@ public class SNSMultipleSQSDeliveryDemo {
     private final static int DEFAULT_NUM_SQS_CONSUMERS = 5;
     private final static int DEFAULT_NUM_MESSAGES = 2;
     private final static String SQS_CONSUMER_NAME = "SQS-SNS-Consumer";
-    private final static String ENTITLEMENT_MESSAGE = "{\n" + "  \"MessageId\": \"{messageId}\",\n"
-        + "  \"MessageName\": \"VideoEntitlements\",\n" + "  \"AccountNumber\":  \"80092320357266\",\n"
+    private final static String ENTITLEMENT_MESSAGE = "{\n"
+        + "  \"MessageId\": \"{messageId}\",\n"
+        + "  \"MessageName\": \"VideoEntitlements\",\n"
+        + "  \"AccountNumber\":  \"80092320357266\",\n"
         + "  \"LastModified\": " + System.currentTimeMillis() + "\n" + "}";
 
     /* @@_END: STATICS ------------------------------------------------------- */
@@ -100,7 +101,8 @@ public class SNSMultipleSQSDeliveryDemo {
         }
 
         // Build the SNS Topic
-        ISNSClient snsClient = new SNSClient.Builder(AWSAuthType.PROFILE).build();
+        ISNSClient snsClient =
+            new SNSClient.Builder(AWSAuthType.PROFILE).build();
         String topicArn = null;
         try {
             topicArn = snsClient.createTopic(topicName);
@@ -110,23 +112,28 @@ public class SNSMultipleSQSDeliveryDemo {
         }
         System.out.println("AWS SNS Topic AVAILABLE, ARN=" + topicArn);
 
-        SQSClient sqsClient = new SQSClient.Builder(AWSAuthType.PROFILE).build();
+        SQSClient sqsClient =
+            new SQSClient.Builder(AWSAuthType.PROFILE).build();
 
         // Start the Queues
         List<SQSSNSConsumer> sqsConsumers = new ArrayList<SQSSNSConsumer>();
 
-        System.out.println("Starting " + numSQSConsumers + " AWS SQS Consumers");
+        System.out
+            .println("Starting " + numSQSConsumers + " AWS SQS Consumers");
         for (int qIdx = 0; qIdx < numSQSConsumers; qIdx++) {
             try {
-                String consumerName = SQS_CONSUMER_NAME + "-" + System.currentTimeMillis();
-                SQSSNSConsumer sqsConsumer = allocateConsumer(sqsClient, consumerName, numMessages);
+                String consumerName =
+                    SQS_CONSUMER_NAME + "-" + System.currentTimeMillis();
+                SQSSNSConsumer sqsConsumer =
+                    allocateConsumer(sqsClient, consumerName, numMessages);
 
                 // Update the Queue's Policy to allow SNS sends from the topic
                 sqsClient.allowTopic(sqsConsumer.getQueueUrl(), topicArn);
 
                 // Attach the Consumer to the Topic
                 snsClient.subscribeToTopic(topicArn, sqsConsumer.getQueueArn());
-                System.out.println("Consumer " + consumerName + " SUBSCRIBED TO TOPIC ARN=" + topicArn);
+                System.out.println("Consumer " + consumerName
+                    + " SUBSCRIBED TO TOPIC ARN=" + topicArn);
 
                 sqsConsumers.add(sqsConsumer);
 
@@ -141,7 +148,9 @@ public class SNSMultipleSQSDeliveryDemo {
         // Publish messages
         try {
             for (int msgIdx = 0; msgIdx < numMessages; msgIdx++) {
-                String msg = ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", UUID.randomUUID().toString());
+                String msg =
+                    ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", UUID
+                        .randomUUID().toString());
                 snsClient.publishMessage(topicArn, msg);
                 System.out.println("SENT MESSAGE " + msg);
 
@@ -180,10 +189,13 @@ public class SNSMultipleSQSDeliveryDemo {
     /**
      *
      */
-    static SQSSNSConsumer allocateConsumer(final SQSClient qClient, final String consumerName, final int numMessages)
+    static SQSSNSConsumer allocateConsumer(final SQSClient qClient,
+                                           final String consumerName,
+                                           final int numMessages)
         throws IOException {
 
-        SQSSNSConsumer consumer = new SQSSNSConsumer(qClient, consumerName, numMessages);
+        SQSSNSConsumer consumer =
+            new SQSSNSConsumer(qClient, consumerName, numMessages);
 
         consumer.init();
 
@@ -207,7 +219,8 @@ public class SNSMultipleSQSDeliveryDemo {
         /**
          *
          */
-        SQSSNSConsumer(final SQSClient qClient, final String name, final int numMessagesToProcess) {
+        SQSSNSConsumer(final SQSClient qClient, final String name,
+            final int numMessagesToProcess) {
 
             super(name);
 
@@ -237,7 +250,8 @@ public class SNSMultipleSQSDeliveryDemo {
         void init() throws IOException {
 
             _queueUrl = _sqsClient.createQueue(getName());
-            System.out.println("Queue " + getName() + " is available at URL " + _queueUrl);
+            System.out.println("Queue " + getName() + " is available at URL "
+                + _queueUrl);
         }
 
         /**
@@ -267,16 +281,19 @@ public class SNSMultipleSQSDeliveryDemo {
             int numMsgsRecvd = 0;
             while (numMsgsRecvd < _expectedMessages) {
                 try {
-                    System.out.println("Checking for Messages on Q " + _queueUrl);
+                    System.out.println("Checking for Messages on Q "
+                        + _queueUrl);
                     if (!_sqsClient.hasPendingMessages(_queueUrl)) {
-                        System.out.println("Q " + _queueUrl + " has NO messages");
+                        System.out.println("Q " + _queueUrl
+                            + " has NO messages");
                         Thread.sleep(1000);
 
                         continue;
                     }
 
                     System.out.println("Processing Messages on Q " + _queueUrl);
-                    Optional<Message> msg = _sqsClient.receiveMessage(_queueUrl);
+                    Optional<Message> msg =
+                        _sqsClient.receiveMessage(_queueUrl);
 
                     if (msg.isPresent()) {
                         process(msg.get().getBody());

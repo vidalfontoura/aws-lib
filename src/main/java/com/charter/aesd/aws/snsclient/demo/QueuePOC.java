@@ -17,7 +17,6 @@ import java.util.UUID;
  * Simple Demo of publishing to an SNS topic and that notification being
  * delivered to multiple SQS Queue endpoints and read
  * <p/>
- * User: matthewsmith Date: 7/22/14 Time: 12:12 PM
  * 
  * @author $Author: $
  * @version $Rev: $
@@ -29,10 +28,13 @@ public class QueuePOC {
     /**
      *
      */
-    private final static String[] SQS_CONSUMER_NAMES = { "QueuePOC-Consumer-1", "QueuePOC-Consumer-2" };
+    private final static String[] SQS_CONSUMER_NAMES = { "QueuePOC-Consumer-1",
+        "QueuePOC-Consumer-2" };
     private final static String SNS_TOPIC_NAME = "QueuePOC-Demo-Topic";
-    private final static String ENTITLEMENT_MESSAGE = "{\n" + "  \"MessageId\": \"{messageId}\",\n"
-        + "  \"MessageName\": \"VideoEntitlements\",\n" + "  \"AccountNumber\":  \"80092320357266\",\n"
+    private final static String ENTITLEMENT_MESSAGE = "{\n"
+        + "  \"MessageId\": \"{messageId}\",\n"
+        + "  \"MessageName\": \"VideoEntitlements\",\n"
+        + "  \"AccountNumber\":  \"80092320357266\",\n"
         + "  \"LastModified\": " + System.currentTimeMillis() + "\n" + "}";
 
     /* @@_END: STATICS ------------------------------------------------------- */
@@ -53,17 +55,20 @@ public class QueuePOC {
     public static void main(String[] args) {
 
         // Build the SNS Topic
-        ISNSClient snsClient = new SNSClient.Builder(AWSAuthType.PROFILE).build();
+        ISNSClient snsClient =
+            new SNSClient.Builder(AWSAuthType.PROFILE).build();
         String topicArn = null;
         try {
             topicArn = snsClient.createTopic(SNS_TOPIC_NAME);
         } catch (Exception e) {
-            System.err.println("ERROR Could Not Connect to Topic :: msg=" + e.getMessage());
+            System.err.println("ERROR Could Not Connect to Topic :: msg="
+                + e.getMessage());
             System.exit(1);
         }
         System.out.println("AWS SNS Topic AVAILABLE");
 
-        SQSClient sqsClient = new SQSClient.Builder(AWSAuthType.PROFILE).build();
+        SQSClient sqsClient =
+            new SQSClient.Builder(AWSAuthType.PROFILE).build();
 
         // Start the Queues
         List<SQSSNSConsumer> sqsConsumers = new ArrayList<SQSSNSConsumer>();
@@ -71,13 +76,15 @@ public class QueuePOC {
         System.out.println("Starting AWS SQS Consumers");
         for (int i = 0; i < SQS_CONSUMER_NAMES.length; i++) {
             try {
-                SQSSNSConsumer sqsConsumer = allocateConsumer(sqsClient, SQS_CONSUMER_NAMES[i]);
+                SQSSNSConsumer sqsConsumer =
+                    allocateConsumer(sqsClient, SQS_CONSUMER_NAMES[i]);
 
                 // Attach the Consumer to the Topic
                 sqsConsumers.add(sqsConsumer);
                 sqsConsumer.start();
 
-                System.out.println("Consumer " + SQS_CONSUMER_NAMES[i] + " STARTED");
+                System.out.println("Consumer " + SQS_CONSUMER_NAMES[i]
+                    + " STARTED");
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             }
@@ -87,7 +94,9 @@ public class QueuePOC {
         int rc = 0;
         try {
             while (true) {
-                String msg = ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", UUID.randomUUID().toString());
+                String msg =
+                    ENTITLEMENT_MESSAGE.replaceAll("\\{messageId\\}", UUID
+                        .randomUUID().toString());
                 snsClient.publishMessage(topicArn, msg);
                 System.out.println("SENT MESSAGE " + msg);
 
@@ -106,7 +115,9 @@ public class QueuePOC {
     /**
      *
      */
-    static SQSSNSConsumer allocateConsumer(final SQSClient qClient, final String consumerName) throws IOException {
+    static SQSSNSConsumer allocateConsumer(final SQSClient qClient,
+                                           final String consumerName)
+        throws IOException {
 
         SQSSNSConsumer consumer = new SQSSNSConsumer(qClient, consumerName);
 
@@ -152,7 +163,8 @@ public class QueuePOC {
         void init() throws IOException {
 
             _queueUrl = _sqsClient.resolveQueueUrl(getName());
-            System.out.println("Queue " + getName() + " is available at URL " + _queueUrl);
+            System.out.println("Queue " + getName() + " is available at URL "
+                + _queueUrl);
         }
 
         /**
@@ -174,13 +186,15 @@ public class QueuePOC {
             while (true) {
                 try {
                     if (!_sqsClient.hasPendingMessages(_queueUrl)) {
-                        System.out.println("Q " + _queueUrl + " has NO messages");
+                        System.out.println("Q " + _queueUrl
+                            + " has NO messages");
                         Thread.sleep(1000);
 
                         continue;
                     }
 
-                    Optional<Message> msg = _sqsClient.receiveMessage(_queueUrl);
+                    Optional<Message> msg =
+                        _sqsClient.receiveMessage(_queueUrl);
                     if (!msg.isPresent()) {
                         continue;
                     }

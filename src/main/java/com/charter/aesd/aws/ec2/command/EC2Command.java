@@ -12,13 +12,13 @@ import java.util.function.Supplier;
 /**
  * Generic class for wrapping AWS EC2 calls in Hystrix.
  * 
- * @author jappel
  * @param <R>
  */
 public class EC2Command<R> extends HystrixCommand<R> {
 
-    private static final HystrixCommand.Setter EC2_SETTER = Setter.withGroupKey(
-        HystrixCommandGroupKey.Factory.asKey("AwsLib")).andCommandKey(HystrixCommandKey.Factory.asKey("EC2"));
+    private static final HystrixCommand.Setter EC2_SETTER = Setter
+        .withGroupKey(HystrixCommandGroupKey.Factory.asKey("AwsLib"))
+        .andCommandKey(HystrixCommandKey.Factory.asKey("EC2"));
 
     private final Supplier<R> function;
 

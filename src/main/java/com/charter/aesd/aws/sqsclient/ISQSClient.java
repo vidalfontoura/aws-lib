@@ -18,7 +18,6 @@ import java.util.Map;
  * queues.
  *
  * <p/>
- * User: matthewsmith Date: 7/10/14 Time: 10:23 AM
  *
  * @author $Author: $
  * @version $Rev: $
@@ -98,7 +97,8 @@ public interface ISQSClient extends ISNSTopicListener {
      *
      * @throws IOException
      */
-    SendMessageResult sendMessage(String queueUrl, String content) throws IOException;
+    SendMessageResult sendMessage(String queueUrl, String content)
+        throws IOException;
 
     SendMessageBatchResult sendMessages(String queueUrl, List<String> content);
 
@@ -130,7 +130,8 @@ public interface ISQSClient extends ISNSTopicListener {
      *
      * @throws IOException
      */
-    List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException;
+    List<Message> receiveMessage(ReceiveMessageRequest request)
+        throws IOException;
 
     /**
      * @param queueUrl {@code String} the url returned by the Queue creation
@@ -165,6 +166,7 @@ public interface ISQSClient extends ISNSTopicListener {
      *        messages.
      *
      */
-    void deleteMessages(final String queueUrl, final Map<String, String> content);
+        void
+        deleteMessages(final String queueUrl, final Map<String, String> content);
 
 } // ISQSClient

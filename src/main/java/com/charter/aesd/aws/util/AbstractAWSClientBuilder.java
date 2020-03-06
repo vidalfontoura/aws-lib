@@ -7,17 +7,16 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
+import com.charter.aesd.aws.enums.AWSAuthType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.charter.aesd.aws.enums.AWSAuthType;
 
 /**
  * <p/>
  * Provide a base class for AWS clients to use to setup there common client
  * configurations, such as Proxy, Credentials, etc.
  * <p/>
- * User: matthewsmith Date: 7/22/14 Time: 1:13 PM
  * 
  * @author $Author: $
  * @version $Rev: $
@@ -25,7 +24,8 @@ import com.charter.aesd.aws.enums.AWSAuthType;
  */
 abstract public class AbstractAWSClientBuilder<T> {
 
-    private final static Logger log = LoggerFactory.getLogger(AbstractAWSClientBuilder.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(AbstractAWSClientBuilder.class);
     /**
      *
      */
@@ -83,7 +83,8 @@ abstract public class AbstractAWSClientBuilder<T> {
      * @param profileConfigFilePath
      * @return {@link AbstractAWSClientBuilder}
      */
-    public AbstractAWSClientBuilder<T> setProfileConfigFilePath(String profileConfigFilePath) {
+    public AbstractAWSClientBuilder<T>
+        setProfileConfigFilePath(String profileConfigFilePath) {
 
         this.profileConfigFilePath = profileConfigFilePath;
         return this;
@@ -148,25 +149,30 @@ abstract public class AbstractAWSClientBuilder<T> {
 
         if (this.authType == AWSAuthType.DEFAULT_AWS) {
             try {
-                return allocateClient(new DefaultAWSCredentialsProviderChain(), getConfig());
+                return allocateClient(new DefaultAWSCredentialsProviderChain(),
+                    getConfig());
             } catch (AmazonClientException ex) {
                 log.warn(ex.getMessage());
             }
         }
 
         if (this.authType == AWSAuthType.INSTANCE_ROLE) {
-            return allocateClient(new InstanceProfileCredentialsProvider(), getConfig());
+            return allocateClient(new InstanceProfileCredentialsProvider(),
+                getConfig());
         }
 
         if (this.profileConfigFilePath == null) {
             if (this.profileName == null) {
-                return allocateClient(new ProfileCredentialsProvider(), getConfig());
+                return allocateClient(new ProfileCredentialsProvider(),
+                    getConfig());
             }
-            return allocateClient(new ProfileCredentialsProvider(this.profileName), getConfig());
+            return allocateClient(new ProfileCredentialsProvider(
+                this.profileName), getConfig());
 
         } else if (this.profileName != null) {
             // Have both a profile name and a config location
-            return allocateClient(new ProfileCredentialsProvider(new ProfilesConfigFile(getProfileConfigFilePath()),
+            return allocateClient(new ProfileCredentialsProvider(
+                new ProfilesConfigFile(getProfileConfigFilePath()),
                 getProfileName()), getConfig());
         }
 
@@ -176,5 +182,6 @@ abstract public class AbstractAWSClientBuilder<T> {
     /**
      *
      */
-    abstract protected T allocateClient(final AWSCredentialsProvider provider, final ClientConfiguration config);
+    abstract protected T allocateClient(final AWSCredentialsProvider provider,
+                                        final ClientConfiguration config);
 } // AbstractAWSClientBuilder

@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Stub implementation of ISQSClient
  *
- * @author mpaliari
  */
 public class SQSClientStub implements ISQSClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQSClientStub.class);
+    private static final Logger LOGGER = LoggerFactory
+        .getLogger(SQSClientStub.class);
 
     private final List<Message> stubQueue = new ArrayList<>();
 
@@ -45,13 +45,15 @@ public class SQSClientStub implements ISQSClient {
     @Override
     public boolean isQueueExists(String queueName) {
 
-        return StringUtils.isNotBlank(queueName) && QUEUE_NAME.equals(queueName);
+        return StringUtils.isNotBlank(queueName)
+            && QUEUE_NAME.equals(queueName);
     }
 
     @Override
     public String resolveQueueUrl(String queueName) {
 
-        return StringUtils.isNotBlank(queueName) && QUEUE_NAME.equals(queueName) ? queueName : null;
+        return StringUtils.isNotBlank(queueName)
+            && QUEUE_NAME.equals(queueName) ? queueName : null;
     }
 
     @Override
@@ -80,7 +82,8 @@ public class SQSClientStub implements ISQSClient {
     }
 
     @Override
-    public SendMessageResult sendMessage(String queueUrl, String content) throws IOException {
+    public SendMessageResult sendMessage(String queueUrl, String content)
+        throws IOException {
 
         BigInteger hash = null;
         try {
@@ -90,7 +93,8 @@ public class SQSClientStub implements ISQSClient {
             byte[] hashMd5 = digest.digest(content.getBytes());
             hash = new BigInteger(1, hashMd5);
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Error to encript the message content in SQSClientStub");
+            LOGGER
+                .error("Error to encript the message content in SQSClientStub");
         }
 
         String messageId = UUID.randomUUID().toString();
@@ -112,19 +116,23 @@ public class SQSClientStub implements ISQSClient {
     }
 
     @Override
-    public SendMessageBatchResult sendMessages(String queueUrl, List<String> content) {
+    public SendMessageBatchResult sendMessages(String queueUrl,
+                                               List<String> content) {
 
         SendMessageBatchResult result = new SendMessageBatchResult();
         List<SendMessageBatchResultEntry> entries = new ArrayList<>();
 
         for (String messageContent : content) {
-            SendMessageBatchResultEntry entry = new SendMessageBatchResultEntry();
+            SendMessageBatchResultEntry entry =
+                new SendMessageBatchResultEntry();
 
             try {
-                SendMessageResult sendMessageResult = sendMessage(queueUrl, messageContent);
+                SendMessageResult sendMessageResult =
+                    sendMessage(queueUrl, messageContent);
 
                 entry.setMessageId(sendMessageResult.getMessageId());
-                entry.setMD5OfMessageBody(sendMessageResult.getMD5OfMessageBody());
+                entry.setMD5OfMessageBody(sendMessageResult
+                    .getMD5OfMessageBody());
             } catch (IOException e) {
                 LOGGER.error("Error to add a message in SQSClientStub");
             }
@@ -139,11 +147,13 @@ public class SQSClientStub implements ISQSClient {
     @Override
     public Optional<Message> receiveMessage(String queueUrl) throws IOException {
 
-        return !stubQueue.isEmpty() ? Optional.of(stubQueue.get(0)) : Optional.absent();
+        return !stubQueue.isEmpty() ? Optional.of(stubQueue.get(0)) : Optional
+            .absent();
     }
 
     @Override
-    public List<Message> receiveMessage(ReceiveMessageRequest request) throws IOException {
+    public List<Message> receiveMessage(ReceiveMessageRequest request)
+        throws IOException {
 
         return stubQueue;
     }
@@ -171,7 +181,8 @@ public class SQSClientStub implements ISQSClient {
     }
 
     @Override
-    public void deleteMessages(String queueUrl, final Map<String, String> content) {
+    public void deleteMessages(String queueUrl,
+                               final Map<String, String> content) {
 
         for (Message message : stubQueue) {
             if (content.values().contains(message.getReceiptHandle())) {

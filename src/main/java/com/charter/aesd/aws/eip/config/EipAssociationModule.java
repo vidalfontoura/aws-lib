@@ -18,39 +18,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Module searches a pool of available EIP's and associates one to
- *  the instance of the current application
+ * Module searches a pool of available EIP's and associates one to the instance
+ * of the current application
  *
- * @author darrenbathgate
  *
  */
-public class EipAssociationModule extends AbstractModule{
+public class EipAssociationModule extends AbstractModule {
 
-    private static final Logger logger = LoggerFactory.getLogger(EipAssociationModule.class);
+    private static final Logger logger = LoggerFactory
+        .getLogger(EipAssociationModule.class);
 
-    private final String EIP_TXT_RECORD_PROP_NAME = "com.charter.aws.eip.txt-record";
-    private final String DEPLOYMENT_REGION_PROP_NAME = "archaius.deployment.region";
+    private final String EIP_TXT_RECORD_PROP_NAME =
+        "com.charter.aws.eip.txt-record";
+    private final String DEPLOYMENT_REGION_PROP_NAME =
+        "archaius.deployment.region";
 
     private final DynamicPropertyFactory dynamicPropertyFactory;
 
     public EipAssociationModule() {
+
         dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
     }
 
     @Override
     protected void configure() {
-        final EipPoolLookup eipPoolLookup = new EipPoolLookup(dynamicPropertyFactory.getStringProperty(EIP_TXT_RECORD_PROP_NAME, ""));
-        final AmazonEC2Client client = new AmazonEC2Client(new InstanceProfileCredentialsProvider());
+
+        final EipPoolLookup eipPoolLookup =
+            new EipPoolLookup(dynamicPropertyFactory.getStringProperty(
+                EIP_TXT_RECORD_PROP_NAME, ""));
+        final AmazonEC2Client client =
+            new AmazonEC2Client(new InstanceProfileCredentialsProvider());
 
         try {
-            final String region = System.getProperty(DEPLOYMENT_REGION_PROP_NAME);
-            Preconditions.checkArgument(StringUtils.isNotEmpty(region), "System property missing: " + DEPLOYMENT_REGION_PROP_NAME);
+            final String region =
+                System.getProperty(DEPLOYMENT_REGION_PROP_NAME);
+            Preconditions.checkArgument(StringUtils.isNotEmpty(region),
+                "System property missing: " + DEPLOYMENT_REGION_PROP_NAME);
 
             client.setRegion(Region.getRegion(Regions.fromName(region)));
 
-            final AssociateEip associateEip = new AssociateEip(client, eipPoolLookup);
+            final AssociateEip associateEip =
+                new AssociateEip(client, eipPoolLookup);
             associateEip.associate();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("Failed to associate an EIP address", ex);
             throw new IllegalStateException(ex);
         }

@@ -9,8 +9,6 @@ import com.amazonaws.auth.policy.conditions.ArnCondition;
 import com.amazonaws.auth.policy.conditions.ConditionFactory;
 
 /**
- * <p/>
- * User: matthewsmith Date: 7/23/14 Time: 2:36 PM
  *
  * @author $Author: $
  * @version $Rev: $
@@ -21,26 +19,26 @@ public class AWSPolicyDelegate extends BaseSQSPolicy {
     /**
      *
      */
-    public AWSPolicyDelegate(final String policyName,
-                             final String queueArn,
-                             final String topicArn) {
-        super(policyName,
-              queueArn,
-              topicArn);
+    public AWSPolicyDelegate(final String policyName, final String queueArn,
+        final String topicArn) {
+
+        super(policyName, queueArn, topicArn);
     }
 
     /**
      *
      */
     public String toJson() {
-        Policy policy = new Policy().withStatements(
-            new Statement(Statement.Effect.Allow)
+
+        Policy policy =
+            new Policy().withStatements(new Statement(Statement.Effect.Allow)
                 .withPrincipals(Principal.AllUsers)
                 .withActions(SQSActions.SendMessage)
                 .withResources(new Resource(getQueueArn()))
-                .withConditions(new ArnCondition(ArnCondition.ArnComparisonType.ArnEquals,
-                                                                ConditionFactory.SOURCE_ARN_CONDITION_KEY,
-                                                                getTopicArn())));
+                .withConditions(
+                    new ArnCondition(ArnCondition.ArnComparisonType.ArnEquals,
+                        ConditionFactory.SOURCE_ARN_CONDITION_KEY,
+                        getTopicArn())));
         policy.setId(getPolicyName());
 
         return policy.toJson();

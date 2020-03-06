@@ -3,8 +3,6 @@ package com.charter.aesd.aws.sqsclient.util;
 import com.charter.aesd.aws.sqsclient.ISQSPolicy;
 
 /**
- * <p/>
- * User: matthewsmith Date: 7/23/14 Time: 2:38 PM
  *
  * @author $Author: $
  * @version $Rev: $
@@ -22,9 +20,9 @@ abstract public class BaseSQSPolicy implements ISQSPolicy {
     /**
      *
      */
-    protected BaseSQSPolicy (final String policyName,
-                             final String queueArn,
-                             final String topicArn) {
+    protected BaseSQSPolicy(final String policyName, final String queueArn,
+        final String topicArn) {
+
         setPolicyName(policyName);
         setQueueArn(queueArn);
         setTopicArn(topicArn);

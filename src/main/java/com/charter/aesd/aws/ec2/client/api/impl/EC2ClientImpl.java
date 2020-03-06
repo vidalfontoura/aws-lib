@@ -47,11 +47,11 @@ import rx.schedulers.Schedulers;
  * Use {@link EC2ClientImpl.Builder} to construct an instance of
  * {@link EC2Client}
  * 
- * @author jappel
  */
 public class EC2ClientImpl implements EC2Client {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles
+        .lookup().getClass());
     private final AmazonEC2Client awsEC2Client;
 
     private EC2ClientImpl(final AmazonEC2Client client) {
@@ -77,41 +77,51 @@ public class EC2ClientImpl implements EC2Client {
     }
 
     @Override
-    public Observable<SecurityGroup> describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
+    public Observable<SecurityGroup>
+        describeSecurityGroups(final Optional<SecurityGroupQuery> query) {
 
         Supplier<List<SecurityGroup>> function =
             () -> {
                 DescribeSecurityGroupsResult securityGroupsResult =
-                    awsEC2Client.describeSecurityGroups(query.isPresent() ? query.get().getRequest()
+                    awsEC2Client.describeSecurityGroups(query.isPresent()
+                        ? query.get().getRequest()
                         : new DescribeSecurityGroupsRequest());
                 return securityGroupsResult.getSecurityGroups();
             };
-        return invokeHystrixCommand(function).flatMap(lst -> Observable.from(lst));
+        return invokeHystrixCommand(function).flatMap(
+            lst -> Observable.from(lst));
     }
 
     @Override
-    public Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,
-                                                                     Optional<String> groupDescription) {
+    public Observable<CreateSecurityGroupResult>
+        createSecurityGroup(String groupName, String vpcId,
+                            Optional<String> groupDescription) {
 
-        Supplier<CreateSecurityGroupResult> function = () -> {
+        Supplier<CreateSecurityGroupResult> function =
+            () -> {
 
-            CreateSecurityGroupRequest request = new CreateSecurityGroupRequest();
-            if (groupDescription.isPresent())
-                request.withGroupName(groupName).withVpcId(vpcId).withDescription(groupDescription.get());
-            else
-                request.withGroupName(groupName).withVpcId(vpcId);
-            return awsEC2Client.createSecurityGroup(request);
-        };
+                CreateSecurityGroupRequest request =
+                    new CreateSecurityGroupRequest();
+                if (groupDescription.isPresent())
+                    request.withGroupName(groupName).withVpcId(vpcId)
+                        .withDescription(groupDescription.get());
+                else
+                    request.withGroupName(groupName).withVpcId(vpcId);
+                return awsEC2Client.createSecurityGroup(request);
+            };
         return invokeHystrixCommand(function);
     }
 
     @Override
     public Observable<Void> deleteSecurityGroup(String groupId) {
 
-        Supplier<Void> function = () -> {
-            awsEC2Client.deleteSecurityGroup(new DeleteSecurityGroupRequest().withGroupId(groupId));
-            return null;
-        };
+        Supplier<Void> function =
+            () -> {
+                awsEC2Client
+                    .deleteSecurityGroup(new DeleteSecurityGroupRequest()
+                        .withGroupId(groupId));
+                return null;
+            };
         return invokeHystrixCommand(function);
     }
 
@@ -126,76 +136,120 @@ public class EC2ClientImpl implements EC2Client {
      * @param destinationGroupId the destinationGroupId if it exists
      * @return {@link IpPermission}
      */
-    private IpPermission constructPermission(int fromPort, int toPort, String protocol, Optional<String> cidr,
-                                             Optional<String> destinationGroupId) {
+    private IpPermission
+        constructPermission(int fromPort, int toPort, String protocol,
+                            Optional<String> cidr,
+                            Optional<String> destinationGroupId) {
 
-        IpPermission permission = new IpPermission().withFromPort(fromPort).withToPort(toPort).withIpProtocol(protocol);
-        return cidr.isPresent() ? permission.withIpRanges(cidr.get()) : permission
-            .withUserIdGroupPairs(new UserIdGroupPair().withGroupId(destinationGroupId.get()));
+        IpPermission permission =
+            new IpPermission().withFromPort(fromPort).withToPort(toPort)
+                .withIpProtocol(protocol);
+        return cidr.isPresent() ? permission.withIpRanges(cidr.get())
+            : permission.withUserIdGroupPairs(new UserIdGroupPair()
+                .withGroupId(destinationGroupId.get()));
     }
 
     @Override
-    public Observable<Void> createSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                          Optional<String> cidr, Optional<String> destinationGroupId) {
+    public Observable<Void>
+        createSecurityGroupEgressRule(String groupId, int toPort, int fromPort,
+                                      String protocol, Optional<String> cidr,
+                                      Optional<String> destinationGroupId) {
 
-        if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
-            throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Void> function = () -> {
-            AuthorizeSecurityGroupEgressRequest request = new AuthorizeSecurityGroupEgressRequest();
-            IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
-            awsEC2Client.authorizeSecurityGroupEgress(request.withGroupId(groupId).withIpPermissions(permission));
-            return null;
-        };
+        if (!cidr.isPresent() && !destinationGroupId.isPresent()
+            || cidr.isPresent() && destinationGroupId.isPresent())
+            throw new IllegalArgumentException(
+                "Either a CIDR or destination security group ID must be passed");
+        Supplier<Void> function =
+            () -> {
+                AuthorizeSecurityGroupEgressRequest request =
+                    new AuthorizeSecurityGroupEgressRequest();
+                IpPermission permission =
+                    constructPermission(fromPort, toPort, protocol, cidr,
+                        destinationGroupId);
+                awsEC2Client.authorizeSecurityGroupEgress(request.withGroupId(
+                    groupId).withIpPermissions(permission));
+                return null;
+            };
         return invokeHystrixCommand(function);
     }
 
     @Override
-    public Observable<Void> createSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                           Optional<String> cidr, Optional<String> destinationGroupId) {
+    public Observable<Void>
+        createSecurityGroupIngressRule(String groupId, int toPort,
+                                       int fromPort, String protocol,
+                                       Optional<String> cidr,
+                                       Optional<String> destinationGroupId) {
 
-        if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
-            throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Void> function = () -> {
-            AuthorizeSecurityGroupIngressRequest request = new AuthorizeSecurityGroupIngressRequest();
-            IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
-            awsEC2Client.authorizeSecurityGroupIngress(request.withGroupId(groupId).withIpPermissions(permission));
-            return null;
-        };
+        if (!cidr.isPresent() && !destinationGroupId.isPresent()
+            || cidr.isPresent() && destinationGroupId.isPresent())
+            throw new IllegalArgumentException(
+                "Either a CIDR or destination security group ID must be passed");
+        Supplier<Void> function =
+            () -> {
+                AuthorizeSecurityGroupIngressRequest request =
+                    new AuthorizeSecurityGroupIngressRequest();
+                IpPermission permission =
+                    constructPermission(fromPort, toPort, protocol, cidr,
+                        destinationGroupId);
+                awsEC2Client.authorizeSecurityGroupIngress(request.withGroupId(
+                    groupId).withIpPermissions(permission));
+                return null;
+            };
         return invokeHystrixCommand(function);
     }
 
     @Override
-    public Observable<Void> deleteSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                           Optional<String> cidr, Optional<String> destinationGroupId) {
+    public Observable<Void>
+        deleteSecurityGroupIngressRule(String groupId, int toPort,
+                                       int fromPort, String protocol,
+                                       Optional<String> cidr,
+                                       Optional<String> destinationGroupId) {
 
-        if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
-            throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Void> function = () -> {
-            RevokeSecurityGroupIngressRequest request = new RevokeSecurityGroupIngressRequest();
-            IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
-            awsEC2Client.revokeSecurityGroupIngress(request.withGroupId(groupId).withIpPermissions(permission));
-            return null;
-        };
+        if (!cidr.isPresent() && !destinationGroupId.isPresent()
+            || cidr.isPresent() && destinationGroupId.isPresent())
+            throw new IllegalArgumentException(
+                "Either a CIDR or destination security group ID must be passed");
+        Supplier<Void> function =
+            () -> {
+                RevokeSecurityGroupIngressRequest request =
+                    new RevokeSecurityGroupIngressRequest();
+                IpPermission permission =
+                    constructPermission(fromPort, toPort, protocol, cidr,
+                        destinationGroupId);
+                awsEC2Client.revokeSecurityGroupIngress(request.withGroupId(
+                    groupId).withIpPermissions(permission));
+                return null;
+            };
         return invokeHystrixCommand(function);
     }
 
     @Override
-    public Observable<Void> deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                          Optional<String> cidr, Optional<String> destinationGroupId) {
+    public Observable<Void>
+        deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort,
+                                      String protocol, Optional<String> cidr,
+                                      Optional<String> destinationGroupId) {
 
-        if (!cidr.isPresent() && !destinationGroupId.isPresent() || cidr.isPresent() && destinationGroupId.isPresent())
-            throw new IllegalArgumentException("Either a CIDR or destination security group ID must be passed");
-        Supplier<Void> function = () -> {
-            RevokeSecurityGroupEgressRequest request = new RevokeSecurityGroupEgressRequest();
-            IpPermission permission = constructPermission(fromPort, toPort, protocol, cidr, destinationGroupId);
-            awsEC2Client.revokeSecurityGroupEgress(request.withGroupId(groupId).withIpPermissions(permission));
-            return null;
-        };
+        if (!cidr.isPresent() && !destinationGroupId.isPresent()
+            || cidr.isPresent() && destinationGroupId.isPresent())
+            throw new IllegalArgumentException(
+                "Either a CIDR or destination security group ID must be passed");
+        Supplier<Void> function =
+            () -> {
+                RevokeSecurityGroupEgressRequest request =
+                    new RevokeSecurityGroupEgressRequest();
+                IpPermission permission =
+                    constructPermission(fromPort, toPort, protocol, cidr,
+                        destinationGroupId);
+                awsEC2Client.revokeSecurityGroupEgress(request.withGroupId(
+                    groupId).withIpPermissions(permission));
+                return null;
+            };
         return invokeHystrixCommand(function);
     }
 
     @Override
-    public Observable<DescribeVpcsResult> describeVpcs(Optional<List<String>> vpcs) {
+    public Observable<DescribeVpcsResult>
+        describeVpcs(Optional<List<String>> vpcs) {
 
         Supplier<DescribeVpcsResult> function = () -> {
             DescribeVpcsRequest request = new DescribeVpcsRequest();
@@ -328,24 +382,34 @@ public class EC2ClientImpl implements EC2Client {
         public EC2Client build() {
 
             EC2ClientImpl client = null;
-            if (this.authType == AWSAuthType.CREDENTIALS && awsAccountKey != null && awsSecretKey != null) {
+            if (this.authType == AWSAuthType.CREDENTIALS
+                && awsAccountKey != null && awsSecretKey != null) {
                 client =
-                    new EC2ClientImpl(new AmazonEC2Client(new BasicAWSCredentials(awsAccountKey, awsSecretKey),
+                    new EC2ClientImpl(new AmazonEC2Client(
+                        new BasicAWSCredentials(awsAccountKey, awsSecretKey),
                         getConfiguration()));
             }
 
-            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath == null && profileName != null) {
-                client = new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(profileName), config));
+            if (this.authType == AWSAuthType.PROFILE
+                && profileConfigFilePath == null && profileName != null) {
+                client =
+                    new EC2ClientImpl(new AmazonEC2Client(
+                        new ProfileCredentialsProvider(profileName), config));
             }
 
-            if (this.authType == AWSAuthType.PROFILE && profileConfigFilePath != null && profileName != null) {
+            if (this.authType == AWSAuthType.PROFILE
+                && profileConfigFilePath != null && profileName != null) {
                 client =
-                    new EC2ClientImpl(new AmazonEC2Client(new ProfileCredentialsProvider(new ProfilesConfigFile(
-                        profileConfigFilePath), profileName), getConfiguration()));
+                    new EC2ClientImpl(new AmazonEC2Client(
+                        new ProfileCredentialsProvider(new ProfilesConfigFile(
+                            profileConfigFilePath), profileName),
+                        getConfiguration()));
             }
 
             if (this.authType == AWSAuthType.INSTANCE_ROLE) {
-                client = new EC2ClientImpl(new AmazonEC2Client(new InstanceProfileCredentialsProvider(), config));
+                client =
+                    new EC2ClientImpl(new AmazonEC2Client(
+                        new InstanceProfileCredentialsProvider(), config));
             }
 
             if (client != null && region != null) {

@@ -17,7 +17,6 @@ import rx.Observable;
  * Set of germane messages that are available to be performed against AWS EC2
  * API.
  * 
- * @author jappel
  */
 public interface EC2Client {
 
@@ -29,7 +28,8 @@ public interface EC2Client {
      *        EC2 environment.
      * @return a {@code Observable<SecurityGroup>}
      */
-    Observable<SecurityGroup> describeSecurityGroups(Optional<SecurityGroupQuery> query);
+    Observable<SecurityGroup>
+        describeSecurityGroups(Optional<SecurityGroupQuery> query);
 
     /**
      * Returns a {@link CreateSecurityGroupResult} that contains the result of
@@ -39,8 +39,9 @@ public interface EC2Client {
      * @param vpcId the VPC in which the security group should be created.
      * @return a {@code Observable<CreateSecurityGroupResult>}
      */
-    Observable<CreateSecurityGroupResult> createSecurityGroup(String groupName, String vpcId,
-                                                              Optional<String> groupDescription);
+    Observable<CreateSecurityGroupResult>
+        createSecurityGroup(String groupName, String vpcId,
+                            Optional<String> groupDescription);
 
     /**
      * Deletes a security group associated with the group ID that is passed is
@@ -66,8 +67,10 @@ public interface EC2Client {
      *        arguments are not present.
      * @return {@code Observable<Void>}
      */
-    Observable<Void> createSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                   Optional<String> cidr, Optional<String> destinationGroupId);
+    Observable<Void>
+        createSecurityGroupEgressRule(String groupId, int toPort, int fromPort,
+                                      String protocol, Optional<String> cidr,
+                                      Optional<String> destinationGroupId);
 
     /**
      * Creates a security group rule based on the supplied arguments. The cidr
@@ -84,26 +87,11 @@ public interface EC2Client {
      *        arguments are not present.
      * @return {@code Observable<Void>}
      */
-    Observable<Void> createSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                    Optional<String> cidr, Optional<String> destinationGroupId);
-    
-    /**
-     * Deletes a security group rule based on the supplied arguments. The cidr
-     * and destinationGroupId arguments are mutually exclusive and one of them
-     * is required to be present.
-     * 
-     * @param groupId the source group id for the rule
-     * @param toPort the port to which the rule allows access
-     * @param fromPort the port from which the rule access
-     * @param protocol the protocol associated with the rule
-     * @param cidr the CIDR IP address range to be associated if present.
-     * @param destinationGroupId the ID of the destination security group Id
-     * @throw IllegalArgumentException if both the cidr and destinationGroupId
-     *        arguments are not present.
-     * @return {@code Observable<Void>}
-     */
-    Observable<Void> deleteSecurityGroupIngressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                    Optional<String> cidr, Optional<String> destinationGroupId);
+    Observable<Void>
+        createSecurityGroupIngressRule(String groupId, int toPort,
+                                       int fromPort, String protocol,
+                                       Optional<String> cidr,
+                                       Optional<String> destinationGroupId);
 
     /**
      * Deletes a security group rule based on the supplied arguments. The cidr
@@ -120,12 +108,36 @@ public interface EC2Client {
      *        arguments are not present.
      * @return {@code Observable<Void>}
      */
-    Observable<Void> deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort, String protocol,
-                                                   Optional<String> cidr, Optional<String> destinationGroupId);
-    
+    Observable<Void>
+        deleteSecurityGroupIngressRule(String groupId, int toPort,
+                                       int fromPort, String protocol,
+                                       Optional<String> cidr,
+                                       Optional<String> destinationGroupId);
+
     /**
-     * Returns information for all the VPCs within a given region if the parameter list doesn't contain
-     * any VPC Ids.
+     * Deletes a security group rule based on the supplied arguments. The cidr
+     * and destinationGroupId arguments are mutually exclusive and one of them
+     * is required to be present.
+     * 
+     * @param groupId the source group id for the rule
+     * @param toPort the port to which the rule allows access
+     * @param fromPort the port from which the rule access
+     * @param protocol the protocol associated with the rule
+     * @param cidr the CIDR IP address range to be associated if present.
+     * @param destinationGroupId the ID of the destination security group Id
+     * @throw IllegalArgumentException if both the cidr and destinationGroupId
+     *        arguments are not present.
+     * @return {@code Observable<Void>}
+     */
+    Observable<Void>
+        deleteSecurityGroupEgressRule(String groupId, int toPort, int fromPort,
+                                      String protocol, Optional<String> cidr,
+                                      Optional<String> destinationGroupId);
+
+    /**
+     * Returns information for all the VPCs within a given region if the
+     * parameter list doesn't contain any VPC Ids.
+     * 
      * @param vpcs the list of vpcs to be returned.
      * @return {@code Observable<DescribeVpcsResult>}
      */
